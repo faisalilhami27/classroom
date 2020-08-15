@@ -22,6 +22,7 @@
                   <tr>
                     <th width="20px">No</th>
                     <th>Kode</th>
+                    <th>Jurusan</th>
                     <th>Mata Kuliah</th>
                     <th>Semester</th>
                     <th>Urutan Kelas</th>
@@ -75,6 +76,22 @@
               </select>
               <span class="text-danger">
                 <strong id="semester_id-error"></strong>
+              </span>
+            </div>
+            <div class="form-group">
+              <label for="major_id">Jurusan <span class="text-danger">*</span></label>
+              <select name="major_id" id="major_id" class="form-control">
+                <option value="">-- Pilih Jurusan --</option>
+                @if ($majors->isNotEmpty())
+                  @foreach($majors as $major)
+                    <option value="{{ $major->id }}">{{ $major->code }} - {{ $major->name }}</option>
+                  @endforeach
+                @else
+                  <option value="" disabled>Data belum tersedia</option>
+                @endif
+              </select>
+              <span class="text-danger">
+                <strong id="major_id-error"></strong>
               </span>
             </div>
             <div class="form-group">
@@ -166,6 +183,7 @@
         columns: [
           {data: 'DT_RowIndex', searchable: false},
           {data: 'code', orderable: false},
+          {data: 'major.name'},
           {data: 'subject.name'},
           {data: 'level'},
           {data: 'class_order'},
@@ -181,7 +199,7 @@
         ],
       });
 
-      $('#semester_id, #subject_id').select2({
+      $('#semester_id, #subject_id, #major_id').select2({
         width: '100%',
       });
 
@@ -222,6 +240,7 @@
               $('#class_order').val(data.class_order);
               $('#semester_id').select2('destroy').val(data.semester_id).select2({width: '100%'});
               $('#subject_id').select2('destroy').val(data.subject_id).select2({width: '100%'});
+              $('#major_id').select2('destroy').val(data.major_id).select2({width: '100%'});
             } else {
               notification(resp.status, resp.message);
             }
@@ -364,7 +383,7 @@
         });
       });
 
-      $('#semester_id').change(function () {
+      $('#major_id, #semester_id').change(function () {
         getSubjects();
       });
 
@@ -422,19 +441,25 @@
     const resetForm = function () {
       $('#id').val('');
       $('#semester_id').select2('destroy').val('').select2({width: '100%'});
+      $('#subject_id').html('<option value="">-- Pilih {{ subjectName() }} --</option>');
       $('#subject_id').select2('destroy').val('').select2({width: '100%'});
+      $('#major_id').select2('destroy').val('').select2({width: '100%'});
       $('#class_order').val('');
     }
 
     const getSubjects = function () {
-      const id = $('#semester_id').val();
+      const semester = $('#semester_id').val();
+      const major = $('#major_id').val();
       $.ajax({
         headers: {
           'X-CSRF-TOKEN': "{{ csrf_token() }}"
         },
         url: "{{ route('class.subject') }}",
         type: "post",
-        data: {semester_id: id},
+        data: {
+          semester_id: semester,
+          major_id: major
+        },
         dataType: "json",
         success: function (data) {
           if (data.status === 200) {

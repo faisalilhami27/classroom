@@ -98,6 +98,18 @@
           <div class="modal-body">
             @if (configuration()->type_school == 1)
               <div class="form-group">
+                <label for="major_id">Jurusan <span class="text-danger">*</span></label>
+                <select name="major_id" id="major_id" class="form-control">
+                  <option value="">-- Pilih Jurusan --</option>
+                  @foreach($majors as $major)
+                    <option value="{{ $major->id }}">{{ $major->name }}</option>
+                  @endforeach
+                </select>
+                <span class="text-danger">
+                  <strong id="major_id-error"></strong>
+                </span>
+              </div>
+              <div class="form-group">
                 <label for="semester_id">Semester <span class="text-danger">*</span></label>
                 <select name="semester_id" id="semester_id" class="form-control">
                   <option value="">-- Pilih Semester --</option>
@@ -336,6 +348,18 @@
             <div class="clearfix"></div>
             @if (configuration()->type_school == 1)
               <div class="form-group">
+                <label for="major_id_import">Jurusan <span class="text-danger">*</span></label>
+                <select name="major_id_import" id="major_id_import" class="form-control">
+                  <option value="">-- Pilih Jurusan --</option>
+                  @foreach($majors as $major)
+                    <option value="{{ $major->id }}">{{ $major->name }}</option>
+                  @endforeach
+                </select>
+                <span class="text-danger">
+                  <strong id="major_id_import-error"></strong>
+                </span>
+              </div>
+              <div class="form-group">
                 <label for="semester_id_import">Semester <span class="text-danger">*</span></label>
                 <select name="semester_id_import" id="semester_id_import" class="form-control">
                   <option value="">-- Pilih Semester --</option>
@@ -539,7 +563,7 @@
       table.ajax.reload(null, false);
     });
 
-    $('#semester_id, #subject_id, #grade_level_id, #school_year_id, #semester_id_import, #school_year_id_import, #subject_id_import, #grade_level_id_import, #level_filter, #subject_filter').select2({width: '100%'});
+    $('#major_id, #semester_id, #subject_id, #grade_level_id, #school_year_id, #major_id_import, #semester_id_import, #school_year_id_import, #subject_id_import, #grade_level_id_import, #level_filter, #subject_filter').select2({width: '100%'});
 
     $('#type_question').change(function () {
       const value = this.value;
@@ -554,16 +578,31 @@
       }
     });
 
-    $('#semester_id, #semester_id_import').change(function (e) {
+    $('#semester_id, #major_id').change(function (e) {
       e.preventDefault();
-      const semester = this.value;
+      const semester = $('#semester_id').val();
+      const major = $('#major_id').val();
+      getSubject(semester, major)
+    });
+
+    $('#semester_id_import, #major_id_import').change(function (e) {
+      e.preventDefault();
+      const semester = $('#semester_id_import').val();
+      const major = $('#major_id_import').val();
+      getSubject(semester, major)
+    });
+
+    const getSubject = function (semester, major) {
       $.ajax({
         headers: {
           'X-CSRF-TOKEN': "{{ csrf_token() }}"
         },
         url: '{{ route('question.get.subject') }}',
         type: 'get',
-        data: {semester_id: semester},
+        data: {
+          semester_id: semester,
+          major_id: major
+        },
         dataType: 'json',
         success: function (resp) {
           if (resp.status === 200) {
@@ -581,7 +620,7 @@
           alert(status + ' : ' + error);
         }
       });
-    });
+    }
 
     // show modal add data
     const addData = function () {
@@ -704,6 +743,7 @@
             $('#grade_level_id').select2('destroy').val(data.grade_level_id).select2({width: '100%'});
             $('#semester_id').select2('destroy').val(data.semester_id).select2({width: '100%'});
             $('#school_year_id').select2('destroy').val(data.school_year_id).select2({width: '100%'});
+            $('#major_id').select2('destroy').val(data.major_id).select2({width: '100%'});
             $('#subject_id').select2('destroy').val(data.subject_id).select2({width: '100%'});
             const parser = new DOMParser;
             const dom = parser.parseFromString('<!doctype html><body>' + resp.question, 'text/html');
@@ -1004,7 +1044,7 @@
       $('#document').val('');
       $('#detail_material').val('');
       $('#type_question').val(1);
-      $('#semester_id, #subject_id, #grade_level_id, #school_year_id').select2('destroy').val("").select2({width: '100%'});
+      $('#major_id, #semester_id, #subject_id, #grade_level_id, #school_year_id').select2('destroy').val("").select2({width: '100%'});
     }
   </script>
 @endpush

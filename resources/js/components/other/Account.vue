@@ -82,6 +82,7 @@
 
       removeStorage() {
         localStorage.removeItem('user');
+        localStorage.removeItem('config');
         localStorage.removeItem('subject');
         localStorage.removeItem('classId');
         localStorage.removeItem('timer');

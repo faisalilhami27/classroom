@@ -28,6 +28,7 @@ class QuestionBankRequest extends FormRequest
         return [
           "semester_id" => "required",
           "subject_id" => "required",
+          "major_id" => "required",
           "school_year_id" => "required",
           "type_question" => "required",
           "document" => "required",
@@ -37,6 +38,7 @@ class QuestionBankRequest extends FormRequest
         return [
           "semester_id" => "required",
           "subject_id" => "required",
+          "major_id" => "required",
           "school_year_id" => "required",
           "type_question" => "required",
           "question_name" => "required",
@@ -54,7 +56,7 @@ class QuestionBankRequest extends FormRequest
         ];
       } else {
         return [
-          "semester_id" => "required",
+          "grade_level_id" => "required",
           "subject_id" => "required",
           "school_year_id" => "required",
           "type_question" => "required",

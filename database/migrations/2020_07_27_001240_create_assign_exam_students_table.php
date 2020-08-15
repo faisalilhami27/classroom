@@ -20,6 +20,7 @@ class CreateAssignExamStudentsTable extends Migration
       $table->integer('status')->nullable()->comment('0 = not done, 1 = done');
       $table->integer('status_generate')->nullable()->default(0)->comment('0 = not yet generated, 1 = have been generated');
       $table->integer('violation')->nullable();
+      $table->string('ip_address')->nullable();
       $table->timestamps();
       $table->softDeletes();
     });

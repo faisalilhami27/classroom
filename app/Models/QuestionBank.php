@@ -16,6 +16,7 @@ class QuestionBank extends Model
     "subject_id",
     "semester_id",
     "grade_level_id",
+    "major_id",
     "school_year_id",
     "employee_id",
     "extension",

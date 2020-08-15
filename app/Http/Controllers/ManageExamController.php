@@ -9,6 +9,7 @@ use App\Models\AssignExamStudent;
 use App\Models\ExamClassTransaction;
 use App\Models\ExamRules;
 use App\Models\GradeLevel;
+use App\Models\Major;
 use App\Models\ManageExam;
 use App\Models\MinimalCompletenessCriteria;
 use App\Models\QuestionBank;
@@ -16,6 +17,7 @@ use App\Models\QuestionForStudent;
 use App\Models\SchoolYear;
 use App\Models\Semester;
 use App\Models\StudentClass;
+use App\Models\StudentExamScore;
 use App\Models\Subject;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -37,7 +39,8 @@ class ManageExamController extends Controller
     $gradeLevels = GradeLevel::all();
     $examRules = ExamRules::all();
     $schoolYears = SchoolYear::all();
-    return view('backend.cbt.manageExam', compact('title', 'subjects', 'semesters', 'gradeLevels', 'examRules', 'schoolYears'));
+    $majors = Major::all();
+    return view('backend.cbt.manageExam', compact('title', 'subjects', 'semesters', 'gradeLevels', 'examRules', 'schoolYears', 'majors'));
   }
 
   /**
@@ -48,15 +51,22 @@ class ManageExamController extends Controller
   public function getSubjectOrClass(Request $request)
   {
     $level = $request->level;
+    $majorId = $request->major_id;
     $user = Auth::user();
 
     if (optional(configuration())->type_school == 1) {
-      $subjects = Subject::where('semester_id', $level)->get();
+      $subjects = Subject::where('semester_id', $level)
+        ->where('major_id', $majorId)
+        ->get();
       $classes = StudentClass::where('semester_id', $level)
         ->where('employee_id', $user->employee_id)
         ->get();
     } else {
-      $subjects = Subject::where('grade_level_id', $level)->get();
+      $data = Subject::where('grade_level_id', $level)->get();
+      if (optional(configuration())->type_school == 2) {
+        $data->where('major_id', $majorId);
+      }
+      $subjects = $data->get();
       $classes = StudentClass::where('grade_level_id', $level)
         ->where('employee_id', $user->employee_id)
         ->get();
@@ -132,6 +142,19 @@ class ManageExamController extends Controller
           return optional($query->gradeLevel)->name;
         }
       })
+      ->addColumn('class', function ($query) {
+        $examClass = ExamClassTransaction::where('exam_id', $query->id)->first();
+        $class = StudentClass::where('id', $examClass->class_id)->first();
+        if (optional(configuration())->type_school == 1) {
+          return $class->class_order;
+        } else {
+          if (optional(configuration())->type_school == 2) {
+            return $class->gradeLevel->name . ' - ' . $class->major->code . ' - ' . $class->class_order;
+          } else {
+            return $class->gradeLevel->name . ' - ' . $class->class_order;
+          }
+        }
+      })
       ->addColumn('type_exam', function ($query) {
         $type = null;
 
@@ -157,7 +180,8 @@ class ManageExamController extends Controller
 
         if ($query->status == 1) {
           $button .= '<a href="#" class="btn btn-warning btn-sm" id="' . $query->id . '" onclick="showDetail(' . $query->id . ')" title="Detail Ujian"><i class="icon icon-eye"></i></a>
-                      <a href="#" class="btn btn-primary btn-sm btn-assign" title="Assign Siswa" id="' . $query->id . '"><i class="icon icon-users"></i></a>';
+                      <a href="#" class="btn btn-primary btn-sm btn-assign" title="Assign Siswa" id="' . $query->id . '"><i class="icon icon-users"></i></a>
+                      <a href="#" class="btn btn-info btn-sm btn-add-student" title="Lihat Siswa" id="' . $query->id . '" onclick="showStudent(' . $query->id . ')"><i class="icon icon-bar-chart"></i></a>';
         } else {
           if ($today > $endDate) {
             $button .= '<span class="label label-danger">Ujian sudah berakhir</span>';
@@ -276,6 +300,67 @@ class ManageExamController extends Controller
         return $document;
       })
       ->rawColumns(['document', 'question', 'answer', 'checkbox'])
+      ->make(true);
+  }
+
+  /**
+   * Show data in datatable student.
+   * @param Request $request
+   * @return
+   * @throws \Exception
+   */
+  public function datatableStudent(Request $request)
+  {
+    $examId = $request->exam_id;
+    $data = AssignExamStudent::with('student')
+      ->where('exam_id', $examId)
+      ->whereHas('scoreStudents', function ($query) {
+        $query->where('remedial_id', null);
+        $query->where('supplementary_id', null);
+      })
+      ->orderBy('id', 'asc')
+      ->get();
+    return DataTables::of($data)
+      ->addIndexColumn()
+      ->addColumn('action', function ($query) use ($examId) {
+        return '<a href="#" class="btn btn-success btn-sm" title="Lihat Nilai" id="' . $query->id . '" onclick="showScore(' . $query->student_id . ', ' . $examId . ')"><i class="icon icon-eye"></i></a>';
+      })
+      ->rawColumns(['action'])
+      ->make(true);
+  }
+
+  /**
+   * Show data in datatable student.
+   * @param Request $request
+   * @return
+   * @throws \Exception
+   */
+  public function datatableStudentScore(Request $request)
+  {
+    $studentId = $request->student_id;
+    $examId = $request->exam_id;
+    $exam = ManageExam::find($examId);
+    $minimalCriteria = MinimalCompletenessCriteria::where('subject_id', $exam->subject_id)->first();
+    $data = StudentExamScore::with(['assignStudent.student', 'remedial'])
+      ->whereHas('assignStudent', function ($query) use ($studentId) {
+        $query->where('student_id', $studentId);
+      })
+      ->whereHas('assignStudent.exam.examClass', function ($query) use ($exam) {
+        $query->where('class_id', $exam->examClass->class_id);
+      })
+      ->where('remedial_id', null)
+      ->where('supplementary_id', null)
+      ->orderBy('id', 'desc')
+      ->get();
+    return DataTables::of($data)
+      ->addIndexColumn()
+      ->addColumn('score', function ($query) {
+        return '<b style="font-size: 15px">' . $query->score . '</b>';
+      })
+      ->addColumn('minimal', function () use ($minimalCriteria) {
+        return '<b style="font-size: 15px">' . $minimalCriteria->minimal_criteria . '</b>';
+      })
+      ->rawColumns(['score', 'minimal', 'exam_to'])
       ->make(true);
   }
 
@@ -419,8 +504,8 @@ class ManageExamController extends Controller
   public function activateExam(Request $request)
   {
     $examId = $request->id;
-    $exam = ManageExam::find($examId); // checking data
-    $checkData = $this->checkingData($examId, $exam);
+    $exam = ManageExam::find($examId);
+    $checkData = $this->checkingData($examId, $exam); // checking data
 
     if (!is_null($checkData)) {
       return response()->json(['status' => 500, 'message' => $checkData]);
@@ -447,13 +532,13 @@ class ManageExamController extends Controller
     $countAssignExamStudentAfterGenerate = AssignExamStudent::where('exam_id', $examId)
       ->where('status_generate', 1)
       ->count();
-    $questionForStudent = QuestionForStudent::whereHas('accommodateExamQuestion', function ($query) use($examId) {
+    $questionForStudent = QuestionForStudent::whereHas('accommodateExamQuestion', function ($query) use ($examId) {
       $query->where('exam_id', $examId);
     })
       ->get();
 
     /* check whether student have been assign or not */
-    if (is_null($exam->assignStudent)) {
+    if ($exam->assignStudent->isEmpty()) {
       $message = "Belum ada siswa yang di assign";
     }
 
@@ -470,7 +555,7 @@ class ManageExamController extends Controller
 
     /* check whether exam question have been generate or not */
     if (is_null($questionForStudent)) {
-      $message ='Silahkan generate soal untuk siswa terlebih dahulu';
+      $message = 'Silahkan generate soal untuk siswa terlebih dahulu';
     }
 
     return $message;
@@ -535,6 +620,7 @@ class ManageExamController extends Controller
     $gradeLevelId = $request->grade_level_id;
     $examRulesId = $request->exam_rules_id;
     $classId = $request->class_id;
+    $majorId = $request->major_id;
     $subjectId = $request->subject_id;
     $typeExam = $request->type_exam;
     $duration = $request->duration;
@@ -563,6 +649,7 @@ class ManageExamController extends Controller
       'grade_level_id' => $gradeLevelId,
       'exam_rules_id' => $examRulesId,
       'subject_id' => $subjectId,
+      'major_id' => $majorId,
       'type_exam' => $typeExam,
       'duration' => $duration,
       'status' => 0,
@@ -603,7 +690,7 @@ class ManageExamController extends Controller
     $message = null;
     /* check exam rules */
     if (is_null($examRules->text)) {
-     $message = "Silahkan isi text terlebih dahulu";
+      $message = "Silahkan isi text terlebih dahulu";
     }
 
     /* check whether minimal criteria for this subject have been filled or not */
@@ -692,6 +779,7 @@ class ManageExamController extends Controller
     $examRulesId = $request->exam_rules_id;
     $subjectId = $request->subject_id;
     $classId = $request->class_id;
+    $majorId = $request->major_id;
     $typeExam = $request->type_exam;
     $duration = $request->duration;
     $timeViolation = $request->time_violation;
@@ -723,6 +811,7 @@ class ManageExamController extends Controller
       'semester_id' => $semesterId,
       'grade_level_id' => $gradeLevelId,
       'exam_rules_id' => $examRulesId,
+      'major_id' => $majorId,
       'subject_id' => $subjectId,
       'type_exam' => $typeExam,
       'duration' => $duration,
@@ -800,21 +889,21 @@ class ManageExamController extends Controller
     $classId = $request->class_id;
     if (Auth::guard('employee')->check()) {
       $exams = ManageExam::with(['subject', 'semester', 'gradeLevel'])
-        ->whereHas('examClass', function ($query) use($classId) {
+        ->whereHas('examClass', function ($query) use ($classId) {
           $query->where('class_id', $classId);
         })
         ->orderBy('id', 'desc')
         ->paginate(5);
     } else {
       $exams = ManageExam::with(['subject', 'semester', 'gradeLevel'])
-        ->with(['singleAssignStudent' => function($query) {
+        ->with(['singleAssignStudent' => function ($query) {
           $query->with(['scoreStudent']);
           $query->where('student_id', Auth::user()->student_id);
         }])
-        ->whereHas('examClass', function ($query) use($classId) {
+        ->whereHas('examClass', function ($query) use ($classId) {
           $query->where('class_id', $classId);
         })
-        ->whereHas('singleAssignStudent', function ($query) use($classId) {
+        ->whereHas('singleAssignStudent', function ($query) use ($classId) {
           $query->where('student_id', Auth::user()->student_id);
           $query->whereHas('questionExamStudent', function ($params) {
             $params->where('supplementary_exam_id', null);

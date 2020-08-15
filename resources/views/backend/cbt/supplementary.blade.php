@@ -24,6 +24,7 @@
                     <th>Jenis Ujian</th>
                     <th>{{ subjectName() }}</th>
                     <th>{{ level() }}</th>
+                    <th>Kelas</th>
                     <th>Durasi</th>
                     <th>Jumlah Soal</th>
                     <th>Aksi</th>
@@ -215,6 +216,7 @@
         {data: 'type_exam'},
         {data: 'subject.name'},
         {data: 'level'},
+        {data: 'class'},
         {data: 'duration', render: styles.duration},
         {data: 'amount_question'},
         {data: 'action', sClass: 'text-center'},

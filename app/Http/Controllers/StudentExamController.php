@@ -422,9 +422,8 @@ class StudentExamController extends Controller
     } else if ($type == 'supplementary') {
       SupplementaryExam::where('assign_student_id', $assignStudent->id)
         ->update(['status' => 1]);
-    } else {
-      $assignStudent->update(['status' => 1]);
     }
+    $assignStudent->update(['status' => 1]);
   }
 
   /**

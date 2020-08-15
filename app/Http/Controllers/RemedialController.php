@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RemedialRequest;
 use App\Models\AccommodateExamStudentAnswer;
 use App\Models\AssignExamStudent;
+use App\Models\ExamClassTransaction;
 use App\Models\ManageExam;
 use App\Models\MinimalCompletenessCriteria;
 use App\Models\QuestionForStudent;
 use App\Models\RemedialExam;
+use App\Models\StudentClass;
 use App\Models\StudentExamScore;
 use App\Models\SupplementaryExam;
 use Carbon\Carbon;
@@ -47,6 +49,19 @@ class RemedialController extends Controller
           return $query->semester->number;
         } else {
           return optional($query->gradeLevel)->name;
+        }
+      })
+      ->addColumn('class', function ($query) {
+        $examClass = ExamClassTransaction::where('exam_id', $query->id)->first();
+        $class = StudentClass::where('id', $examClass->class_id)->first();
+        if (optional(configuration())->type_school == 1) {
+          return $class->class_order;
+        } else {
+          if (optional(configuration())->type_school == 2) {
+            return $class->gradeLevel->name . ' - ' . $class->major->code . ' - ' . $class->class_order;
+          } else {
+            return $class->gradeLevel->name . ' - ' . $class->class_order;
+          }
         }
       })
       ->addColumn('type_exam', function ($query) {

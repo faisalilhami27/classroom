@@ -29,13 +29,23 @@ class StudentClassRequest extends FormRequest
         'class_order' => 'required|min:1|max:5|regex:/^[a-zA-Z0-9]*$/',
         'semester_id' => 'required',
         'subject_id' => 'required',
+        'major_id' => 'required'
       ];
     } else {
-      return [
-        'class_order' => 'required|min:1|max:5|regex:/^[a-zA-Z0-9]*$/',
-        'grade_level_id' => 'required',
-        'subject_id' => 'required',
-      ];
+     if ($config == 2) {
+       return [
+         'class_order' => 'required|min:1|max:5|regex:/^[a-zA-Z0-9]*$/',
+         'grade_level_id' => 'required',
+         'subject_id' => 'required',
+         'major_id' => 'required'
+       ];
+     } else {
+       return [
+         'class_order' => 'required|min:1|max:5|regex:/^[a-zA-Z0-9]*$/',
+         'grade_level_id' => 'required',
+         'subject_id' => 'required'
+       ];
+     }
     }
   }
 
@@ -54,6 +64,7 @@ class StudentClassRequest extends FormRequest
       'class_order.max' => 'Urutan kelas maximal 5 huruf',
       'semester_id.required' => 'Semester tidak boleh kosong',
       'grade_level_id.required' => 'Tingkat kelas tidak boleh kosong',
+      'major_id.required' => 'Jurusan tidak boleh kosong',
       'subject_id.required' => $config . ' tidak boleh kosong',
     ];
   }

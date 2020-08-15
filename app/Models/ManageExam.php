@@ -17,6 +17,7 @@ class ManageExam extends Model
     'grade_level_id',
     'subject_id',
     'exam_rules_id',
+    'major_id',
     'type_exam',
     'name',
     'start_date',

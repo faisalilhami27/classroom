@@ -110,7 +110,10 @@ class QuestionBankController extends Controller
   public function getSubject(Request $request)
   {
     $semesterId = $request->semester_id;
-    $subjects = Subject::where('semester_id', $semesterId)->get();
+    $majorId = $request->major_id;
+    $subjects = Subject::where('semester_id', $semesterId)
+      ->where('major_id', $majorId)
+      ->get();
 
     if ($subjects) {
       $json = ['status' => 200, 'data' => $subjects];
@@ -153,7 +156,7 @@ class QuestionBankController extends Controller
       ->addIndexColumn()
       ->addColumn('level', function ($query) {
         if (configuration()->type_school == 1) {
-          return $query->semester->number;
+          return optional($query->semester)->number;
         } else {
           return optional($query->gradeLevel)->name;
         }
@@ -220,6 +223,7 @@ class QuestionBankController extends Controller
     $semesterId = $request->semester_id;
     $gradeLevelId = $request->grade_level_id;
     $subjectId = $request->subject_id;
+    $majorId = $request->major_id;
     $schoolYearId = $request->school_year_id;
     $typeQuestion = $request->type_question;
     $questionName = htmlspecialchars($request->question_name);
@@ -248,6 +252,7 @@ class QuestionBankController extends Controller
               'semester_id' => $semesterId,
               'grade_level_id' => $gradeLevelId,
               'subject_id' => $subjectId,
+              'major_id' => $majorId,
               'school_year_id' => $schoolYearId,
               'employee_id' => Auth::user()->employee_id,
               'type_question' => $typeQuestion,
@@ -261,6 +266,7 @@ class QuestionBankController extends Controller
       }
     } else {
       $insert = QuestionBank::create([
+        'major_id' => $majorId,
         'semester_id' => $semesterId,
         'grade_level_id' => $gradeLevelId,
         'subject_id' => $subjectId,
@@ -472,6 +478,7 @@ class QuestionBankController extends Controller
               'semester_id' => $semesterId,
               'grade_level_id' => $gradeLevelId,
               'subject_id' => $subjectId,
+              'major_id' => $majorId,
               'school_year_id' => $schoolYearId,
               'type_question' => $typeQuestion,
               'document' => $filePath,
@@ -484,6 +491,7 @@ class QuestionBankController extends Controller
       }
     } else {
       $update = $data->update([
+        'major_id' => $majorId,
         'semester_id' => $semesterId,
         'grade_level_id' => $gradeLevelId,
         'subject_id' => $subjectId,

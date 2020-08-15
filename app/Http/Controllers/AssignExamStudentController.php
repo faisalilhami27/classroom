@@ -18,47 +18,6 @@ use Yajra\DataTables\DataTables;
 class AssignExamStudentController extends Controller
 {
   /**
-   * show datatable
-   */
-  public function datatable()
-  {
-    $data = ManageExam::with(['subject'])
-      ->orderBy('id', 'desc')
-      ->where('employee_id', Auth::user()->employee_id)
-      ->get();
-
-    return DataTables::of($data)
-      ->addIndexColumn()
-      ->addColumn('level', function ($query) {
-        if (configuration()->type_school == 1) {
-          return $query->semester->number;
-        } else {
-          return optional($query->gradeLevel)->name;
-        }
-      })
-      ->addColumn('type_exam', function ($query) {
-        $type = null;
-
-        if ($query->type_exam == 1) {
-          $type = '<span class="badge badge-primary">Ulangan Harian</span>';
-        } else if ($query->type_exam == 2) {
-          $type = '<span class="badge badge-info">Ujian Tengah Semester</span>';
-        } else if ($query->type_exam == 3) {
-          $type = '<span class="badge badge-danger">Ujian Akhir Semester</span>';
-        } else {
-          $type = '<span class="badge badge-success">Try Out</span>';
-        }
-
-        return $type;
-      })
-      ->addColumn('action', function ($query) {
-        return '<a href="#" class="btn btn-info btn-sm btn-assign" title="Assign Siswa" id="' . $query->id . '"><i class="icon icon-users"></i></a>';
-      })
-      ->rawColumns(['name', 'action', 'type_exam'])
-      ->make(true);
-  }
-
-  /**
    * datatable search student
    * @param Request $request
    * @return
@@ -120,10 +79,6 @@ class AssignExamStudentController extends Controller
     $examId = $request->exam_id;
     $assignExamStudent = AssignExamStudent::with(['student'])
       ->where('exam_id', $examId)
-      ->whereHas('questionExamStudent', function ($query) {
-        $query->where('supplementary_exam_id', null);
-        $query->where('remedial_exam_id', null);
-      })
       ->orderBy('id', 'desc')
       ->get();
 

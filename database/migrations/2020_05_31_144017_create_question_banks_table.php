@@ -19,6 +19,7 @@ class CreateQuestionBanksTable extends Migration
       $table->bigInteger('subject_id')->unsigned();
       $table->bigInteger('semester_id')->unsigned()->nullable();
       $table->bigInteger('school_year_id')->unsigned()->nullable();
+      $table->bigInteger('major_id')->unsigned()->nullable();
       $table->bigInteger('grade_level_id')->unsigned()->nullable();
       $table->bigInteger('employee_id')->unsigned();
       $table->integer('type_question');
@@ -30,6 +31,9 @@ class CreateQuestionBanksTable extends Migration
       $table->softDeletes();
 
       $table->foreign('subject_id')->references('id')->on('subjects')
+        ->onUpdate('cascade')
+        ->onDelete('cascade');
+      $table->foreign('major_id')->references('id')->on('majors')
         ->onUpdate('cascade')
         ->onDelete('cascade');
       $table->foreign('semester_id')->references('id')->on('semesters')

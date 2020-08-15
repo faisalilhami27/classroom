@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StudentClassRequest;
 use App\Models\Configuration;
 use App\Models\GradeLevel;
+use App\Models\Major;
 use App\Models\SchoolYear;
 use App\Models\Semester;
 use App\Models\StudentClass;
@@ -33,13 +34,14 @@ class StudentClassController extends Controller
     $semesters = Semester::all();
     $gradeLevels = GradeLevel::all();
     $subjects = Subject::all();
+    $majors = Major::all();
     $config = optional(configuration())->type_school;
 
     /* check type school if 1 means university */
     if ($config == 1) {
-      return view('backend.studentClass.univ', compact('title', 'semesters', 'subjects'));
+      return view('backend.studentClass.univ', compact('title', 'semesters', 'subjects', 'majors'));
     } else {
-      return view('backend.studentClass.school', compact('title', 'gradeLevels', 'subjects'));
+      return view('backend.studentClass.school', compact('title', 'gradeLevels', 'subjects', 'majors'));
     }
   }
 
@@ -51,11 +53,14 @@ class StudentClassController extends Controller
   public function getSubject(Request $request)
   {
     $semester = $request->semester_id;
+    $major = $request->major_id;
     $data = collect([]);
 
     /* check semester null or not */
     if (!is_null($semester)) {
-      $data = Subject::where('semester_id', $semester)->get();
+      $data = Subject::where('semester_id', $semester)
+        ->where('major_id', $major)
+        ->get();
     }
 
     if ($data) {
@@ -73,7 +78,7 @@ class StudentClassController extends Controller
    */
   public function datatable()
   {
-    $studentClass = StudentClass::with('subject')
+    $studentClass = StudentClass::with(['subject', 'major'])
       ->orderBy('id', 'desc');
 
     if (Session::get('role_id') == 3) {
@@ -164,6 +169,7 @@ class StudentClassController extends Controller
     $semester = $request->semester_id;
     $gradeLevel = $request->grade_level_id;
     $subject = $request->subject_id;
+    $major = $request->major_id;
     $classOrder = $request->class_order;
     $subjectData = Subject::find($subject);
     $randomImage = $this->randomImage()[0];
@@ -188,6 +194,7 @@ class StudentClassController extends Controller
       'image' => $randomImage,
       'color' => $randomColor,
       'grade_level_id' => (is_null($gradeLevel)) ? null : $gradeLevel,
+      'major_id' => $major,
       'subject_id' => $subject,
       'school_year_id' => activeSchoolYear()->id,
       'employee_id' => Auth::user()->employee_id,
@@ -210,7 +217,7 @@ class StudentClassController extends Controller
   {
     $filesInFolder = File::files('images');
     $data = [];
-    foreach($filesInFolder as $path) {
+    foreach ($filesInFolder as $path) {
       $file = pathinfo($path);
       $data[] = $file['basename'];
     }
@@ -220,7 +227,8 @@ class StudentClassController extends Controller
   /** random color
    *
    */
-  private function randomColor() {
+  private function randomColor()
+  {
     return sprintf('#%06X', mt_rand(0, 0xFFFFFF));
   }
 
@@ -241,11 +249,12 @@ class StudentClassController extends Controller
         ->get();
 
       foreach ($classes as $class) {
+        $studentClass = $this->checkClassStudent($class);
         $data[] = [
           'id' => $class->studentClass->id,
           'subject' => $class->studentClass->subject->name,
           'color' => $class->studentClass->color,
-          'class' => 'Kelas ' . $class->studentClass->class_order,
+          'class' => $studentClass,
           'school_year' => 'Tahun Ajaran ' . $class->studentClass->schoolYear->early_year . '/' . $class->studentClass->schoolYear->end_year,
           'image' => asset('images/' . $class->studentClass->image)
         ];
@@ -256,11 +265,12 @@ class StudentClassController extends Controller
         ->get();
 
       foreach ($classes as $class) {
+        $studentClass = $this->checkClassTeacher($class);
         $data[] = [
           'id' => $class->id,
           'subject' => $class->subject->name,
           'color' => $class->color,
-          'class' => 'Kelas ' . $class->class_order,
+          'class' => $studentClass,
           'school_year' => 'Tahun Ajaran ' . $class->schoolYear->early_year . '/' . $class->schoolYear->end_year,
           'image' => asset('images/' . $class->image)
         ];
@@ -274,6 +284,44 @@ class StudentClassController extends Controller
     }
 
     return response()->json($json);
+  }
+
+  /**
+   * check class student
+   * @param $class
+   * @return string
+   */
+  private function checkClassStudent($class)
+  {
+    if (optional(configuration())->type_school == 1) {
+      $studentClass = "Kelas " . $class->studentClass->class_order;
+    } else {
+      if (optional(configuration())->type_school == 2) {
+        $studentClass = "Kelas " . $class->studentClass->gradeLevel->name . ' - ' . $class->studentClass->major->code . ' - ' . $class->studentClass->class_order;
+      } else {
+        $studentClass = "Kelas " . $class->studentClass->gradeLevel->name . ' - ' . $class->studentClass->class_order;
+      }
+    }
+    return $studentClass;
+  }
+
+  /**
+   * check class teacher
+   * @param $class
+   * @return string
+   */
+  private function checkClassTeacher($class)
+  {
+    if (optional(configuration())->type_school == 1) {
+      $studentClass = "Kelas " . $class->class_order;
+    } else {
+      if (optional(configuration())->type_school == 2) {
+        $studentClass = "Kelas " . $class->gradeLevel->name . ' - ' . $class->major->code . ' - ' . $class->class_order;
+      } else {
+        $studentClass = "Kelas " . $class->gradeLevel->name . ' - ' . $class->class_order;
+      }
+    }
+    return $studentClass;
   }
 
   /**
@@ -331,6 +379,7 @@ class StudentClassController extends Controller
     $semester = $request->semester_id;
     $gradeLevel = $request->grade_level_id;
     $subject = $request->subject_id;
+    $major = $request->major_id;
     $classOrder = $request->class_order;
 
     $update = StudentClass::find($id)->update([
@@ -338,6 +387,7 @@ class StudentClassController extends Controller
       'semester_id' => (is_null($semester)) ? null : $semester,
       'grade_level_id' => (is_null($gradeLevel)) ? null : $gradeLevel,
       'subject_id' => $subject,
+      'major_id' => $major,
       'last_updated_by' => Auth::user()->employee_id
     ]);
 

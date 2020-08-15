@@ -20,7 +20,7 @@
             <div class="card-body">
               <div class="clearfix"></div>
               <div class="table-responsive" style="margin-top: 10px">
-                <table id="rules_table" class="table table-striped table-hover table-nowrap dataTable" width="100%">
+                <table id="exam_table" class="table table-striped table-hover dataTable" width="100%">
                   <thead>
                   <tr>
                     <th width="20px">No</th>
@@ -28,6 +28,7 @@
                     <th>Jenis Ujian</th>
                     <th>{{ subjectName() }}</th>
                     <th>{{ level() }}</th>
+                    <th>Kelas</th>
                     <th>Durasi</th>
                     <th>Jumlah Soal</th>
                     <th>Aksi</th>
@@ -83,6 +84,20 @@
                   </span>
                 </div>
                 @if (optional(configuration())->type_school == 1)
+                  <div class="form-group">
+                    <label for="major_id">Jurusan <span class="text-danger">*</span></label>
+                    <select name="major_id" id="major_id" class="form-control">
+                      <option value="">-- Pilih Jurusan --</option>
+                      @forelse($majors as $major)
+                        <option value="{{ $major->id }}">{{ $major->name }}</option>
+                      @empty
+                        <option disabled>Data belum tersedia</option>
+                      @endforelse
+                    </select>
+                    <span class="text-danger">
+                      <strong id="major_id-error"></strong>
+                    </span>
+                  </div>
                   <div class="form-group">
                     <label for="semester_id">Semester <span class="text-danger">*</span></label>
                     <select name="semester_id" id="semester_id" class="form-control">
@@ -593,6 +608,70 @@
       </div>
     </div>
   </div>
+
+  <div id="modal_student" role="dialog" class="modal fade">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary">
+          <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">×</span>
+            <span class="sr-only">Close</span>
+          </button>
+          <h4 class="modal-title">Daftar {{ studentName() }}</h4>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive" style="margin-top: 10px">
+            <table id="student_table" class="table table-striped table-hover dataTable" width="100%">
+              <thead>
+              <tr>
+                <th width="20px">No</th>
+                <th>{{ sortIdentityNumber() }}</th>
+                <th>Nama {{ studentName() }}</th>
+                <th>Aksi</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="modal_score_student" role="dialog" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary">
+          <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">×</span>
+            <span class="sr-only">Close</span>
+          </button>
+          <h4 class="modal-title">Nilai Ujian</h4>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive" style="margin-top: 10px">
+            <table id="score_table" class="table table-striped table-hover dataTable" width="100%">
+              <thead>
+              <tr>
+                <th width="20px">No</th>
+                <th>KKM</th>
+                <th>Nilai</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 @stop
 @push('scripts')
   <script src="{{ asset('js/clockpicker.js') }}"></script>
@@ -609,7 +688,7 @@
     }
 
     // load data in datatable
-    table = $('#rules_table').DataTable({
+    table = $('#exam_table').DataTable({
       processing: true,
       serverSide: true,
       responsive: true,
@@ -628,6 +707,7 @@
         {data: 'type_exam'},
         {data: 'subject.name'},
         {data: 'level'},
+        {data: 'class'},
         {data: 'duration', render: styles.duration},
         {data: 'amount_question'},
         {data: 'action', sClass: 'text-right'},
@@ -688,16 +768,20 @@
       }
     });
 
-    $('#semester_id').change(function (e) {
+    $('#semester_id, #major_id').change(function (e) {
       e.preventDefault();
-      const level = this.value;
+      const level = $('#semester_id').val();
+      const major = $('#major_id').val();
       $.ajax({
         headers: {
           'X-CSRF-TOKEN': "{{ csrf_token() }}"
         },
         url: '{{ route('manage.exam.get') }}',
         type: 'get',
-        data: {level: level},
+        data: {
+          level: level,
+          major_id: major
+        },
         dataType: 'json',
         success: function (resp) {
           if (resp.status === 200) {
@@ -841,7 +925,7 @@
       autoclose: true
     });
 
-    $('#semester_id, #class_id, #subject_id, #grade_level_id, #school_year_id, #level_filter, #subject_filter, #exam_rules_id, #type_exam').select2({width: '100%'});
+    $('#semester_id, #class_id, #subject_id, #major_id, #grade_level_id, #school_year_id, #level_filter, #subject_filter, #exam_rules_id, #type_exam').select2({width: '100%'});
 
     // show modal add data
     const addData = function () {
@@ -949,6 +1033,7 @@
             $('#class_id').select2('destroy').val(data.exam_class.class_id).select2({width: '100%'});
             $('#grade_level_id').select2('destroy').val(data.grade_level_id).select2({width: '100%'});
             $('#subject_id').select2('destroy').val(data.subject_id).select2({width: '100%'});
+            $('#major_id').select2('destroy').val(data.major_id).select2({width: '100%'});
             $('#exam_rules_id').select2('destroy').val(data.exam_rules_id).select2({width: '100%'});
             $('#type_exam').select2('destroy').val(data.type_exam).select2({width: '100%'});
 
@@ -1064,6 +1149,74 @@
             }
           }
         }
+      });
+    }
+
+    const showStudent = function (id) {
+      $('#modal_student').modal('show');
+      tableStudent = $('#student_table').DataTable({
+        processing: true,
+        serverSide: true,
+        responsive: true,
+        destroy: true,
+        order: [],
+
+        ajax: {
+          "url": '{{ route('manage.exam.json.student') }}',
+          "type": 'post',
+          "headers": {"X-CSRF-TOKEN": "{{ csrf_token() }}"},
+          "data": function (d) {
+            d.exam_id = id
+          }
+        },
+
+        columns: [
+          {data: 'DT_RowIndex', searchable: false},
+          {data: 'student.student_identity_number'},
+          {data: 'student.name'},
+          {data: 'action', sClass: 'text-center'},
+        ],
+
+        columnDefs: [
+          {
+            targets: [0, -1],
+            orderable: false
+          },
+        ],
+      });
+    }
+
+    const showScore = function (studentId, examId) {
+      $('#modal_score_student').modal('show');
+      $('#score_table').DataTable({
+        processing: true,
+        serverSide: true,
+        responsive: true,
+        destroy: true,
+        order: [],
+
+        ajax: {
+          "url": '{{ route('manage.exam.json.student.score') }}',
+          "type": 'post',
+          "headers": {"X-CSRF-TOKEN": "{{ csrf_token() }}"},
+          "data": function (d) {
+            d.student_id = studentId
+            d.exam_id = examId
+          }
+        },
+
+        columns: [
+          {data: 'DT_RowIndex', searchable: false},
+          {data: 'minimal'},
+          {data: 'score'}
+        ],
+
+        columnDefs: [
+          {
+            targets: [0],
+            orderable: false
+          },
+        ],
       });
     }
 
@@ -1298,7 +1451,7 @@
       $('input[name="show_value"]').prop('checked', false);
       $('input[name="check"]').prop('checked', false);
       $('.show_text_amount').text();
-      $('#class_id, #semester_id, #subject_id, #grade_level_id, #exam_rules_id, #type_exam').select2('destroy').val('').select2({width: '100%'});
+      $('#major_id, #class_id, #semester_id, #subject_id, #grade_level_id, #exam_rules_id, #type_exam').select2('destroy').val('').select2({width: '100%'});
     }
 
     $('body').tooltip({selector: '[data-toggle="tooltip"]', animated: 'fade'});
@@ -1310,38 +1463,6 @@
         return data.duration + ' Menit';
       }
     }
-
-    tableAssign = $('#exam_table').DataTable({
-      processing: true,
-      serverSide: true,
-      responsive: true,
-      destroy: true,
-      order: [],
-
-      ajax: {
-        "url": '{{ route('assign.json') }}',
-        "type": 'post',
-        "headers": {"X-CSRF-TOKEN": "{{ csrf_token() }}"},
-      },
-
-      columns: [
-        {data: 'DT_RowIndex', searchable: false},
-        {data: 'name'},
-        {data: 'type_exam'},
-        {data: 'subject.name'},
-        {data: 'level'},
-        {data: 'duration', render: styles1.duration},
-        {data: 'amount_question'},
-        {data: 'action', sClass: 'text-center'},
-      ],
-
-      columnDefs: [
-        {
-          targets: [0, -1, -2],
-          orderable: false
-        },
-      ],
-    });
 
     table.on('click', '.btn-assign', function () {
       $('#modal_assign').modal('show');

@@ -23,6 +23,7 @@
                     <th>Kode</th>
                     <th>Mata Pelajaran</th>
                     <th>Tingkat Kelas</th>
+                    <th>Jurusan</th>
                     <th>Urutan Kelas</th>
                     <th>Tahun Ajar</th>
                     <th>Aksi</th>
@@ -81,9 +82,27 @@
                 @endif
               </select>
               <span class="text-danger">
-                  <strong id="grade_level_id-error"></strong>
-                </span>
+                <strong id="grade_level_id-error"></strong>
+              </span>
             </div>
+            @if (optional(configuration())->type_school == 2)
+              <div class="form-group">
+                <label for="major_id">Jurusan <span class="text-danger">*</span></label>
+                <select name="major_id" id="major_id" class="form-control">
+                  <option value="">-- Pilih Jurusan --</option>
+                  @if ($majors->isNotEmpty())
+                    @foreach($majors as $major)
+                      <option value="{{ $major->id }}">{{ $major->code }} - {{ $major->name }}</option>
+                    @endforeach
+                  @else
+                    <option value="" disabled>Data belum tersedia</option>
+                  @endif
+                </select>
+                <span class="text-danger">
+                  <strong id="major_id-error"></strong>
+                </span>
+              </div>
+            @endif
             <div class="form-group">
               <label for="class_order">Urutan Kelas <span class="text-danger">*</span></label>
               <input type="text" name="class_order" autocomplete="off" id="class_order" class="form-control"
@@ -167,6 +186,7 @@
         {data: 'DT_RowIndex', searchable: false},
         {data: 'code', orderable: false},
         {data: 'subject.name'},
+        {data: 'major.name'},
         {data: 'level'},
         {data: 'class_order'},
         {data: 'school_year'},
@@ -183,7 +203,6 @@
 
     $('#grade_level_id, #major_id, #subject_id').select2({
       width: '100%',
-      placeholder: 'oce'
     });
 
     // show modal add data
@@ -213,6 +232,7 @@
             $('#id').val(data.id);
             $('#class_order').val(data.class_order);
             $('#grade_level_id').select2({width: '100%'}).val(data.grade_level_id).trigger('change');
+            $('#major_id').select2({width: '100%'}).val(data.major_id).trigger('change');
             $('#subject_id').select2({width: '100%'}).val(data.subject_id).trigger('change');
           } else {
             notification(resp.status, resp.message);
@@ -220,49 +240,6 @@
         },
         error: function (xhr, status, error) {
           alert(status + ' : ' + error);
-        }
-      });
-    }
-
-    // delete data
-    const deleteData = function (id) {
-      $.confirm({
-        content: 'Data yang dihapus belum akan dapat dikembalikan.',
-        title: 'Apakah yakin ingin menghapus ?',
-        type: 'red',
-        typeAnimated: true,
-        buttons: {
-          cancel: {
-            text: 'Batal',
-            btnClass: 'btn-danger',
-            keys: ['esc'],
-            action: function () {
-            }
-          },
-          ok: {
-            text: '<i class="icon icon-trash"></i> Hapus',
-            btnClass: 'btn-warning',
-            action: function () {
-              $.ajax({
-                headers: {
-                  'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                },
-                url: "{{ route('class.delete') }}",
-                type: "delete",
-                data: {id: id},
-                dataType: "json",
-                success: function (data) {
-                  notification(data.status, data.message);
-                  setTimeout(function () {
-                    location.reload();
-                  }, 1000)
-                },
-                error: function (xhr, status, error) {
-                  alert(status + " : " + error);
-                }
-              });
-            }
-          }
         }
       });
     }
@@ -339,79 +316,123 @@
           },
         ],
       });
+    });
 
-
-      // delete student
-      $('.btn-delete-student').click(function () {
-        const student = [];
-        $(".checkbox_student:checked").each(function () {
-          student.push(this.value);
-        });
-
-        $.confirm({
-          content: `Akan menghapus ${student.length} siswa yang ada`,
-          title: 'Apakah anda yakin ?',
-          type: 'red',
-          typeAnimated: true,
-          buttons: {
-            cancel: {
-              text: 'Batal',
-              btnClass: 'btn-danger',
-              keys: ['esc'],
-              action: function () {
-              }
-            },
-            ok: {
-              text: '<i class="icon icon-trash-o"></i> Hapus',
-              btnClass: 'btn-warning',
-              action: function () {
-                $.ajax({
-                  headers: {
-                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                  },
-                  url: "{{ route('class.delete.student') }}",
-                  type: "delete",
-                  data: {
-                    student_list: student
-                  },
-                  dataType: "json",
-                  success: function (data) {
-                    notification(data.status, data.message);
-                    if (data.status === 200) {
-                      tableTemporary.ajax.reload();
-                      $('#delete_all_question').prop('checked', false);
-                      $("#school_year_id").select2('destroy').val('').select2({width: '100%'});
-                    }
-                  },
-                  error: function (xhr, status, error) {
-                    alert(status + " : " + error);
-                  }
-                });
-              }
+    // delete data
+    table.on('click', '.btn-delete', function () {
+      $.confirm({
+        content: 'Data yang dihapus belum akan dapat dikembalikan.',
+        title: 'Apakah yakin ingin menghapus ?',
+        type: 'red',
+        typeAnimated: true,
+        buttons: {
+          cancel: {
+            text: 'Batal',
+            btnClass: 'btn-danger',
+            keys: ['esc'],
+            action: function () {
+            }
+          },
+          ok: {
+            text: '<i class="icon icon-trash"></i> Hapus',
+            btnClass: 'btn-warning',
+            action: function () {
+              $.ajax({
+                headers: {
+                  'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                url: "{{ route('class.delete') }}",
+                type: "delete",
+                data: {id: id},
+                dataType: "json",
+                success: function (data) {
+                  notification(data.status, data.message);
+                  setTimeout(function () {
+                    location.reload();
+                  }, 1000)
+                },
+                error: function (xhr, status, error) {
+                  alert(status + " : " + error);
+                }
+              });
             }
           }
-        });
+        }
+      });
+    });
+
+
+    // delete student
+    $('.btn-delete-student').click(function () {
+      const student = [];
+      $(".checkbox_student:checked").each(function () {
+        student.push(this.value);
       });
 
-      // method for handle before send data
-      const loadingBeforeSend = function () {
-        $(".btn-submit").attr('disabled', 'disabled');
-        $(".btn-submit").html('<i class="fa fa-spinner fa-spin"></i> Menyimpan data....');
-      }
+      $.confirm({
+        content: `Akan menghapus ${student.length} siswa yang ada`,
+        title: 'Apakah anda yakin ?',
+        type: 'red',
+        typeAnimated: true,
+        buttons: {
+          cancel: {
+            text: 'Batal',
+            btnClass: 'btn-danger',
+            keys: ['esc'],
+            action: function () {
+            }
+          },
+          ok: {
+            text: '<i class="icon icon-trash-o"></i> Hapus',
+            btnClass: 'btn-warning',
+            action: function () {
+              $.ajax({
+                headers: {
+                  'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                url: "{{ route('class.delete.student') }}",
+                type: "delete",
+                data: {
+                  student_list: student
+                },
+                dataType: "json",
+                success: function (data) {
+                  notification(data.status, data.message);
+                  if (data.status === 200) {
+                    tableTemporary.ajax.reload();
+                    $('#delete_all_question').prop('checked', false);
+                    $("#school_year_id").select2('destroy').val('').select2({width: '100%'});
+                  }
+                },
+                error: function (xhr, status, error) {
+                  alert(status + " : " + error);
+                }
+              });
+            }
+          }
+        }
+      });
+    });
 
-      // method for handle after send data
-      const loadingAfterSend = function () {
-        $(".btn-submit").removeAttr('disabled');
-        $(".btn-submit").html('Submit');
-      }
+    // method for handle before send data
+    const loadingBeforeSend = function () {
+      $(".btn-submit").attr('disabled', 'disabled');
+      $(".btn-submit").html('<i class="fa fa-spinner fa-spin"></i> Menyimpan data....');
+    }
 
-      // reset form
-      const resetForm = function () {
-        $('#id').val('');
-        $('#grade_level_id').select2({width: '100%'}).val('').trigger('change');
-        $('#major_id').select2({width: '100%'}).val('').trigger('change');
-        $('#subject_id').select2({width: '100%'}).val('').trigger('change');
-        $('#class_order').val('');
-      }
+    // method for handle after send data
+    const loadingAfterSend = function () {
+      $(".btn-submit").removeAttr('disabled');
+      $(".btn-submit").html('Submit');
+    }
+
+    // reset form
+    const resetForm = function () {
+      $('#id').val('');
+      $('#grade_level_id').select2({width: '100%'}).val('').trigger('change');
+      $('#major_id').select2({width: '100%'}).val('').trigger('change');
+      $('#subject_id').select2({width: '100%'}).val('').trigger('change');
+      $('#class_order').val('');
+    }
   </script>
 @endpush

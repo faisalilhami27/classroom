@@ -19,6 +19,7 @@ class CreateClassesTable extends Migration
       $table->string('class_order', 5);
       $table->string('image', 255)->nullable();
       $table->char('color', 7)->nullable();
+      $table->foreignId('major_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('cascade');
       $table->foreignId('grade_level_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('cascade');
       $table->foreignId('semester_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('cascade');
       $table->foreignId('subject_id')->constrained()->onUpdate('cascade')->onDelete('cascade');

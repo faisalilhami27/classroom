@@ -25,6 +25,7 @@ class CreateManageExamsTable extends Migration
       $table->integer('status')->nullable();
       $table->integer('time_violation')->nullable();
       $table->integer('show_value')->nullable();
+      $table->foreignId('major_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('cascade');
       $table->foreignId('semester_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('cascade');
       $table->foreignId('grade_level_id')->nullable()->constrained()->onUpdate('cascade')->onDelete('cascade');
       $table->foreignId('exam_rules_id')->constrained()->onUpdate('cascade')->onDelete('cascade');

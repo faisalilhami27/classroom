@@ -17,6 +17,7 @@ class StudentClass extends Model
     'image',
     'color',
     'grade_level_id',
+    'major_id',
     'semester_id',
     'subject_id',
     'employee_id',
@@ -36,6 +37,11 @@ class StudentClass extends Model
   public function gradeLevel()
   {
     return $this->hasOne(GradeLevel::class, 'id', 'grade_level_id');
+  }
+
+  public function major()
+  {
+    return $this->hasOne(Major::class, 'id', 'major_id');
   }
 
   public function semester()
@@ -70,7 +76,11 @@ class StudentClass extends Model
         if (is_null($this->schoolYear)) {
           $name = "Belum ada tahun ajar aktif";
         } else {
-          $name = "{$this->subject->name} Kelas {$this->gradeLevel->name} - {$this->class_order} ({$this->schoolYear->early_year}/{$this->schoolYear->end_year})";
+          if (optional(configuration())->type_school == 2) {
+            $name = "{$this->subject->name} Kelas {$this->gradeLevel->name} - {$this->major->code} - {$this->class_order} ({$this->schoolYear->early_year}/{$this->schoolYear->end_year})";
+          } else {
+            $name = "{$this->subject->name} Kelas {$this->gradeLevel->name} - {$this->class_order} ({$this->schoolYear->early_year}/{$this->schoolYear->end_year})";
+          }
         }
       }
     }
