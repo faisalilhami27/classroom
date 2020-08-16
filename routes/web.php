@@ -27,6 +27,10 @@ Route::get('/detail/{id}/{subject}', 'HomeController@classPage')
   ->middleware('auth:student,employee')
   ->name('detail')
   ->where(['id', 'subject'],'.*');
+Route::get('/chat/page', 'HomeController@index')
+  ->middleware('auth:student,employee')
+  ->name('chat')
+  ->where(['id', 'subject'],'.*');
 Route::get('/task/detail/{id}/{posting_id}', 'HomeController@taskPage')
   ->middleware('auth:student,employee')
   ->name('detail.task')

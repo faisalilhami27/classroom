@@ -14,7 +14,10 @@
         <v-toolbar-title>{{ pageTitle }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <div style="margin-right: 20px">
-        <announcement></announcement>
+          <chat></chat>
+        </div>
+        <div style="margin-right: 20px">
+          <announcement></announcement>
         </div>
         <account></account>
         <template v-slot:extension>
@@ -47,57 +50,59 @@
 </template>
 
 <script>
-  import Sidebar from '../layouts/Sidebar';
-  import Account from './Account';
-  import Forum from '../forum/Forum';
-  import Learn from '../learn/Learn';
-  import Task from '../task/Task';
-  import Exam from '../exam/Exam';
-  import Announcement from "./Announcement";
-  import {mapGetters} from "vuex";
+import Sidebar from '../layouts/Sidebar';
+import Account from './Account';
+import Forum from '../forum/Forum';
+import Chat from '../other/Chat';
+import Learn from '../learn/Learn';
+import Task from '../task/Task';
+import Exam from '../exam/Exam';
+import Announcement from "./Announcement";
+import {mapGetters} from "vuex";
 
-  export default {
-    name: "detail",
-    components: {
-      Announcement,
-      Sidebar,
-      Account,
-      Forum,
-      Learn,
-      Task,
-      Exam
-    },
-    data: () => ({
-      openLeftNavigationDrawer: false,
-      tabs: null,
-      items: [
-        {tab: 'Forum', content: 'Forum'},
-        {tab: 'Tugas Kelas', content: 'Task'},
-        {tab: 'Belajar', content: 'Learn'},
-        {tab: 'Ujian', content: 'Exam'}
-      ]
-    }),
-    created() {
-      document.title = this.getSubject;
-    },
-    computed: {
-      ...mapGetters([
-        'getClassId',
-        'getSubject',
-        'getColor'
-      ]),
+export default {
+  name: "detail",
+  components: {
+    Announcement,
+    Sidebar,
+    Account,
+    Forum,
+    Learn,
+    Task,
+    Exam,
+    Chat
+  },
+  data: () => ({
+    openLeftNavigationDrawer: false,
+    tabs: null,
+    items: [
+      {tab: 'Forum', content: 'Forum'},
+      {tab: 'Tugas Kelas', content: 'Task'},
+      {tab: 'Belajar', content: 'Learn'},
+      {tab: 'Ujian', content: 'Exam'}
+    ]
+  }),
+  created() {
+    document.title = this.getSubject;
+  },
+  computed: {
+    ...mapGetters([
+      'getClassId',
+      'getSubject',
+      'getColor'
+    ]),
 
-      pageTitle: function () {
-        return this.getSubject;
-      }
-    },
-  }
+    pageTitle: function () {
+      return this.getSubject;
+    }
+  },
+}
 </script>
 
 <style scoped>
-  #lateral .v-btn--example {
-    bottom: 0;
-    position: absolute;
-    margin: 0 0 16px 16px;
-  }
+#lateral .v-btn--example {
+  bottom: 0;
+  position: absolute;
+  margin: 0 0 16px 16px;
+}
 </style>

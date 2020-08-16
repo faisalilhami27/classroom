@@ -18,6 +18,9 @@
           ></v-app-bar-nav-icon>
           <v-toolbar-title><b>Classroom</b></v-toolbar-title>
           <v-spacer></v-spacer>
+          <div style="margin-right: 10px">
+            <chat></chat>
+          </div>
           <announcement></announcement>
           <v-btn @click.stop="dialog = true" icon>
             <v-icon>mdi-plus</v-icon>
@@ -130,6 +133,7 @@
 <script>
   import Sidebar from "./layouts/Sidebar";
   import Account from "./other/Account";
+  import Chat from "./other/Chat";
   import axios from 'axios';
   import {mapActions, mapGetters} from 'vuex';
   import Announcement from "./other/Announcement";
@@ -139,7 +143,8 @@
     components: {
       Announcement,
       Sidebar,
-      Account
+      Account,
+      Chat
     },
     data: function() {
       return {

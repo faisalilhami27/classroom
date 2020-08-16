@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from 'vue-router';
 import Home from "./components/Home";
 import Detail from "./components/other/Detail";
+import ChatPage from "./components/other/ChatPage";
 import TaskDetail from "./components/task/TaskDetail";
 import ExamPage from "./components/exam/ExamPage";
 import Comment from "./components/forum/Comment";
@@ -36,6 +37,11 @@ const router = new VueRouter({
       name: 'exam',
       path: '/exam/page/:id',
       component: ExamPage
+    },
+    {
+      name: 'chat',
+      path: '/chat/page',
+      component: ChatPage
     },
     {
       name: 'exam-detail',
