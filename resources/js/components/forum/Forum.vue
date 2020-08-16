@@ -275,27 +275,51 @@
               </v-col>
             </v-card>
             <div v-else>
-              <v-card
-                v-if="item.task.student_task != null"
-                @click="commentTask(item.task.id, item.id)"
-                class="pa-2"
-                outlined
-                height="70"
-                style="margin-top: 30px; box-shadow: 0 6px 6px rgba(0,0,0,0.2);"
-              >
-                <v-row>
-                  <v-col
-                    sm="12"
-                    md="12"
-                  >
-                    <v-avatar class="avatar" color="indigo">
-                      <v-icon dark>mdi-calendar-text</v-icon>
-                    </v-avatar>
-                    <p style="margin-left: 65px; margin-top: -40px">{{ item.employee.name }} memposting tugas baru : {{ splitTaskName(item.title, 30) }}</p>
-                    <p style="margin-left: 65px; margin-top: -20px; font-size: 11px; color: #797979">{{ item.date | convertFormatDatetimeToTime }}</p>
-                  </v-col>
-                </v-row>
-              </v-card>
+              <div v-if="checkGuard === 'employee'">
+                <v-card
+                  @click="commentTask(item.task.id, item.id)"
+                  class="pa-2"
+                  outlined
+                  height="70"
+                  style="margin-top: 30px; box-shadow: 0 6px 6px rgba(0,0,0,0.2);"
+                >
+                  <v-row>
+                    <v-col
+                      sm="12"
+                      md="12"
+                    >
+                      <v-avatar class="avatar" color="indigo">
+                        <v-icon dark>mdi-calendar-text</v-icon>
+                      </v-avatar>
+                      <p style="margin-left: 65px; margin-top: -40px">{{ item.employee.name }} memposting tugas baru : {{ splitTaskName(item.title, 30) }}</p>
+                      <p style="margin-left: 65px; margin-top: -20px; font-size: 11px; color: #797979">{{ item.date | convertFormatDatetimeToTime }}</p>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </div>
+              <div v-else>
+                <v-card
+                  v-if="item.task.student_task != null"
+                  @click="commentTask(item.task.id, item.id)"
+                  class="pa-2"
+                  outlined
+                  height="70"
+                  style="margin-top: 30px; box-shadow: 0 6px 6px rgba(0,0,0,0.2);"
+                >
+                  <v-row>
+                    <v-col
+                      sm="12"
+                      md="12"
+                    >
+                      <v-avatar class="avatar" color="indigo">
+                        <v-icon dark>mdi-calendar-text</v-icon>
+                      </v-avatar>
+                      <p style="margin-left: 65px; margin-top: -40px">{{ item.employee.name }} memposting tugas baru : {{ splitTaskName(item.title, 30) }}</p>
+                      <p style="margin-left: 65px; margin-top: -20px; font-size: 11px; color: #797979">{{ item.date | convertFormatDatetimeToTime }}</p>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </div>
             </div>
           </div>
           <infinite-loading @infinite="infiniteHandler">
