@@ -27,6 +27,7 @@ class MaterialRequest extends FormRequest
       return [
         "semester_id" => "required",
         "subject_id" => "required",
+        "major_id" => "required",
         "title" => "required|max:100",
         "position" => "required|regex:/^[0-9]*$/",
         "detail_material" => "required",
@@ -55,6 +56,7 @@ class MaterialRequest extends FormRequest
     return [
       'semester_id.required' => 'Semester tidak boleh kosong',
       'grade_level_id.required' => 'Tingkat kelas tidak boleh kosong',
+      'major_id.required' => 'Jurusan tidak boleh kosong',
       'subject_id.required' => subjectName() . ' tidak boleh kosong',
       'position.required' => 'Urutan materi tidak boleh kosong',
       'position.regex' => 'Urutan materi harus angka',

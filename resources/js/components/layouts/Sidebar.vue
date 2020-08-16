@@ -49,7 +49,7 @@
         class="list-class"
         v-for="(item ,index) in dataClass"
         :key="index"
-        @click="url(item.id, item.subject.split(' ').join('-'))"
+        @click="url(item.id, item.subject.split(' ').join('-'), item.subject_id)"
         link
       >
         <v-avatar :color="item.color" size="36">
@@ -150,11 +150,13 @@
         setAlert: 'setAlert',
         setSubject: 'setSubject',
         setClassId: 'setClassId',
+        setSubjectId: 'setSubjectId',
       }),
 
-      url: function(id, subject) {
+      url: function(id, subject, subjectId) {
         this.setSubject(subject);
         this.setClassId(id);
+        this.setSubjectId(subjectId);
         location.href = `/detail/${id}/${subject}`;
       },
     }

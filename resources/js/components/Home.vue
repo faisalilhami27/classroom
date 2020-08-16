@@ -65,7 +65,7 @@
                 <v-btn
                   color="blue"
                   text
-                  @click="url(item.id, item.subject.split(' ').join('-'))"
+                  @click="url(item.id, item.subject.split(' ').join('-'), item.subject_id)"
                 >
                   Mulai Belajar
                 </v-btn>
@@ -198,11 +198,13 @@
         setAlert: 'setAlert',
         setSubject: 'setSubject',
         setClassId: 'setClassId',
+        setSubjectId: 'setSubjectId',
       }),
 
-      url: function(id, subject) {
+      url: function(id, subject, subjectId) {
         this.setSubject(subject);
         this.setClassId(id);
+        this.setSubjectId(subjectId);
         location.href = `/detail/${id}/${subject}`;
       },
 

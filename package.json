@@ -11,15 +11,15 @@
     },
     "devDependencies": {
         "axios": "^0.19.2",
-        "bootstrap": "^4.5.0",
+        "bootstrap": "^4.5.2",
         "cross-env": "^7.0",
         "jquery": "^3.5.1",
         "laravel-mix": "^5.0.1",
-        "lodash": "^4.17.19",
+        "lodash": "^4.17.20",
         "material-design-icons-iconfont": "^5.0.1",
         "popper.js": "^1.12",
         "resolve-url-loader": "^2.3.1",
-        "sass": "^1.20.1",
+        "sass": "^1.26.10",
         "sass-loader": "^8.0.0",
         "vue": "^2.6.11",
         "vue-template-compiler": "^2.6.10"
@@ -28,17 +28,19 @@
         "animate.css": "^4.1.0",
         "chart.js": "^2.9.3",
         "howler": "^2.2.0",
-        "laravel-echo": "^1.8.0",
+        "laravel-echo": "^1.8.1",
         "moment": "^2.27.0",
+        "plyr": "^3.6.2",
         "pusher-js": "^6.0.3",
         "vue-confirm-dialog": "^1.0.2",
         "vue-infinite-loading": "^2.4.5",
+        "vue-plyr": "^6.0.4",
         "vue-resource": "^1.5.1",
-        "vue-router": "^3.3.2",
+        "vue-router": "^3.4.3",
         "vue-sweetalert2": "^3.0.6",
-        "vue-tables-2": "^2.0.14",
+        "vue-tables-2": "^2.0.32",
         "vue-toastification": "^1.7.6",
-        "vuetify": "^2.2.32",
-        "vuex": "^3.4.0"
+        "vuetify": "^2.3.8",
+        "vuex": "^3.5.1"
     }
 }

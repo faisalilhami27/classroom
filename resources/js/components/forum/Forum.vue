@@ -61,7 +61,9 @@
               <v-list-item>
                 <v-list-item-content>
                   <v-list-item-title style="font-size: 14px">Batas waktu : {{ task.date }}</v-list-item-title>
-                  <v-list-item-subtitle link style="font-size: 12px">{{ task.time }} - {{ splitTaskName(task.title, 20) }}
+                  <v-list-item-subtitle link style="font-size: 12px">{{ task.time }} - {{
+                      splitTaskName(task.title, 20)
+                    }}
                   </v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
@@ -210,11 +212,14 @@
                       alt=""
                     >
                   </v-avatar>
-                  <p v-if="item.employee_id != null" style="margin-left: 65px; margin-top: -50px">{{ item.employee.name
+                  <p v-if="item.employee_id != null" style="margin-left: 65px; margin-top: -50px">{{
+                      item.employee.name
                     }}</p>
                   <p v-else style="margin-left: 65px; margin-top: -50px">{{ item.student.name }}</p>
-                  <p style="margin-left: 65px; margin-top: -20px; font-size: 11px; color: #797979">{{ item.date |
-                    convertFormatDatetimeToTime }}</p>
+                  <p style="margin-left: 65px; margin-top: -20px; font-size: 11px; color: #797979">{{
+                      item.date |
+                        convertFormatDatetimeToTime
+                    }}</p>
                   <v-menu offset-y>
                     <template v-slot:activator="{ on }">
                       <v-btn v-if="checkGuard === 'employee'" v-on="on" class="btn-action" icon>
@@ -272,28 +277,32 @@
                 </v-row>
               </v-col>
             </v-card>
-            <v-card
-              @click="commentTask(item.task.id, item.id)"
-              v-else
-              class="pa-2"
-              outlined
-              tile
-              height="70"
-              style="margin-top: 30px; box-shadow: 0 6px 6px rgba(0,0,0,0.2);"
-            >
-              <v-row>
-                <v-col
-                  sm="12"
-                  md="12"
-                >
-                  <v-avatar class="avatar" color="indigo">
-                    <v-icon dark>mdi-calendar-text</v-icon>
-                  </v-avatar>
-                  <p style="margin-left: 65px; margin-top: -40px">{{ item.employee.name }} memposting tugas baru : {{ splitTaskName(item.title, 30) }}</p>
-                  <p style="margin-left: 65px; margin-top: -20px; font-size: 11px; color: #797979">{{ item.date | convertFormatDatetimeToTime }}</p>
-                </v-col>
-              </v-row>
-            </v-card>
+            <div v-else>
+              <v-card
+                v-if="item.task.student_task != null"
+                @click="commentTask(item.task.id, item.id)"
+                class="pa-2"
+                outlined
+                tile
+                height="70"
+                style="margin-top: 30px; box-shadow: 0 6px 6px rgba(0,0,0,0.2);"
+              >
+                <v-row>
+                  <v-col
+                    sm="12"
+                    md="12"
+                  >
+                    <v-avatar class="avatar" color="indigo">
+                      <v-icon dark>mdi-calendar-text</v-icon>
+                    </v-avatar>
+                    <p style="margin-left: 65px; margin-top: -40px">{{ item.employee.name }} memposting tugas baru :
+                      {{ splitTaskName(item.title, 30) }}</p>
+                    <p style="margin-left: 65px; margin-top: -20px; font-size: 11px; color: #797979">
+                      {{ item.date | convertFormatDatetimeToTime }}</p>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </div>
           </div>
           <infinite-loading @infinite="infiniteHandler">
             <span slot="no-more"></span>
@@ -506,444 +515,367 @@
 </template>
 
 <script>
-  import {mapActions, mapGetters} from "vuex";
-  import moment from "moment";
+import {mapActions, mapGetters} from "vuex";
+import moment from "moment";
 
-  export default {
-    name: "Forum",
-    data: function () {
-      return {
-        subject: '',
-        className: '',
-        schoolYear: '',
-        image: '',
-        code: '',
-        id: '',
-        title: '',
-        titleUpdate: '',
-        photoUser: '',
-        name: '',
-        urlMeeting: '',
-        meetingId: '',
-        passwordMeeting: '',
-        page: 1,
-        changeTextPosting: 'Posting',
-        changeText: 'Generate',
-        changeTextDone: 'Tandai Selesai',
-        guard: false,
-        photo: false,
-        dialog: false,
-        dialogMeeting: false,
-        dialogUpdate: false,
-        selectedFile: [],
-        dataPosting: [],
-        dataTask: [],
-        beforePosting: true,
-        disabledButtonDone: true,
-        disabledButtonMeeting: false,
-        isSelecting: false,
-        showImage: false,
-        showTask: false,
-        disabledButton: true,
-        disabledButtonUpdate: true
+export default {
+  name: "Forum",
+  data: function () {
+    return {
+      subject: '',
+      className: '',
+      schoolYear: '',
+      image: '',
+      code: '',
+      id: '',
+      title: '',
+      titleUpdate: '',
+      photoUser: '',
+      name: '',
+      urlMeeting: '',
+      meetingId: '',
+      passwordMeeting: '',
+      page: 1,
+      changeTextPosting: 'Posting',
+      changeText: 'Generate',
+      changeTextDone: 'Tandai Selesai',
+      guard: false,
+      photo: false,
+      dialog: false,
+      dialogMeeting: false,
+      dialogUpdate: false,
+      selectedFile: [],
+      dataPosting: [],
+      dataTask: [],
+      beforePosting: true,
+      disabledButtonDone: true,
+      disabledButtonMeeting: false,
+      isSelecting: false,
+      showImage: false,
+      showTask: false,
+      disabledButton: true,
+      disabledButtonUpdate: true
+    }
+  },
+  mounted() {
+    this.getClass();
+    this.getClosestTask();
+    let pusher = new Pusher(process.env.MIX_PUSHER_APP_KEY, {
+      cluster: process.env.MIX_PUSHER_APP_CLUSTER
+    });
+    let channel = pusher.subscribe('my-channel');
+    channel.bind('my-event', () => {
+      this.getDataPosting();
+    });
+  },
+  filters: {
+    convertFormatDatetimeToTime: function (datetime) {
+      return moment(datetime).format('DD-MM-YYYY HH:mm');
+    }
+  },
+  computed: {
+    ...mapGetters([
+      'getUser',
+      'getClassId',
+      'getColor'
+    ]),
+
+    changeHeight: function () {
+      if (this.dataTask.length === 2) {
+        return 160;
+      } else if (this.dataTask.length === 1) {
+        return 92;
+      } else {
+        return 130;
       }
     },
-    mounted() {
-      this.getClass();
-      this.getClosestTask();
-      let pusher = new Pusher(process.env.MIX_PUSHER_APP_KEY, {
-        cluster: process.env.MIX_PUSHER_APP_CLUSTER
-      });
-      let channel = pusher.subscribe('my-channel');
-      channel.bind('my-event', () => {
-        this.getDataPosting();
-      });
+
+    checkGuard: function () {
+      const user = JSON.parse(this.getUser);
+      return user.guard;
     },
-    filters: {
-      convertFormatDatetimeToTime: function (datetime) {
-        return moment(datetime).format('DD-MM-YYYY HH:mm');
+
+    avatar: function () {
+      const user = JSON.parse(this.getUser);
+      if (user.photo == null) {
+        return user.name.substr(0, 2);
+      } else {
+        this.photo = true;
+        return '/storage/' + user.photo;
       }
     },
-    computed: {
-      ...mapGetters([
-        'getUser',
-        'getClassId',
-        'getColor'
-      ]),
 
-      changeHeight: function () {
-        if (this.dataTask.length === 2) {
-          return 160;
-        } else if (this.dataTask.length === 1) {
-          return 92;
-        } else {
-          return 130;
-        }
-      },
+    getName: function () {
+      const user = JSON.parse(this.getUser);
+      return user.name;
+    },
 
-      checkGuard: function () {
-        const user = JSON.parse(this.getUser);
-        return user.guard;
-      },
+    getUserId: function () {
+      const user = JSON.parse(this.getUser);
+      return user.user_id;
+    }
+  },
+  methods: {
+    ...mapActions({
+      setAlert: 'setAlert'
+    }),
 
-      avatar: function () {
-        const user = JSON.parse(this.getUser);
-        if (user.photo == null) {
-          return user.name.substr(0, 2);
-        } else {
-          this.photo = true;
-          return '/storage/' + user.photo;
-        }
-      },
-
-      getName: function () {
-        const user = JSON.parse(this.getUser);
-        return user.name;
-      },
-
-      getUserId: function () {
-        const user = JSON.parse(this.getUser);
-        return user.user_id;
+    splitTaskName: function (name, length) {
+      if (name.length > length) {
+        return name.substr(0, length) + ' ...';
+      } else {
+        return name;
       }
     },
-    methods: {
-      ...mapActions({
-        setAlert: 'setAlert'
-      }),
 
-      splitTaskName: function (name, length) {
-        if (name.length > length) {
-          return name.substr(0, length) + ' ...';
-        } else {
-          return name;
+    getDataPosting: function () {
+      const id = this.getClassId;
+      axios.get('/posting/get', {
+        params: {
+          class_id: id
         }
-      },
-
-      getDataPosting: function () {
-        const id = this.getClassId;
-        axios.get('/posting/get', {
-          params: {
-            class_id: id
-          }
-        }).then(response => {
-          this.dataPosting = response.data.data.data;
+      }).then(response => {
+        this.dataPosting = response.data.data.data;
+      })
+        .catch(resp => {
+          alert(resp.response.data.message);
         })
-          .catch(resp => {
-            alert(resp.response.data.message);
-          })
-      },
+    },
 
-      getClass: function () {
-        const id = this.getClassId;
-        axios.get('/class/get', {
-          params: {
-            id: id
+    getClass: function () {
+      const id = this.getClassId;
+      axios.get('/class/get', {
+        params: {
+          id: id
+        }
+      }).then(response => {
+        if (response.data.status === 200) {
+          const data = response.data.data;
+          this.subject = data.subject.name;
+          this.image = '/images/' + data.image;
+          this.className = data.class_order;
+          this.code = data.code;
+          this.schoolYear = data.school_year.early_year + '/' + data.school_year.end_year;
+        } else {
+          this.setAlert({
+            message: response.data.message,
+            status: response.data.status
+          });
+        }
+      })
+        .catch(resp => {
+          alert(resp.response.data.message);
+        })
+    },
+
+    onButtonClick() {
+      this.isSelecting = true
+      window.addEventListener('focus', () => {
+        this.isSelecting = false
+      }, {once: true})
+
+      this.$refs.uploader.click()
+    },
+
+    onFileChanged: function (e) {
+      let selectedFiles = e.target.files;
+      if (!selectedFiles.length) {
+        return false;
+      }
+      for (let i = 0; i < selectedFiles.length; i++) {
+        this.selectedFile.push(selectedFiles[i]);
+      }
+      this.showImage = true;
+    },
+
+    cancelPosting: function () {
+      this.beforePosting = !this.beforePosting
+      this.selectedFile.splice(0, this.selectedFile.length);
+      this.$refs.uploader.value = null;
+    },
+
+    cancelPostingUpdate: function () {
+      this.dialogUpdate = false;
+      this.selectedFile.splice(0, this.selectedFile.length);
+      this.$refs.uploader.value = null;
+    },
+
+    getClosestTask: function () {
+      const classId = this.getClassId;
+      axios.get('/posting/get/task', {
+        params: {
+          class_id: classId
+        }
+      }).then(response => {
+        const data = response.data.data;
+        this.dataTask = data;
+        this.showTask = data.length === 0;
+      })
+        .catch(resp => {
+          alert(resp.response.data.message);
+        })
+    },
+
+    mouseOver: function () {
+      document.querySelector('.text-meeting').style.textDecoration = 'underline';
+    },
+
+    mouseOut: function () {
+      document.querySelector('.text-meeting').style.textDecoration = 'none';
+    },
+
+    savePosting: function () {
+      this.changeTextPosting = 'Loading...';
+      this.disabledButton = true;
+      const user = JSON.parse(this.getUser);
+      const classId = this.getClassId;
+      let title = null;
+      let urlSave = null;
+      let id = null;
+      let formData = new FormData();
+
+      for (let i = 0; i < this.selectedFile.length; i++) {
+        let file = this.selectedFile[i];
+        formData.append('file[]', file);
+      }
+
+      if (!this.dialogUpdate) {
+        title = this.title;
+        urlSave = '/posting/create';
+      } else {
+        title = this.titleUpdate;
+        id = this.id;
+        urlSave = '/posting/update';
+      }
+
+      formData.append('user_id', user.user_id);
+      formData.append('class_id', classId);
+      formData.append('title', title);
+      formData.append('id', id);
+
+      axios.post(urlSave, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+        .then(response => {
+          this.changeTextPosting = 'Posting';
+          this.disabledButton = false;
+          this.setAlert({
+            message: response.data.message,
+            status: response.data.status,
+          });
+          if (response.data.status === 200) {
+            this.dialogUpdate = false;
+            setTimeout(function () {
+              location.reload();
+            }, 2000);
           }
-        }).then(response => {
+        })
+        .catch(resp => {
+          this.changeTextPosting = 'Posting';
+          this.disabledButton = false;
+          if (_.has(resp.response.data, 'errors')) {
+            _.map(resp.response.data.errors, function (val, key) {
+              $('#' + key + '-error').html(val[0]).fadeIn(1000).fadeOut(5000);
+            })
+          }
+          alert(resp.response.data.message)
+        })
+    },
+
+    getMeeting: function () {
+      this.dialogMeeting = true;
+      const classId = this.getClassId;
+      axios.post('/zoom/get/meeting', {
+        class_id: classId
+      })
+        .then(response => {
           if (response.data.status === 200) {
             const data = response.data.data;
-            this.subject = data.subject.name;
-            this.image = '/images/' + data.image;
-            this.className = data.class_order;
-            this.code = data.code;
-            this.schoolYear = data.school_year.early_year + '/' + data.school_year.end_year;
-          } else {
-            this.setAlert({
-              message: response.data.message,
-              status: response.data.status
-            });
-          }
-        })
-          .catch(resp => {
-            alert(resp.response.data.message);
-          })
-      },
-
-      onButtonClick() {
-        this.isSelecting = true
-        window.addEventListener('focus', () => {
-          this.isSelecting = false
-        }, {once: true})
-
-        this.$refs.uploader.click()
-      },
-
-      onFileChanged: function (e) {
-        let selectedFiles = e.target.files;
-        if (!selectedFiles.length) {
-          return false;
-        }
-        for (let i = 0; i < selectedFiles.length; i++) {
-          this.selectedFile.push(selectedFiles[i]);
-        }
-        this.showImage = true;
-      },
-
-      cancelPosting: function () {
-        this.beforePosting = !this.beforePosting
-        this.selectedFile.splice(0, this.selectedFile.length);
-        this.$refs.uploader.value = null;
-      },
-
-      cancelPostingUpdate: function () {
-        this.dialogUpdate = false;
-        this.selectedFile.splice(0, this.selectedFile.length);
-        this.$refs.uploader.value = null;
-      },
-
-      getClosestTask: function () {
-        const classId = this.getClassId;
-        axios.get('/posting/get/task', {
-          params: {
-            class_id: classId
-          }
-        }).then(response => {
-          const data = response.data.data;
-          this.dataTask = data;
-          this.showTask = data.length === 0;
-        })
-          .catch(resp => {
-            alert(resp.response.data.message);
-          })
-      },
-
-      mouseOver: function () {
-        document.querySelector('.text-meeting').style.textDecoration = 'underline';
-      },
-
-      mouseOut: function () {
-        document.querySelector('.text-meeting').style.textDecoration = 'none';
-      },
-
-      savePosting: function () {
-        this.changeTextPosting = 'Loading...';
-        this.disabledButton = true;
-        const user = JSON.parse(this.getUser);
-        const classId = this.getClassId;
-        let title = null;
-        let urlSave = null;
-        let id = null;
-        let formData = new FormData();
-
-        for (let i = 0; i < this.selectedFile.length; i++) {
-          let file = this.selectedFile[i];
-          formData.append('file[]', file);
-        }
-
-        if (!this.dialogUpdate) {
-          title = this.title;
-          urlSave = '/posting/create';
-        } else {
-          title = this.titleUpdate;
-          id = this.id;
-          urlSave = '/posting/update';
-        }
-
-        formData.append('user_id', user.user_id);
-        formData.append('class_id', classId);
-        formData.append('title', title);
-        formData.append('id', id);
-
-        axios.post(urlSave, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        })
-          .then(response => {
-            this.changeTextPosting = 'Posting';
-            this.disabledButton = false;
-            this.setAlert({
-              message: response.data.message,
-              status: response.data.status,
-            });
-            if (response.data.status === 200) {
-              this.dialogUpdate = false;
-              setTimeout(function () {
-                location.reload();
-              }, 2000);
+            if (data != null) {
+              this.disabledButtonMeeting = true;
+              this.disabledButtonDone = false;
+              this.urlMeeting = data.url;
+              this.meetingId = data.meeting_id;
+              this.passwordMeeting = data.password;
+            } else {
+              this.disabledButtonDone = true;
+              this.disabledButtonMeeting = false;
+              this.urlMeeting = '';
+              this.meetingId = '';
+              this.passwordMeeting = '';
             }
-          })
-          .catch(resp => {
-            this.changeTextPosting = 'Posting';
-            this.disabledButton = false;
-            if (_.has(resp.response.data, 'errors')) {
-              _.map(resp.response.data.errors, function (val, key) {
-                $('#' + key + '-error').html(val[0]).fadeIn(1000).fadeOut(5000);
-              })
-            }
-            alert(resp.response.data.message)
-          })
-      },
-
-      getMeeting: function () {
-        this.dialogMeeting = true;
-        const classId = this.getClassId;
-        axios.post('/zoom/get/meeting', {
-          class_id: classId
+          }
         })
-          .then(response => {
-            if (response.data.status === 200) {
-              const data = response.data.data;
-              if (data != null) {
+        .catch(resp => {
+          alert(resp.response.data.message)
+        });
+    },
+
+    createMeeting: function () {
+      this.$confirm({
+        title: 'Apakah anda akan men-generate link ?',
+        button: {
+          yes: 'Ya',
+          no: 'Batal'
+        },
+        callback: confirm => {
+          if (confirm) {
+            this.changeText = 'Loading...';
+            this.disabledButtonMeeting = true;
+            const classId = this.getClassId;
+            axios.post('/zoom/create/meeting', {
+              class_id: classId
+            })
+              .then(response => {
                 this.disabledButtonMeeting = true;
                 this.disabledButtonDone = false;
-                this.urlMeeting = data.url;
-                this.meetingId = data.meeting_id;
-                this.passwordMeeting = data.password;
-              } else {
-                this.disabledButtonDone = true;
+                this.changeText = 'Generate';
+                if (response.data.status === 200) {
+                  const data = response.data.data;
+                  this.urlMeeting = data.url;
+                  this.meetingId = data.meeting_id;
+                  this.passwordMeeting = data.password;
+                } else {
+                  this.$toast.error(response.data.message, {timeout: false})
+                }
+              })
+              .catch(resp => {
                 this.disabledButtonMeeting = false;
-                this.urlMeeting = '';
-                this.meetingId = '';
-                this.passwordMeeting = '';
-              }
-            }
-          })
-          .catch(resp => {
-            alert(resp.response.data.message)
-          });
-      },
+                this.changeText = 'Generate';
+                alert(resp.response.data.message)
+              });
+          }
+        }
+      });
+    },
 
-      createMeeting: function () {
-        this.$confirm({
-          title: 'Apakah anda akan men-generate link ?',
-          button: {
-            yes: 'Ya',
-            no: 'Batal'
-          },
-          callback: confirm => {
-            if (confirm) {
-              this.changeText = 'Loading...';
-              this.disabledButtonMeeting = true;
-              const classId = this.getClassId;
-              axios.post('/zoom/create/meeting', {
+    meetingDone: function () {
+      this.$confirm({
+        title: 'Apakah anda yakin ?',
+        message: 'Data yang sudah diubah tidak bisa dikembalikan',
+        button: {
+          yes: 'Ya',
+          no: 'Batal'
+        },
+        callback: confirm => {
+          if (confirm) {
+            this.changeTextDone = 'Loading...';
+            this.disabledButtonDone = true;
+            const classId = this.getClassId;
+            axios.delete('/zoom/delete/meeting', {
+              params: {
                 class_id: classId
-              })
-                .then(response => {
-                  this.disabledButtonMeeting = true;
-                  this.disabledButtonDone = false;
-                  this.changeText = 'Generate';
-                  if (response.data.status === 200) {
-                    const data = response.data.data;
-                    this.urlMeeting = data.url;
-                    this.meetingId = data.meeting_id;
-                    this.passwordMeeting = data.password;
-                  } else {
-                    this.$toast.error(response.data.message, {timeout: false})
-                  }
-                })
-                .catch(resp => {
-                  this.disabledButtonMeeting = false;
-                  this.changeText = 'Generate';
-                  alert(resp.response.data.message)
-                });
-            }
-          }
-        });
-      },
-
-      meetingDone: function () {
-        this.$confirm({
-          title: 'Apakah anda yakin ?',
-          message: 'Data yang sudah diubah tidak bisa dikembalikan',
-          button: {
-            yes: 'Ya',
-            no: 'Batal'
-          },
-          callback: confirm => {
-            if (confirm) {
-              this.changeTextDone = 'Loading...';
-              this.disabledButtonDone = true;
-              const classId = this.getClassId;
-              axios.delete('/zoom/delete/meeting', {
-                params: {
-                  class_id: classId
-                }
-              })
-                .then(response => {
-                  this.dialogMeeting = false;
-                  this.disabledButtonDone = false;
-                  this.changeTextDone = 'Tandai Selesai';
-                  this.setAlert({
-                    message: response.data.message,
-                    status: response.data.status
-                  });
-                  if (response.data.status === 200) {
-                    setTimeout(function () {
-                      location.reload();
-                    }, 2000);
-                  }
-                })
-                .catch(resp => {
-                  this.disabledButtonDone = false;
-                  this.changeTextDone = 'Tandai Selesai';
-                  alert(resp.response.data.message)
-                });
-            }
-          }
-        });
-      },
-
-      urlToFile: function (url, filename, mimeType) {
-        return (fetch(url, {
-            mode: "no-cors",
-          })
-            .then(function (res) {
-              return res.arrayBuffer();
+              }
             })
-            .then(function (buf) {
-              return new File([buf], filename, {type: mimeType});
-            })
-        );
-      },
-
-      deleteFile: function (index) {
-        this.selectedFile.splice(index, 1);
-      },
-
-      editPosting: function (id) {
-        this.dialogUpdate = true;
-        this.disabledButtonUpdate = false;
-        axios.get('/posting/edit', {
-          params: {
-            id: id
-          }
-        }).then(resp => {
-          const data = resp.data.data;
-          const images = resp.data.images;
-          this.titleUpdate = data.title;
-          this.id = data.id;
-          for (let i = 0; i < images.length; i++) {
-            this.urlToFile(images[i].url, images[i].filename, images[i].mime)
-              .then(file => {
-                this.showImage = true;
-                this.selectedFile.push(file);
-              })
-          }
-        })
-          .catch(resp => {
-            alert(resp.response.data.message);
-          });
-      },
-
-      deletePosting: function (id) {
-        this.$confirm({
-          title: 'Apakah anda yakin ?',
-          message: 'Data yang dihapus tidak bisa dikembalikan.',
-          button: {
-            yes: 'Ya',
-            no: 'Batal'
-          },
-          callback: confirm => {
-            if (confirm) {
-              axios.delete('/posting/delete', {
-                params: {
-                  id: id
-                }
-              }).then(response => {
+              .then(response => {
+                this.dialogMeeting = false;
+                this.disabledButtonDone = false;
+                this.changeTextDone = 'Tandai Selesai';
                 this.setAlert({
                   message: response.data.message,
-                  status: response.data.status,
+                  status: response.data.status
                 });
                 if (response.data.status === 200) {
                   setTimeout(function () {
@@ -951,205 +883,282 @@
                   }, 2000);
                 }
               })
-                .catch(resp => {
-                  alert(resp.response.data.message);
-                });
-            }
+              .catch(resp => {
+                this.disabledButtonDone = false;
+                this.changeTextDone = 'Tandai Selesai';
+                alert(resp.response.data.message)
+              });
           }
+        }
+      });
+    },
+
+    urlToFile: function (url, filename, mimeType) {
+      return (fetch(url, {
+          mode: "no-cors",
+        })
+          .then(function (res) {
+            return res.arrayBuffer();
+          })
+          .then(function (buf) {
+            return new File([buf], filename, {type: mimeType});
+          })
+      );
+    },
+
+    deleteFile: function (index) {
+      this.selectedFile.splice(index, 1);
+    },
+
+    editPosting: function (id) {
+      this.dialogUpdate = true;
+      this.disabledButtonUpdate = false;
+      axios.get('/posting/edit', {
+        params: {
+          id: id
+        }
+      }).then(resp => {
+        const data = resp.data.data;
+        const images = resp.data.images;
+        this.titleUpdate = data.title;
+        this.id = data.id;
+        for (let i = 0; i < images.length; i++) {
+          this.urlToFile(images[i].url, images[i].filename, images[i].mime)
+            .then(file => {
+              this.showImage = true;
+              this.selectedFile.push(file);
+            })
+        }
+      })
+        .catch(resp => {
+          alert(resp.response.data.message);
         });
-      },
+    },
 
-      checkTitle: function () {
-        this.disabledButton = this.title === ''
-      },
-
-      openFile: function (file) {
-        window.open('/storage/' + file, '_blank');
-      },
-
-      checkTitleUpdate: function () {
-        this.disabledButtonUpdate = this.titleUpdate === ''
-      },
-
-      commentPosting: function (id) {
-        this.$router.push(`/posting/comment/${id}`);
-      },
-
-      commentTask: function (id, postingId) {
-        this.$router.push(`/task/detail/${id}/${postingId}`);
-      },
-
-      infiniteHandler($state) {
-        const id = this.getClassId;
-        axios.get('/posting/get', {
-          params: {
-            page: this.page,
-            class_id: id
-          },
-        }).then(({data}) => {
-          if (data.data.data.length) {
-            this.page += 1;
-            this.dataPosting.push(...data.data.data);
-            $state.loaded();
-          } else {
-            $state.complete();
+    deletePosting: function (id) {
+      this.$confirm({
+        title: 'Apakah anda yakin ?',
+        message: 'Data yang dihapus tidak bisa dikembalikan.',
+        button: {
+          yes: 'Ya',
+          no: 'Batal'
+        },
+        callback: confirm => {
+          if (confirm) {
+            axios.delete('/posting/delete', {
+              params: {
+                id: id
+              }
+            }).then(response => {
+              this.setAlert({
+                message: response.data.message,
+                status: response.data.status,
+              });
+              if (response.data.status === 200) {
+                setTimeout(function () {
+                  location.reload();
+                }, 2000);
+              }
+            })
+              .catch(resp => {
+                alert(resp.response.data.message);
+              });
           }
-        });
-      },
-    }
+        }
+      });
+    },
+
+    checkTitle: function () {
+      this.disabledButton = this.title === ''
+    },
+
+    openFile: function (file) {
+      window.open('/storage/' + file, '_blank');
+    },
+
+    checkTitleUpdate: function () {
+      this.disabledButtonUpdate = this.titleUpdate === ''
+    },
+
+    commentPosting: function (id) {
+      this.$router.push(`/posting/comment/${id}`);
+    },
+
+    commentTask: function (id, postingId) {
+      this.$router.push(`/task/detail/${id}/${postingId}`);
+    },
+
+    infiniteHandler($state) {
+      const id = this.getClassId;
+      axios.get('/posting/get', {
+        params: {
+          page: this.page,
+          class_id: id
+        },
+      }).then(({data}) => {
+        if (data.data.data.length) {
+          this.page += 1;
+          this.dataPosting.push(...data.data.data);
+          $state.loaded();
+        } else {
+          $state.complete();
+        }
+      });
+    },
   }
+}
 </script>
 
 <style scoped>
-  .subject {
-    color: white;
-    font-weight: bold;
-    margin-left: 20px;
-    margin-top: 10px;
-    font-size: 40px;
-    float: left;
-  }
+.subject {
+  color: white;
+  font-weight: bold;
+  margin-left: 20px;
+  margin-top: 10px;
+  font-size: 40px;
+  float: left;
+}
 
-  .image {
-    height: 250px;
-    border-radius: 10px;
-    margin-top: -10px;
-  }
+.image {
+  height: 250px;
+  border-radius: 10px;
+  margin-top: -10px;
+}
 
-  .class {
-    margin-left: 22px;
-    margin-top: -10px;
-    float: left;
-    font-size: 25px;
-    color: white;
-  }
+.class {
+  margin-left: 22px;
+  margin-top: -10px;
+  float: left;
+  font-size: 25px;
+  color: white;
+}
 
-  .school-year {
-    margin-top: -20px;
-    font-size: 15px;
-  }
+.school-year {
+  margin-top: -20px;
+  font-size: 15px;
+}
 
-  .code {
-    margin-top: -10px;
-    font-size: 15px;
-  }
+.code {
+  margin-top: -10px;
+  font-size: 15px;
+}
 
-  .show-code {
-    font-size: 80px;
-    margin-top: 30px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
-  }
+.show-code {
+  font-size: 80px;
+  margin-top: 30px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
 
-  .text-code {
-    color: black;
-  }
+.text-code {
+  color: black;
+}
 
-  .icon {
-    margin-left: -7px;
-    margin-top: -3px;
-  }
+.icon {
+  margin-left: -7px;
+  margin-top: -3px;
+}
 
-  .container {
-    width: 85%;
-  }
+.container {
+  width: 85%;
+}
 
-  .title-code {
-    background-color: #3F51B5;
-    color: white;
-  }
+.title-code {
+  background-color: #3F51B5;
+  color: white;
+}
 
-  .clearfix {
-    clear: both;
-  }
+.clearfix {
+  clear: both;
+}
 
-  .row {
-    margin-top: 20px;
-  }
+.row {
+  margin-top: 20px;
+}
 
-  .pa-2 {
-    border-radius: 10px;
-  }
+.pa-2 {
+  border-radius: 10px;
+}
 
-  .title-task {
-    margin-left: 15px;
-  }
+.title-task {
+  margin-left: 15px;
+}
 
-  .clearfix {
-    clear: both;
-  }
+.clearfix {
+  clear: both;
+}
 
-  .avatar {
-    margin-top: -30px;
-    margin-left: 5px;
-  }
+.avatar {
+  margin-top: -30px;
+  margin-left: 5px;
+}
 
-  .share:hover {
-    color: #3F51B5;
-  }
+.share:hover {
+  color: #3F51B5;
+}
 
-  .share {
-    height: 75px;
-    cursor: pointer;
-    box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2);
-  }
+.share {
+  height: 75px;
+  cursor: pointer;
+  box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2);
+}
 
-  .text-share {
-    margin-top: -15px;
-  }
+.text-share {
+  margin-top: -15px;
+}
 
-  .show-file {
-    margin-top: -40px;
-    margin-bottom: 20px;
-  }
+.show-file {
+  margin-top: -40px;
+  margin-bottom: 20px;
+}
 
-  .btn-right {
-    margin-top: -35px;
-  }
+.btn-right {
+  margin-top: -35px;
+}
 
-  .task {
-    height: 200px;
-  }
+.task {
+  height: 200px;
+}
 
-  .close {
-    margin-top: -42px;
-  }
+.close {
+  margin-top: -42px;
+}
 
-  .list-file {
-    height: 40px;
-    margin-top: 10px;
-  }
+.list-file {
+  height: 40px;
+  margin-top: 10px;
+}
 
-  .btn-posting {
-    color: white;
-    margin-left: 11px;
-  }
+.btn-posting {
+  color: white;
+  margin-left: 11px;
+}
 
-  .btn-cancel {
-    margin-left: 100px;
-  }
+.btn-cancel {
+  margin-left: 100px;
+}
 
-  .link-image:hover {
-    color: #3F51B5;
-  }
+.link-image:hover {
+  color: #3F51B5;
+}
 
-  #show-posting {
-    box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2);
-  }
+#show-posting {
+  box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2);
+}
 
-  .link-video {
-    color: white;
-    text-decoration: none
-  }
+.link-video {
+  color: white;
+  text-decoration: none
+}
 
-  .text-meeting:hover {
-    text-decoration: underline;
-  }
+.text-meeting:hover {
+  text-decoration: underline;
+}
 
-  .btn-action {
-    float: right;
-    margin-top: -50px;
-    position: relative;
-  }
+.btn-action {
+  float: right;
+  margin-top: -50px;
+  position: relative;
+}
 </style>

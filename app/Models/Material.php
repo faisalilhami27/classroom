@@ -16,6 +16,7 @@ class Material extends Model
     'semester_id',
     'grade_level_id',
     'subject_id',
+    'major_id',
     'position',
     'title',
     'video_link',

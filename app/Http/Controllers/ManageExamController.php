@@ -183,31 +183,27 @@ class ManageExamController extends Controller
                       <a href="#" class="btn btn-primary btn-sm btn-assign" title="Assign Siswa" id="' . $query->id . '"><i class="icon icon-users"></i></a>
                       <a href="#" class="btn btn-info btn-sm btn-add-student" title="Lihat Siswa" id="' . $query->id . '" onclick="showStudent(' . $query->id . ')"><i class="icon icon-bar-chart"></i></a>';
         } else {
-          if ($today > $endDate) {
-            $button .= '<span class="label label-danger">Ujian sudah berakhir</span>';
-          } else {
-            /* check select question has filled or not */
-            if ($query->select_question == 1) {
-              $button .= '<a href="#" class="btn btn-warning btn-sm btn-switch" title="Aktif Ujian" id="' . $query->id . '" onclick="activateExam(' . $query->id . ')"><i class="icon icon-power-off"></i></a> ';
-            }
+          /* check select question has filled or not */
+          if ($query->select_question == 1) {
+            $button .= '<a href="#" class="btn btn-warning btn-sm btn-switch" title="Aktif Ujian" id="' . $query->id . '" onclick="activateExam(' . $query->id . ')"><i class="icon icon-power-off"></i></a> ';
+          }
 
-            if ($updateDelete) {
-              $button .= '<a href="#" class="btn btn-success btn-sm btn-edit" title="Edit Data" id="' . $query->id . '" onclick="editData(' . $query->id . ')"><i class="icon icon-pencil-square-o"></i></a>
+          if ($updateDelete) {
+            $button .= '<a href="#" class="btn btn-success btn-sm btn-edit" title="Edit Data" id="' . $query->id . '" onclick="editData(' . $query->id . ')"><i class="icon icon-pencil-square-o"></i></a>
                         <a href="#" class="btn btn-primary btn-sm btn-assign" title="Assign Siswa" id="' . $query->id . '"><i class="icon icon-users"></i></a>
                         <a href="#" class="btn btn-info btn-sm btn-select-question" title="Pilih Soal" id="' . $query->id . '" onclick="selectQuestion(' . $query->id . ')"><i class="icon icon-list"></i></a>
                         <a href="#" class="btn btn-danger btn-sm" id="' . $query->id . '" onclick="deleteData(' . $query->id . ')" title="Delete Data"><i class="icon icon-trash-o"></i></a>';
-            } else if ($update) {
-              $button .= '<a href="#" class="btn btn-success btn-sm btn-edit" title="Edit Data" id="' . $query->id . '" onclick="editData(' . $query->id . ')"><i class="icon icon-pencil-square-o"></i></a>
+          } else if ($update) {
+            $button .= '<a href="#" class="btn btn-success btn-sm btn-edit" title="Edit Data" id="' . $query->id . '" onclick="editData(' . $query->id . ')"><i class="icon icon-pencil-square-o"></i></a>
                         <a href="#" class="btn btn-primary btn-sm btn-assign" title="Assign Siswa" id="' . $query->id . '"><i class="icon icon-users"></i></a>
                         <a href="#" class="btn btn-info btn-sm btn-select-question" title="Pilih Soal" id="' . $query->id . '" onclick="selectQuestion(' . $query->id . ')"><i class="icon icon-list"></i></a>';
-            } else if ($delete) {
-              $button .= '<a href="#" class="btn btn-danger btn-sm" id="' . $query->id . '" onclick="deleteData(' . $query->id . ')" title="Delete Data"><i class="icon icon-trash-o"></i></a>
+          } else if ($delete) {
+            $button .= '<a href="#" class="btn btn-danger btn-sm" id="' . $query->id . '" onclick="deleteData(' . $query->id . ')" title="Delete Data"><i class="icon icon-trash-o"></i></a>
                         <a href="#" class="btn btn-primary btn-sm btn-assign" title="Assign Siswa" id="' . $query->id . '"><i class="icon icon-users"></i></a>
                         <a href="#" class="btn btn-info btn-sm btn-select-question" title="Pilih Soal" id="' . $query->id . '" onclick="selectQuestion(' . $query->id . ')"><i class="icon icon-list"></i></a>';
-            } else {
-              $button .= '<a href="#" class="btn btn-info btn-sm btn-select-question" title="Pilih Soal" id="' . $query->id . '" onclick="selectQuestion(' . $query->id . ')"><i class="icon icon-list"></i></a>
+          } else {
+            $button .= '<a href="#" class="btn btn-info btn-sm btn-select-question" title="Pilih Soal" id="' . $query->id . '" onclick="selectQuestion(' . $query->id . ')"><i class="icon icon-list"></i></a>
                         <a href="#" class="btn btn-primary btn-sm btn-assign" title="Assign Siswa" id="' . $query->id . '"><i class="icon icon-users"></i></a>';
-            }
           }
         }
         return $button;

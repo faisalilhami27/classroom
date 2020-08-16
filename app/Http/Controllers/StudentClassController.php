@@ -252,6 +252,7 @@ class StudentClassController extends Controller
         $studentClass = $this->checkClassStudent($class);
         $data[] = [
           'id' => $class->studentClass->id,
+          'subject_id' => $class->studentClass->subject_id,
           'subject' => $class->studentClass->subject->name,
           'color' => $class->studentClass->color,
           'class' => $studentClass,
@@ -268,6 +269,7 @@ class StudentClassController extends Controller
         $studentClass = $this->checkClassTeacher($class);
         $data[] = [
           'id' => $class->id,
+          'subject_id' => $class->subject_id,
           'subject' => $class->subject->name,
           'color' => $class->color,
           'class' => $studentClass,

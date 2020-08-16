@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\MaterialRequest;
 use App\Models\GradeLevel;
+use App\Models\Major;
 use App\Models\Material;
 use App\Models\SchoolYear;
 use App\Models\Semester;
@@ -27,7 +28,8 @@ class MaterialController extends Controller
     $semesters = Semester::all();
     $gradeLevels = GradeLevel::all();
     $schoolYears = SchoolYear::all();
-    return view('backend.e-learning.index', compact('title', 'subjects', 'semesters', 'gradeLevels', 'schoolYears'));
+    $majors = Major::all();
+    return view('backend.e-learning.index', compact('title', 'subjects', 'semesters', 'gradeLevels', 'schoolYears', 'majors'));
   }
 
   /**
@@ -38,7 +40,10 @@ class MaterialController extends Controller
   public function getSubject(Request $request)
   {
     $semesterId = $request->semester_id;
-    $subjects = Subject::where('semester_id', $semesterId)->get();
+    $majorId = $request->major_id;
+    $subjects = Subject::where('semester_id', $semesterId)
+      ->where('major_id', $majorId)
+      ->get();
 
     if ($subjects) {
       $json = ['status' => 200, 'data' => $subjects];
@@ -136,6 +141,7 @@ class MaterialController extends Controller
     $semesterId = $request->semester_id;
     $gradeLevelId = $request->grade_level_id;
     $subjectId = $request->subject_id;
+    $majorId = $request->major_id;
     $schoolYearId = $request->school_year_id;
     $position = $request->position;
     $title = $request->title;
@@ -143,7 +149,9 @@ class MaterialController extends Controller
     $videoLink = $request->video_link;
     $module = $request->file('module');
     $archive = $request->file('archive');
-    $checkPosition = Material::where('position', $position)->first();
+    $checkPosition = Material::where('position', $position)
+      ->where('employee_id', Auth::user()->employee_id)
+      ->first();
 
     /* check the position whether has used or not */
     if (!is_null($checkPosition)) {
@@ -159,6 +167,7 @@ class MaterialController extends Controller
       'semester_id' => (is_null($semesterId)) ? null : $semesterId,
       'grade_level_id' => (is_null($gradeLevelId)) ? null : $gradeLevelId,
       'subject_id' => $subjectId,
+      'major_id' => $majorId,
       'school_year_id' => $schoolYearId,
       'employee_id' => Auth::user()->employee_id,
       'position' => $position,
@@ -166,8 +175,8 @@ class MaterialController extends Controller
       'content' => $content,
       'video_link' => $videoLink,
       'created_by' => Auth::user()->employee_id,
-      'module' => (is_null($module)) ? null : $module->store('e-learning/module', 'public'),
-      'archive' => (is_null($archive)) ? null : $archive->store('e-learning/archive', 'public')
+      'module' => (is_null($module)) ? null : $this->storeFile($module, 'e-learning/module'),
+      'archive' => (is_null($archive)) ? null : $this->storeFile($archive, 'e-learning/archive')
     ]);
 
     if ($insert) {
@@ -177,6 +186,19 @@ class MaterialController extends Controller
     }
 
     return response()->json($json);
+  }
+
+  /**
+   * store file
+   * @param $file
+   * @param $url
+   * @return
+   */
+  private function storeFile($file, $url)
+  {
+    $filename = $file->getClientOriginalName();
+    $replaceFileName = pathinfo($filename, PATHINFO_FILENAME) . '_' . time() . '.' . $file->getClientOriginalExtension();
+    return $file->storeAs($url, $replaceFileName);
   }
 
   /**
@@ -214,6 +236,7 @@ class MaterialController extends Controller
     $semesterId = $request->semester_id;
     $gradeLevelId = $request->grade_level_id;
     $subjectId = $request->subject_id;
+    $majorId = $request->major_id;
     $schoolYearId = $request->school_year_id;
     $position = $request->position;
     $title = $request->title;
@@ -222,7 +245,9 @@ class MaterialController extends Controller
     $module = $request->file('module');
     $archive = $request->file('archive');
     $data = Material::find($id);
-    $checkPosition = Material::where('position', $position)->first();
+    $checkPosition = Material::where('position', $position)
+      ->where('employee_id', Auth::user()->employee_id)
+      ->first();
 
     /* check the position whether has used or not */
     if ($checkPosition) {
@@ -247,7 +272,7 @@ class MaterialController extends Controller
       if (!is_null($data->module)) {
         Storage::disk('public')->delete($data->module);
       }
-      $moduleFile = $module->store('e-learning/module', 'public');
+      $moduleFile = $this->storeFile($module, 'e-learning/module');
     }
 
     /* check if archive is null */
@@ -258,13 +283,14 @@ class MaterialController extends Controller
       if (!is_null($data->archive)) {
         Storage::disk('public')->delete($data->archive);
       }
-      $archiveFile = $archive->store('e-learning/archive', 'public');
+      $archiveFile = $this->storeFile($archive, 'e-learning/archive');
     }
 
     $update = $data->update([
       'semester_id' => (is_null($semesterId)) ? null : $semesterId,
       'grade_level_id' => (is_null($gradeLevelId)) ? null : $gradeLevelId,
       'subject_id' => $subjectId,
+      'major_id' => $majorId,
       'school_year_id' => $schoolYearId,
       'position' => $position,
       'title' => $title,

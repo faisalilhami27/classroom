@@ -15,3 +15,7 @@ Route::group(['prefix' => 'material', 'middleware' => ['auth:employee', 'roles:d
 Route::group(['prefix' => 'learning', 'middleware' => ['auth:employee']], function () {
   Route::get('/', 'HomeController@index')->name('learning.index');
 });
+
+Route::group(['prefix' => 'e-learning', 'middleware' => ['auth:employee,student']], function () {
+  Route::get('/get/material', 'LearningController@getMaterialByClass')->name('learning.get.material');
+});

@@ -30,19 +30,12 @@ class PostingController extends Controller
   {
     $classId = $request->class_id;
     if (Auth::guard('student')->check()) {
-      $data = Posting::with(['getImages', 'student.userStudent', 'employee.userEmployee', 'task'])
+      $data = Posting::with(['getImages', 'student.userStudent', 'employee.userEmployee'])
+        ->with(['task.studentTask' => function ($query) {
+          $query->where('student_id', Auth::user()->student_id);
+        }])
         ->where('class_id', $classId)
         ->orderBy('id', 'desc');
-      $getPosting = $data->get();
-
-      foreach ($getPosting as $posting) {
-        $task = Task::where('posting_id', $posting->id)->first();
-        if (!is_null($task) || !empty($task)) {
-          $data->whereHas('task.studentTasks', function ($query) {
-            $query->where('student_id', Auth::user()->student_id);
-          });
-        }
-      }
 
       $postings = $data->paginate(5);
     } else {

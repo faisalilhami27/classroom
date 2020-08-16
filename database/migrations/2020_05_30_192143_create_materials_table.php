@@ -17,6 +17,7 @@ class CreateMaterialsTable extends Migration
       $table->id();
       $table->bigInteger('school_year_id')->nullable()->unsigned();
       $table->bigInteger('employee_id')->nullable()->unsigned();
+      $table->bigInteger('major_id')->nullable()->unsigned();
       $table->bigInteger('semester_id')->nullable()->unsigned()->comment('filled when the type of school is a university');
       $table->bigInteger('grade_level_id')->nullable()->unsigned()->comment('filled when the type of school is a school');
       $table->bigInteger('subject_id')->nullable()->unsigned();
@@ -32,6 +33,9 @@ class CreateMaterialsTable extends Migration
       $table->softDeletes();
 
       $table->foreign('employee_id')->references('id')->on('employees')
+        ->onUpdate('cascade')
+        ->onDelete('cascade');
+      $table->foreign('major_id')->references('id')->on('employees')
         ->onUpdate('cascade')
         ->onDelete('cascade');
       $table->foreign('school_year_id')->references('id')->on('school_years')

@@ -37,6 +37,11 @@ class Task extends Model
     return $this->hasMany(StudentTask::class, 'task_id', 'id');
   }
 
+  public function studentTask()
+  {
+    return $this->hasOne(StudentTask::class, 'task_id', 'id');
+  }
+
   public function posting()
   {
     return $this->hasOne(Posting::class, 'id', 'posting_id');

@@ -40,6 +40,7 @@
   <app user="{{ $encode }}"></app>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdn.plyr.io/3.6.2/plyr.js"></script>
 <script src="{{ asset('js/app.js') }}"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
 </body>

@@ -140,6 +140,18 @@
                 </span>
               </div>
               <div class="form-group">
+                <label for="major_id">Jurusan <span class="text-danger">*</span></label>
+                <select name="major_id" id="major_id" class="form-control">
+                  <option value="">-- Pilih Jurusan --</option>
+                  @foreach($majors as $major)
+                    <option value="{{ $major->id }}">{{ $major->code }} - {{ $major->name }}</option>
+                  @endforeach
+                </select>
+                <span class="text-danger">
+                  <strong id="major_id-error"></strong>
+                </span>
+              </div>
+              <div class="form-group">
                 <label for="subject_id">Mata Kuliah <span class="text-danger">*</span></label>
                 <select name="subject_id" id="subject_id" class="form-control">
                   <option value="">-- Pilih Mata Kuliah --</option>
@@ -273,7 +285,7 @@
       table.ajax.reload(null, false);
     });
 
-    $('#semester_id, #subject_id, #grade_level_id, #level_filter, #subject_filter, #school_year_id').select2({width: '100%'});
+    $('#major_id, #semester_id, #subject_id, #grade_level_id, #level_filter, #subject_filter, #school_year_id').select2({width: '100%'});
 
     $('#title').keyup(function() {
       const len = this.value.length;
@@ -289,16 +301,20 @@
       }
     });
 
-    $('#semester_id').change(function (e) {
+    $('#semester_id, #major_id').change(function (e) {
       e.preventDefault();
-      const semester = this.value;
+      const semester = $('#semester_id').val();
+      const major = $('#major_id').val();
       $.ajax({
         headers: {
           'X-CSRF-TOKEN': "{{ csrf_token() }}"
         },
         url: '{{ route('material.get.subject') }}',
         type: 'get',
-        data: {semester_id: semester},
+        data: {
+          semester_id: semester,
+          major_id: major
+        },
         dataType: 'json',
         success: function (resp) {
           if (resp.status === 200) {
@@ -359,6 +375,7 @@
             $('#semester_id').select2('destroy').val(data.semester_id).select2({width: '100%'});
             $('#school_year_id').select2('destroy').val(data.school_year_id).select2({width: '100%'});
             $('#subject_id').select2('destroy').val(data.subject_id).select2({width: '100%'});
+            $('#major_id').select2('destroy').val(data.major_id).select2({width: '100%'});
             $('#detail_material').val(data.content);
             $('#position').val(data.position);
             $('#title').val(data.title);
@@ -525,7 +542,7 @@
       $('#archive-file').val('');
       $('#detail_material').val('');
       $('#position').val('');
-      $('#semester_id, #subject_id, #grade_level_id, #school_year_id').select2('destroy').val("").select2({width: '100%'});
+      $('#major_id, #semester_id, #subject_id, #grade_level_id, #school_year_id').select2('destroy').val("").select2({width: '100%'});
     }
   </script>
 @endpush

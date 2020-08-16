@@ -49,6 +49,7 @@ const store = new Vuex.Store({
     user: localStorage.getItem('user'),
     subject: localStorage.getItem('subject'),
     classId: localStorage.getItem('classId'),
+    subjectId: localStorage.getItem('subjectId'),
   },
   mutations: {
     setUser: (state, payload) => {
@@ -61,6 +62,10 @@ const store = new Vuex.Store({
 
     setClassId: (state, payload) => {
       state.classId = payload;
+    },
+
+    setSubjectId: (state, payload) => {
+      state.subjectId = payload;
     },
 
     setAlert: (state, payload) => {
@@ -77,6 +82,7 @@ const store = new Vuex.Store({
     getColor: state => state.color,
     getSubject: state => state.subject.split('-').join(' '),
     getClassId: state => state.classId,
+    getSubjectId: state => state.subjectId,
   },
   actions: {
     setUser: ({commit}, payload) => {
@@ -96,6 +102,11 @@ const store = new Vuex.Store({
     setClassId: ({commit}, payload) => {
       localStorage.setItem('classId', payload);
       commit('setClassId', payload)
+    },
+
+    setSubjectId: ({commit}, payload) => {
+      localStorage.setItem('subjectId', payload);
+      commit('subjectId', payload)
     },
   }
 });
