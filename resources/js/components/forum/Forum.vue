@@ -49,7 +49,6 @@
           <v-card
             class="pa-2 task"
             outlined
-            tile
             :height="changeHeight"
           >
             <p class="title-task" style="margin-bottom: 5px; font-weight: bold">Tugas Mendatang</p>
@@ -79,7 +78,6 @@
           <v-card
             class="pa-2 share"
             outlined
-            tile
             id="show"
             v-show="beforePosting"
             @click="beforePosting = false"
@@ -186,7 +184,6 @@
               v-if="item.type_post == 1"
               class="pa-2"
               outlined
-              tile
               style="margin-top: 30px; box-shadow: 0 6px 6px rgba(0,0,0,0.2)"
             >
               <v-row>
@@ -283,7 +280,6 @@
                 @click="commentTask(item.task.id, item.id)"
                 class="pa-2"
                 outlined
-                tile
                 height="70"
                 style="margin-top: 30px; box-shadow: 0 6px 6px rgba(0,0,0,0.2);"
               >
@@ -295,10 +291,8 @@
                     <v-avatar class="avatar" color="indigo">
                       <v-icon dark>mdi-calendar-text</v-icon>
                     </v-avatar>
-                    <p style="margin-left: 65px; margin-top: -40px">{{ item.employee.name }} memposting tugas baru :
-                      {{ splitTaskName(item.title, 30) }}</p>
-                    <p style="margin-left: 65px; margin-top: -20px; font-size: 11px; color: #797979">
-                      {{ item.date | convertFormatDatetimeToTime }}</p>
+                    <p style="margin-left: 65px; margin-top: -40px">{{ item.employee.name }} memposting tugas baru : {{ splitTaskName(item.title, 30) }}</p>
+                    <p style="margin-left: 65px; margin-top: -20px; font-size: 11px; color: #797979">{{ item.date | convertFormatDatetimeToTime }}</p>
                   </v-col>
                 </v-row>
               </v-card>
@@ -1119,6 +1113,7 @@ export default {
 
 .task {
   height: 200px;
+  border-radius: 20px;
 }
 
 .close {
