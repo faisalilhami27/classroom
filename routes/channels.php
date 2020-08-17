@@ -21,3 +21,7 @@ Broadcast::channel('App.User.{id}', function ($user, $id) {
 Broadcast::channel('groups.{group}', function ($user) {
   return $user;
 }, ['guards' => ['employee', 'student']]);
+
+Broadcast::channel('user.{id}', function ($user) {
+  return $user;
+}, ['guards' => ['employee', 'student']]);

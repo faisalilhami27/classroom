@@ -49,6 +49,11 @@ class StudentClass extends Model
     return $this->hasOne(Semester::class, 'id', 'semester_id');
   }
 
+  public function employee()
+  {
+    return $this->hasOne(Employee::class, 'id', 'employee_id');
+  }
+
   public function schoolYear()
   {
     return $this->hasOne(SchoolYear::class, 'id', 'school_year_id');
