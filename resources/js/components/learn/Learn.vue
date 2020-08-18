@@ -3,21 +3,26 @@
     <v-sheet>
       <v-row>
         <v-col col="12" md="8" sm="12">
-          <div v-for="(item, index) in materials" :key="index">
-            <div v-if="item.video_link != null">
-              <vue-plyr ref="plyr">
-                <div class="plyr__video-embed" id="player">
-                  <iframe
-                    :src="item.video_link"
-                    allowfullscreen allowtransparency>
-                  </iframe>
-                </div>
-              </vue-plyr>
+          <div v-if="materials.length > 0">
+            <div v-for="(item, index) in materials" :key="index">
+              <div v-if="item.video_link != null">
+                <vue-plyr ref="plyr">
+                  <div class="plyr__video-embed" id="player">
+                    <iframe
+                      :src="item.video_link"
+                      allowfullscreen allowtransparency>
+                    </iframe>
+                  </div>
+                </vue-plyr>
+              </div>
+              <div v-else>
+                <img :src="`/backend/img/video_not_available.png`" width="820" height="460" alt="not available">
+                <div class="centered">Tidak ada materi video</div>
+              </div>
             </div>
-            <div v-else>
-              <img :src="`/backend/img/video_not_available.png`" width="820" height="460" alt="not available">
-              <div class="centered">Tidak ada materi video</div>
-            </div>
+          </div>
+          <div>
+            <h2 class="text-center">Belum ada materi untuk kelas ini</h2>
           </div>
         </v-col>
         <v-col col="12" md="4" sm="12">

@@ -36,7 +36,7 @@
                   <v-badge
                     bordered
                     bottom
-                    :color="(checkOnline(userOnline, item)) ? 'green' : '#888888'"
+                    :color="(checkOnline(userOnline, item)) ? 'green' : '#B2B2B2'"
                     dot
                     offset-x="22"
                     offset-y="20"
@@ -59,19 +59,19 @@
           </div>
         </v-col>
         <v-col cols="12" md="8" style="margin-bottom: -10px; border-left: 1px solid #E0E0E0">
+          <v-app-bar color="primary" dark>
+            <div v-if="userTyping" style="margin-top: 15px">
+              <p>{{ userTyping.name }} sedang mengetik...</p>
+            </div>
+          </v-app-bar>
           <div v-if="showChatBox">
             <v-card
               id="chat-box"
-              class="mx-auto overflow-hidden container-box"
-              height="580"
+              class="mx-auto overflow-auto container-box"
+              height="516"
               color="#E1D9D2"
               style="border-radius: 0"
             >
-              <v-app-bar color="primary" dark>
-                <div v-if="userTyping" style="margin-top: 15px">
-                  <p>{{ userTyping.name }} sedang mengetik...</p>
-                </div>
-              </v-app-bar>
               <chat-list :chats="chats"></chat-list>
             </v-card>
             <v-card
@@ -93,7 +93,6 @@
               ></v-textarea>
             </v-card>
           </div>
-          <v-app-bar v-else color="primary" dark></v-app-bar>
         </v-col>
       </v-row>
     </v-container>
