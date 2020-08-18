@@ -30,6 +30,17 @@ class CreateConversationChatRoomsTable extends Migration
         ->constrained()
         ->onUpdate('cascade')
         ->onDelete('cascade');
+      $table->foreignId('receiver_employee')
+        ->nullable()
+        ->constrained('employees')
+        ->onUpdate('cascade')
+        ->onDelete('cascade');
+      $table->foreignId('receiver_student')
+        ->nullable()
+        ->constrained('students')
+        ->onUpdate('cascade')
+        ->onDelete('cascade');
+      $table->integer('status_read')->nullable();
       $table->timestamps();
       $table->softDeletes();
     });

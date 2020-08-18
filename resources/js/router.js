@@ -2,7 +2,7 @@ import Vue from "vue";
 import VueRouter from 'vue-router';
 import Home from "./components/Home";
 import Detail from "./components/other/Detail";
-import ChatPage from "./components/other/ChatPage";
+import ChatPage from "./components/chat/ChatPage";
 import TaskDetail from "./components/task/TaskDetail";
 import ExamPage from "./components/exam/ExamPage";
 import Comment from "./components/forum/Comment";

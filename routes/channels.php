@@ -25,3 +25,7 @@ Broadcast::channel('groups.{group}', function ($user) {
 Broadcast::channel('user.{id}', function ($user) {
   return $user;
 }, ['guards' => ['employee', 'student']]);
+
+Broadcast::channel('chatroom', function ($user) {
+  return $user;
+}, ['guards' => ['employee', 'student']]);

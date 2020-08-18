@@ -21,8 +21,13 @@
           <div style="margin-right: 10px">
             <chat></chat>
           </div>
-          <announcement></announcement>
-          <v-btn @click.stop="dialog = true" icon>
+          <div v-if="checkGuard === 'employee'" style="margin-right: 20px">
+            <announcement></announcement>
+          </div>
+          <div v-else>
+            <announcement></announcement>
+          </div>
+          <v-btn v-if="checkGuard === 'student'" @click.stop="dialog = true" icon>
             <v-icon>mdi-plus</v-icon>
           </v-btn>
           <account></account>
@@ -133,7 +138,7 @@
 <script>
   import Sidebar from "./layouts/Sidebar";
   import Account from "./other/Account";
-  import Chat from "./other/Chat";
+  import Chat from "./chat/Chat";
   import axios from 'axios';
   import {mapActions, mapGetters} from 'vuex';
   import Announcement from "./other/Announcement";
@@ -196,7 +201,12 @@
         'getUrl',
         'getUser',
         'getColor'
-      ])
+      ]),
+
+      checkGuard: function () {
+        const user = JSON.parse(this.getUser);
+        return user.guard;
+      }
     },
     methods: {
       ...mapActions({

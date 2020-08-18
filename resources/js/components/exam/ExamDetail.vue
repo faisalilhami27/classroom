@@ -18,6 +18,9 @@
             </router-link>
           </v-toolbar-title>
           <v-spacer></v-spacer>
+          <div style="margin-right: 10px">
+            <chat></chat>
+          </div>
           <div style="margin-right: 20px">
             <announcement></announcement>
           </div>
@@ -121,6 +124,7 @@
 <script>
 import Sidebar from '../layouts/Sidebar';
 import Account from '../other/Account';
+import Chat from '../chat/Chat';
 import Announcement from "../other/Announcement";
 import Chart from 'chart.js';
 import {mapActions, mapGetters} from "vuex";
@@ -141,7 +145,8 @@ export default {
   components: {
     Announcement,
     Sidebar,
-    Account
+    Account,
+    Chat
   },
   computed: {
     ...mapGetters([

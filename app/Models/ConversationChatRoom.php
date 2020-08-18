@@ -2,12 +2,24 @@
 
 namespace App\Models;
 
+use App\Traits\CustomTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ConversationChatRoom extends Model
 {
+  use SoftDeletes;
+  use CustomTrait;
   protected $table = 'conversation_chat_rooms';
-  protected $fillable = ['student_id', 'employee_id', 'chat_id', 'message'];
+  protected $fillable = [
+    'student_id',
+    'employee_id',
+    'chat_id',
+    'message',
+    'status_read',
+    'receiver_employee',
+    'receiver_student',
+  ];
 
   public function chat()
   {

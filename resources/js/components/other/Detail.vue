@@ -13,7 +13,7 @@
         ></v-app-bar-nav-icon>
         <v-toolbar-title>{{ pageTitle }}</v-toolbar-title>
         <v-spacer></v-spacer>
-        <div style="margin-right: 20px">
+        <div style="margin-right: 10px">
           <chat></chat>
         </div>
         <div style="margin-right: 20px">
@@ -53,7 +53,7 @@
 import Sidebar from '../layouts/Sidebar';
 import Account from './Account';
 import Forum from '../forum/Forum';
-import Chat from '../other/Chat';
+import Chat from '../chat/Chat';
 import Learn from '../learn/Learn';
 import Task from '../task/Task';
 import Exam from '../exam/Exam';

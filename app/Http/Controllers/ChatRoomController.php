@@ -22,11 +22,57 @@ class ChatRoomController extends Controller
     $chatId = $request->chat_id;
     $chat = ChatRoom::find($chatId);
     $conversations = ConversationChatRoom::where('chat_id', $chatId)->get();
+    $this->updateStatusRead($chatId);
     return response()->json([
       'status' => 200,
       'conversation' => $conversations,
-      'chat' => $chat
+      'chat' => $chat,
     ]);
+  }
+
+  /**
+   * update status read
+   * @param $chatId
+   */
+  private function updateStatusRead($chatId)
+  {
+    $user = Auth::user();
+    if (Auth::guard('employee')->check()) {
+      ConversationChatRoom::where('receiver_employee', $user->employee_id)
+        ->where('chat_id', $chatId)
+        ->update(['status_read' => 1]);
+    } else {
+      ConversationChatRoom::where('receiver_student', $user->student_id)
+        ->where('chat_id', $chatId)
+        ->update(['status_read' => 1]);
+    }
+  }
+
+  /**
+   * get all chat
+   */
+  public function getAllChat()
+  {
+    $chats = $this->countChat();
+    return response()->json(['status' => 200, 'count' => $chats]);
+  }
+
+  /**
+   * count chat
+   */
+  private function countChat()
+  {
+    $user = Auth::user();
+    if (Auth::guard('employee')->check()) {
+      $chats = ConversationChatRoom::where('receiver_employee', $user->employee_id)
+        ->where('status_read', 0)
+        ->count();
+    } else {
+      $chats = ConversationChatRoom::where('receiver_student', $user->student_id)
+        ->where('status_read', 0)
+        ->count();
+    }
+    return $chats;
   }
 
   /**
@@ -91,11 +137,25 @@ class ChatRoomController extends Controller
   }
 
   /**
+   * get chat by user
+   */
+  public function getChatByUser()
+  {
+    if (Auth::guard('employee')->check()) {
+      $chats = ChatRoom::where('employee_id', Auth::user()->employee_id)->get();
+    } else {
+      $chats = ChatRoom::where('student_id', Auth::user()->student_id)->get();
+    }
+    return response()->json(['status' => 200, 'chat' => $chats]);
+  }
+
+  /**
    * list chat
    */
   public function listChat()
   {
     $user = Auth::user();
+    $countConversation = 0;
     $data = [];
 
     if (Auth::guard('employee')->check()) {
@@ -104,6 +164,7 @@ class ChatRoomController extends Controller
         ->get();
 
       foreach ($chats as $chat) {
+        $countConversation = $this->countChatUnread($chat->id);
         $conversation = ConversationChatRoom::where('chat_id', $chat->id)
           ->orderBy('id', 'desc')
           ->first();
@@ -112,7 +173,10 @@ class ChatRoomController extends Controller
           'id' => $chat->id,
           'photo' => (is_null($chat->student->photo)) ? null : $chat->student->photo,
           'name' => $chat->student->name,
-          'message' => $conversation->message
+          'student_id' => $chat->student_id,
+          'employee_id' => $chat->employee_id,
+          'message' => $conversation->message,
+          'count' => $countConversation
         ];
       }
     } else {
@@ -121,6 +185,7 @@ class ChatRoomController extends Controller
         ->get();
 
       foreach ($chats as $chat) {
+        $countConversation = $this->countChatUnread($chat->id);
         $conversation = ConversationChatRoom::where('chat_id', $chat->id)
           ->orderBy('id', 'desc')
           ->first();
@@ -129,19 +194,49 @@ class ChatRoomController extends Controller
           'id' => $chat->id,
           'photo' => (is_null($chat->employee->photo)) ? null : $chat->employee->photo,
           'name' => $chat->employee->name,
-          'message' => $conversation->message
+          'employee_id' => $chat->employee_id,
+          'student_id' => $chat->student_id,
+          'message' => $conversation->message,
+          'count' => $countConversation
         ];
       }
     }
-    return response()->json(['status' => 200, 'chat' => $data]);
+    return response()->json([
+      'status' => 200,
+      'chat' => $data,
+    ]);
+  }
+
+  /**
+   * count chat
+   * @param $chatId
+   * @return
+   */
+  private function countChatUnread($chatId)
+  {
+    $user = Auth::user();
+    if (Auth::guard('employee')->check()) {
+      $chats = ConversationChatRoom::where('status_read', 0)
+        ->where('chat_id', $chatId)
+        ->where('receiver_employee', $user->employee_id)
+        ->count();
+    } else {
+      $chats = ConversationChatRoom::where('status_read', 0)
+        ->where('chat_id', $chatId)
+        ->where('receiver_student', $user->student_id)
+        ->count();
+    }
+    return $chats;
   }
 
   /**
    * make or reply chat
    * @param Request $request
+   * @param ConversationChatRoom $conversation
    * @return \Illuminate\Http\JsonResponse
+   * @throws \Pusher\PusherException
    */
-  public function makeOrReplyChat(Request $request)
+  public function makeOrReplyChat(Request $request, ConversationChatRoom $conversation)
   {
     $userId = $request->user_id;
     $message = $request->message;
@@ -152,6 +247,9 @@ class ChatRoomController extends Controller
     } else {
       event(new NewChattingMessage($chat, $chat->chat->employee_id));
     }
+
+    /* call pusher configuration for push notification */
+    $conversation->pusherConfig();
     return response()->json(['status' => 200, 'chat' => $chat]);
   }
 
@@ -167,14 +265,12 @@ class ChatRoomController extends Controller
     $user = Auth::user();
 
     if (Auth::guard('employee')->check()) {
-      $studentIdForConversation = null;
       $employeeId = $user->employee_id;
       $studentId = $userId;
       $chat = ChatRoom::where('employee_id', $employeeId)
         ->where('student_id', $studentId)
         ->first();
     } else {
-      $employeeIdForConversation = null;
       $studentId = $user->student_id;
       $employeeId = $userId;
       $chat = ChatRoom::where('student_id', $studentId)
@@ -187,9 +283,9 @@ class ChatRoomController extends Controller
         'student_id' => $studentId,
         'employee_id' => $employeeId
       ]);
-      $conversation = $this->storeConversation($insert, $insert->id, $message);
+      $conversation = $this->storeConversation($insert, $insert->id, $message, $userId);
     } else {
-      $conversation = $this->storeConversation($chat, $chat->id, $message);
+      $conversation = $this->storeConversation($chat, $chat->id, $message, $userId);
     }
     return $conversation->id;
   }
@@ -199,24 +295,32 @@ class ChatRoomController extends Controller
    * @param $chat
    * @param $chatId
    * @param $message
+   * @param $receiverId
    * @return
    */
-  private function storeConversation($chat, $chatId, $message)
+  private function storeConversation($chat, $chatId, $message, $receiverId)
   {
     $user = Auth::user();
     if (Auth::guard('employee')->check()) {
       $employeeIdForConversation = $user->employee_id;
+      $receiverStudent = $receiverId;
+      $receiverEmployee = null;
       $studentIdForConversation = null;
     } else {
       $studentIdForConversation = $user->student_id;
+      $receiverEmployee = $receiverId;
       $employeeIdForConversation = null;
+      $receiverStudent = null;
     }
 
     return $chat->conversation()->create([
       'chat_id' => $chatId,
       'employee_id' => $employeeIdForConversation,
       'student_id' => $studentIdForConversation,
-      'message' => $message
+      'message' => $message,
+      'status_read' => 0,
+      'receiver_employee' => $receiverEmployee,
+      'receiver_student' => $receiverStudent
     ]);
   }
 }

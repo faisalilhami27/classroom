@@ -15,8 +15,16 @@ class CreateChatRoomsTable extends Migration
   {
     Schema::create('chat_rooms', function (Blueprint $table) {
       $table->id();
-      $table->foreignId('student_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-      $table->foreignId('employee_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+      $table->foreignId('student_id')
+        ->nullable()
+        ->constrained()
+        ->onUpdate('cascade')
+        ->onDelete('cascade');
+      $table->foreignId('employee_id')
+        ->nullable()
+        ->constrained()
+        ->onUpdate('cascade')
+        ->onDelete('cascade');
       $table->timestamps();
       $table->softDeletes();
     });

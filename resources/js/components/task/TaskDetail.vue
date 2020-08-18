@@ -17,6 +17,9 @@
           </router-link>
         </v-toolbar-title>
         <v-spacer></v-spacer>
+        <div style="margin-right: 10px">
+          <chat></chat>
+        </div>
         <div style="margin-right: 20px">
           <announcement></announcement>
         </div>
@@ -139,6 +142,7 @@
   import Sidebar from '../layouts/Sidebar';
   import Account from '../other/Account';
   import TaskInstruction from './TaskInstruction';
+  import Chat from "../chat/Chat";
   import StudentTask from './StudentTask';
   import {mapActions, mapGetters} from "vuex";
   import Announcement from "../other/Announcement";
@@ -150,7 +154,8 @@
       Sidebar,
       Account,
       TaskInstruction,
-      StudentTask
+      StudentTask,
+      Chat
     },
     data: () => ({
       openLeftNavigationDrawer: false,
