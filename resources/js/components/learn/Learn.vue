@@ -21,9 +21,48 @@
               </div>
             </div>
           </div>
-          <div>
+          <div v-else>
             <h2 class="text-center">Belum ada materi untuk kelas ini</h2>
           </div>
+          <br>
+          <v-card max-width="820">
+            <v-card-text>
+              <v-icon>mdi-forum</v-icon>
+              <div style="color: black; font-size: 15px; display: inline-block"><b>Diskusi Materi</b></div>
+            </v-card-text>
+            <v-divider></v-divider>
+            <div v-for="(item, index) in materials" :key="index">
+              <v-btn
+                style="margin-top: 10px"
+                text
+                small
+                color="primary"
+                @click="isShow = !isShow"
+              >
+                Tambah Diskusi
+              </v-btn>
+              <v-col cols="12" sm="12" md="12">
+                <transition name="slide">
+                  <v-textarea
+                    :disabled="disableTextDiscussion"
+                    v-model="message"
+                    auto-grow
+                    v-if="isShow"
+                    solo
+                    rows="1"
+                    background-color="#F7F7F7"
+                    rounded
+                    placeholder="Ketikan sesuatu..."
+                    @keydown.enter.exact.prevent="makeDiscussion(item.id)"
+                  ></v-textarea>
+                </transition>
+              </v-col>
+              <discussion :item="item" :discussion-list="discussionList"></discussion>
+              <v-col cols="12">
+                <v-btn block color="primary" @click.prevent="loadMore" dark>Load More</v-btn>
+              </v-col>
+            </div>
+          </v-card>
         </v-col>
         <v-col col="12" md="4" sm="12">
           <v-card
@@ -68,17 +107,19 @@
               <v-list-item
                 v-for="(item, index) in materials"
                 :key="index"
-                @click.prevent=""
+                @click=""
               >
                 <v-list-item-content>
                   <div v-if="item.module == null && item.archive == null">
                     <v-list-item-title>
                       <v-chip
                         class="ma-2"
-                        small
                         color="red"
                         text-color="white"
                       >
+                        <v-avatar left>
+                          <v-icon>mdi-close-circle</v-icon>
+                        </v-avatar>
                         File tidak tersedia
                       </v-chip>
                     </v-list-item-title>
@@ -91,11 +132,13 @@
                             v-bind="attrs"
                             v-on="on"
                             class="ma-2"
-                            small
                             color="primary"
                             text-color="white"
                             @click.prevent="download(item.module)"
                           >
+                            <v-avatar left>
+                              <v-icon>mdi-download-circle</v-icon>
+                            </v-avatar>
                             {{ splitLengthFilename(splitFilename('module', item.module)) }}
                           </v-chip>
                         </template>
@@ -109,11 +152,13 @@
                             v-bind="attrs"
                             v-on="on"
                             class="ma-2"
-                            small
                             color="purple"
                             text-color="white"
                             @click.prevent="download(item.archive)"
                           >
+                            <v-avatar left>
+                              <v-icon>mdi-download-circle</v-icon>
+                            </v-avatar>
                             {{ splitLengthFilename(splitFilename('archive', item.archive)) }}
                           </v-chip>
                         </template>
@@ -133,15 +178,26 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
+import Discussion from "./Discussion";
 
 export default {
   name: "Learn",
+  components: {Discussion},
   data() {
     return {
       materials: [],
       allMaterial: [],
+      discussionList: [],
       page: 1,
+      paginate: 1,
       item: 0,
+      isShow: false,
+      disableTextAnswer: false,
+      disableTextDiscussion: false,
+      clickBtnAnswer: null,
+      message: '',
+      messageAnswer: '',
+      isShowAnswerList: false,
     }
   },
   mounted() {
@@ -206,12 +262,53 @@ export default {
         }
       }).then(response => {
         this.materials = response.data.material.data;
+        this.materials.map(item => {
+          this.discussionList = item.discussion.map(data => ({
+              ...data,
+              visible: false
+            })
+          );
+          localStorage.setItem('material_id', item.id);
+        });
         this.allMaterial = response.data.all;
       })
+    },
+
+    makeDiscussion(materialId) {
+      if (this.message !== '') {
+        this.disableTextDiscussion = true;
+        axios.post('/e-learning/discussion', {
+          message: this.message,
+          material_id: materialId,
+          class_id: this.getClassId
+        }).then(response => {
+          this.message = '';
+          this.disableTextDiscussion = false;
+        })
+          .catch(resp => {
+            this.disableTextDiscussion = false;
+            alert(resp.response.data.message);
+          });
+      }
+    },
+
+    loadMore() {
+      const materialId = localStorage.getItem('material_id');
+      axios.get('/e-learning/load/more/discussion', {
+        params: {
+          material_id: materialId,
+          class_id: this.getClassId,
+          page: this.paginate
+        }
+      }).then(response => {
+        this.discussionList = response.data.discussion.data;
+        this.paginate = response.data.discussion.next_page_url;
+      })
         .catch(resp => {
+          this.disableTextDiscussion = false;
           alert(resp.response.data.message);
         });
-    }
+    },
   },
 }
 </script>
@@ -223,5 +320,52 @@ export default {
   left: 26%;
   font-weight: bold;
   font-size: 18px;
+}
+
+.slide-enter-active {
+  -moz-transition-duration: 0.3s;
+  -webkit-transition-duration: 0.3s;
+  -o-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -moz-transition-timing-function: ease-in;
+  -webkit-transition-timing-function: ease-in;
+  -o-transition-timing-function: ease-in;
+  transition-timing-function: ease-in;
+}
+
+.slide-leave-active {
+  -moz-transition-duration: 0.3s;
+  -webkit-transition-duration: 0.3s;
+  -o-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -moz-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+  -webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+  -o-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+  transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+}
+
+.slide-enter-to, .slide-leave {
+  max-height: 100px;
+  overflow: hidden;
+}
+
+.slide-enter, .slide-leave-to {
+  overflow: hidden;
+  max-height: 0;
+}
+
+.clearfix {
+  clear: both;
+}
+
+.name {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.action {
+  float: right;
+  position: relative;
+  left: 10px;
 }
 </style>

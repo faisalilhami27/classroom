@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Discussion;
 use App\Models\Material;
 use App\Models\StudentClass;
 use Illuminate\Http\Request;
@@ -21,14 +22,24 @@ class LearningController extends Controller
     $class = StudentClass::where('id', $classId)
       ->where('subject_Id', $subjectId)
       ->first();
-    $materials = Material::where('employee_id', $class->employee_id)
+    $materials = Material::with([
+      'discussion.answer',
+      'discussion.answer.student',
+      'discussion.answer.employee',
+      'discussion.student',
+      'discussion.employee',
+    ])
+      ->with(['discussion' => function($query) {
+        $query->orderBy('id', 'desc');
+      }])
+      ->where('employee_id', $class->employee_id)
       ->where('subject_id', $subjectId)
       ->orderBy('position', 'asc');
 
     return response()->json([
       'status' => 200,
       'all' => $materials->get(),
-      'material' => $materials->paginate(1),
+      'material' => $materials->paginate(1)
     ]);
   }
 }

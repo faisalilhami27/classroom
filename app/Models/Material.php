@@ -46,4 +46,9 @@ class Material extends Model
   {
     return $this->hasOne(Employee::class, 'id', 'employee_id');
   }
+
+  public function discussion()
+  {
+    return $this->hasMany(Discussion::class, 'material_id', 'id');
+  }
 }

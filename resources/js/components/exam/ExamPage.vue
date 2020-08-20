@@ -286,7 +286,7 @@ export default {
       countQuestionHesitate: [],
       showData: false,
       checkHesitate: false,
-      dialog: false,
+      dialog: true,
       warningDialog: false,
       stopTimerViolation: false,
       stopTimerExam: false,
@@ -639,38 +639,38 @@ export default {
     },
 
     notAllowed() {
-      // window.history.pushState(null, "", window.location.href);
-      // document.oncontextmenu = function (e) {
-      //   return false
-      // }
-      // window.addEventListener('blur', (e) => {
-      //   const name = "Melakukan pelanggaran seperti menekan shortcut keyboard alt+tab, inspect element, atau yang lainnya";
-      //   this.warningDialog = true;
-      //   this.countViolation();
-      //   this.addViolation(name);
-      // });
-      // document.addEventListener('keydown', (e) => {
-      //   // press ctrl + T
-      //   if (e.ctrlKey && e.keyCode == 84) {
-      //     const name = "Mencoba membuka tab baru";
-      //     this.warningDialog = true;
-      //     this.countViolation();
-      //     this.addViolation(name);
-      //   }
-      //
-      //   // press ctrl + N
-      //   if (e.ctrlKey && e.keyCode == 78) {
-      //     const name = "Mencoba membuka di browser baru";
-      //     this.warningDialog = true;
-      //     this.countViolation();
-      //     this.addViolation(name);
-      //   }
-      //   return e.preventDefault();
-      // })
-      // document.addEventListener('fullscreenchange', this.exitHandler);
-      // document.addEventListener('webkitfullscreenchange', this.exitHandler);
-      // document.addEventListener('mozfullscreenchange', this.exitHandler);
-      // document.addEventListener('MSFullscreenChange', this.exitHandler);
+      window.history.pushState(null, "", window.location.href);
+      document.oncontextmenu = function (e) {
+        return false
+      }
+      window.addEventListener('blur', (e) => {
+        const name = "Melakukan pelanggaran seperti menekan shortcut keyboard alt+tab, inspect element, atau yang lainnya";
+        this.warningDialog = true;
+        this.countViolation();
+        this.addViolation(name);
+      });
+      document.addEventListener('keydown', (e) => {
+        // press ctrl + T
+        if (e.ctrlKey && e.keyCode == 84) {
+          const name = "Mencoba membuka tab baru";
+          this.warningDialog = true;
+          this.countViolation();
+          this.addViolation(name);
+        }
+
+        // press ctrl + N
+        if (e.ctrlKey && e.keyCode == 78) {
+          const name = "Mencoba membuka di browser baru";
+          this.warningDialog = true;
+          this.countViolation();
+          this.addViolation(name);
+        }
+        return e.preventDefault();
+      })
+      document.addEventListener('fullscreenchange', this.exitHandler);
+      document.addEventListener('webkitfullscreenchange', this.exitHandler);
+      document.addEventListener('mozfullscreenchange', this.exitHandler);
+      document.addEventListener('MSFullscreenChange', this.exitHandler);
     },
 
     exitHandler() {
