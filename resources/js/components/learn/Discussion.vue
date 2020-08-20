@@ -2,17 +2,21 @@
   <div>
     <div
       style="margin-top: -10px"
-      v-if="item.discussion.length > 0"
+      v-if="discussionList.length > 0"
       v-for="(discussion, i) in discussionList"
       :key="i"
     >
       <v-col>
         <v-avatar v-if="discussion.employee_id != null" size="36px" color="red">
-          <span v-if="discussion.employee.photo == null" class="white--text">{{ discussion.employee.name.substr(0, 2) }}</span>
+          <span v-if="discussion.employee.photo == null" class="white--text">{{
+              discussion.employee.name.substr(0, 2)
+            }}</span>
           <img v-else alt="Avatar" :src="`/storage/${discussion.employee.photo}`">
         </v-avatar>
         <v-avatar v-else size="36px" color="red">
-          <span v-if="discussion.student.photo == null" class="white--text">{{ discussion.student.name.substr(0, 2) }}</span>
+          <span v-if="discussion.student.photo == null" class="white--text">{{
+              discussion.student.name.substr(0, 2)
+            }}</span>
           <img v-else alt="Avatar" :src="`/storage/${discussion.student.photo}`">
         </v-avatar>
         <strong v-if="discussion.employee_id != null" class="name">{{ discussion.employee.name }}</strong>
@@ -84,11 +88,15 @@
               <transition name="slide">
                 <div v-show="discussion.visible" style="margin-left: 30px">
                   <v-avatar v-if="answer.employee_id != null" size="36px" color="green">
-                    <span v-if="answer.employee.photo == null" class="white--text">{{ answer.employee.name.substr(0, 2) }}</span>
+                    <span v-if="answer.employee.photo == null" class="white--text">{{
+                        answer.employee.name.substr(0, 2)
+                      }}</span>
                     <img v-else alt="Avatar" :src="`/storage/${answer.employee.photo}`">
                   </v-avatar>
                   <v-avatar v-else size="36px" color="green">
-                    <span v-if="answer.student.photo == null" class="white--text">{{ answer.student.name.substr(0, 2) }}</span>
+                    <span v-if="answer.student.photo == null" class="white--text">{{
+                        answer.student.name.substr(0, 2)
+                      }}</span>
                     <img v-else alt="Avatar" :src="`/storage/${answer.student.photo}`">
                   </v-avatar>
                   <strong v-if="answer.employee_id != null" class="name">{{ answer.employee.name }}</strong>
@@ -127,6 +135,11 @@
         </div>
       </v-col>
     </div>
+    <div v-if="total > limitPerPage">
+      <v-col v-if="showBtnLoadMore" cols="12">
+        <v-btn block color="primary" @click.prevent="getDiscussion(nextPageUrl)" dark>Load More</v-btn>
+      </v-col>
+    </div>
   </div>
 </template>
 
@@ -135,9 +148,15 @@ import {mapGetters} from "vuex";
 
 export default {
   name: "Discussion",
-  props: ['item', 'discussionList'],
+  props: ['materialId'],
   data() {
     return {
+      nextPageUrl: '',
+      currentPage: 1,
+      limitPerPage: 3,
+      total: 0,
+      discussionList: [],
+      showBtnLoadMore: true,
       disableTextAnswer: false,
       disableTextDiscussion: false,
       clickBtnAnswer: null,
@@ -145,7 +164,7 @@ export default {
     }
   },
   mounted() {
-
+    this.getDiscussion();
   },
   computed: {
     ...mapGetters([
@@ -166,6 +185,29 @@ export default {
       } else {
         return `Lihat ${amount} balasan`;
       }
+    },
+
+    getDiscussion(url = '') {
+      axios.get(url ? url : '/e-learning/load/discussion', {
+        params: {
+          material_id: this.materialId,
+          class_id: this.getClassId
+        }
+      }).then(response => {
+        const data = response.data.discussion.data;
+        const mergeData = data.map(data => ({
+            ...data,
+            visible: false
+          })
+        );
+        this.discussionList.push(...mergeData);
+        this.nextPageUrl = response.data.discussion.next_page_url;
+        this.currentPage = response.data.discussion.current_page;
+        this.total = response.data.discussion.total;
+        if (this.currentPage === response.data.discussion.last_page) {
+          this.showBtnLoadMore = false;
+        }
+      });
     },
 
     answerDiscussion(discussionId) {

@@ -57,10 +57,7 @@
                   ></v-textarea>
                 </transition>
               </v-col>
-              <discussion :item="item" :discussion-list="discussionList"></discussion>
-              <v-col cols="12">
-                <v-btn block color="primary" @click.prevent="loadMore" dark>Load More</v-btn>
-              </v-col>
+              <discussion :material-id="item.id"></discussion>
             </div>
           </v-card>
         </v-col>
@@ -262,14 +259,6 @@ export default {
         }
       }).then(response => {
         this.materials = response.data.material.data;
-        this.materials.map(item => {
-          this.discussionList = item.discussion.map(data => ({
-              ...data,
-              visible: false
-            })
-          );
-          localStorage.setItem('material_id', item.id);
-        });
         this.allMaterial = response.data.all;
       })
     },
@@ -290,25 +279,7 @@ export default {
             alert(resp.response.data.message);
           });
       }
-    },
-
-    loadMore() {
-      const materialId = localStorage.getItem('material_id');
-      axios.get('/e-learning/load/more/discussion', {
-        params: {
-          material_id: materialId,
-          class_id: this.getClassId,
-          page: this.paginate
-        }
-      }).then(response => {
-        this.discussionList = response.data.discussion.data;
-        this.paginate = response.data.discussion.next_page_url;
-      })
-        .catch(resp => {
-          this.disableTextDiscussion = false;
-          alert(resp.response.data.message);
-        });
-    },
+    }
   },
 }
 </script>

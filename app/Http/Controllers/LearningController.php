@@ -22,17 +22,7 @@ class LearningController extends Controller
     $class = StudentClass::where('id', $classId)
       ->where('subject_Id', $subjectId)
       ->first();
-    $materials = Material::with([
-      'discussion.answer',
-      'discussion.answer.student',
-      'discussion.answer.employee',
-      'discussion.student',
-      'discussion.employee',
-    ])
-      ->with(['discussion' => function($query) {
-        $query->orderBy('id', 'desc');
-      }])
-      ->where('employee_id', $class->employee_id)
+    $materials = Material::where('employee_id', $class->employee_id)
       ->where('subject_id', $subjectId)
       ->orderBy('position', 'asc');
 

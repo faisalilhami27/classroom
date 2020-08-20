@@ -58,7 +58,7 @@ class DiscussionController extends Controller
    * @param Request $request
    * @return \Illuminate\Http\JsonResponse
    */
-  public function loadMoreDiscussion(Request $request)
+  public function loadDiscussion(Request $request)
   {
     $materialId = $request->material_id;
     $classId = $request->class_id;
@@ -72,7 +72,7 @@ class DiscussionController extends Controller
       ->where('material_id', $materialId)
       ->where('class_id', $classId)
       ->orderBy('id', 'desc')
-      ->simplePaginate($request->get('limit', 2));
+      ->paginate(3);
     return response()->json(['status' => 200, 'discussion' => $discussion]);
   }
 }
