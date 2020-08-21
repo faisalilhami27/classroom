@@ -128,7 +128,7 @@ class VideoConferenceController extends Controller
 
       if (is_null($meetingByClass->first())) {
         /* create announcement for send to students  */
-        $receivers = $this->createAnnouncement($classId, $zoomMeeting->join_url, $zoomMeeting->id, $zoomMeeting->password);
+        $receivers = $this->createAnnouncement($classId);
       }
 
       /* save to table meeting */
@@ -156,12 +156,9 @@ class VideoConferenceController extends Controller
   /**
    * create announcement
    * @param $classId
-   * @param $url
-   * @param $meetingId
-   * @param $password
    * @return array
    */
-  private function createAnnouncement($classId, $url, $meetingId, $password)
+  private function createAnnouncement($classId)
   {
     $user = Auth::user();
     $studentClassTransactions = StudentClassTransaction::where('class_id', $classId)->get();
@@ -205,7 +202,7 @@ class VideoConferenceController extends Controller
     $meeting = Meeting::where('class_id', $classId)->delete();
     $meet->pusherConfig();
     if ($meeting) {
-      $json = ['status' => 200, 'message' => 'Meeting telah selesai'];
+      $json = ['status' => 200, 'message' => 'Pembelajaran online telah selesai'];
     } else {
       $json = ['status' => 500, 'message' => 'Terjadi kesalahan pada server'];
     }

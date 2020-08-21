@@ -20,7 +20,7 @@ class ChatRoomController extends Controller
   public function getChat(Request $request)
   {
     $chatId = $request->chat_id;
-    $chat = ChatRoom::find($chatId);
+    $chat = ChatRoom::where('id', $chatId)->first();
     $conversations = ConversationChatRoom::where('chat_id', $chatId)->get();
     $this->updateStatusRead($chatId);
     return response()->json([
@@ -173,6 +173,7 @@ class ChatRoomController extends Controller
           'id' => $chat->id,
           'photo' => (is_null($chat->student->photo)) ? null : $chat->student->photo,
           'name' => $chat->student->name,
+          'color' => $chat->student->color,
           'student_id' => $chat->student_id,
           'employee_id' => $chat->employee_id,
           'message' => $conversation->message,
@@ -194,6 +195,7 @@ class ChatRoomController extends Controller
           'id' => $chat->id,
           'photo' => (is_null($chat->employee->photo)) ? null : $chat->employee->photo,
           'name' => $chat->employee->name,
+          'color' => $chat->employee->color,
           'employee_id' => $chat->employee_id,
           'student_id' => $chat->student_id,
           'message' => $conversation->message,
@@ -241,7 +243,7 @@ class ChatRoomController extends Controller
     $userId = $request->user_id;
     $message = $request->message;
     $data = $this->checkData($userId, $message);
-    $chat = ConversationChatRoom::find($data);
+    $chat = ConversationChatRoom::where('id', $data)->first();
     if (Auth::guard('employee')->check()) {
       event(new NewChattingMessage($chat, $chat->chat->student_id));
     } else {

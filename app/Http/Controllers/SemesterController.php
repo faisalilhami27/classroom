@@ -82,7 +82,7 @@ class SemesterController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $data = Semester::find($id);
+    $data = Semester::where('id', $id)->first();
 
     if ($data) {
       $json = ['status' => 200, 'data' => $data];
@@ -103,7 +103,7 @@ class SemesterController extends Controller
   {
     $id = $request->id;
     $data = $request->all();
-    $update = Semester::find($id)->update($data);
+    $update = Semester::where('id', $id)->first()->update($data);
 
     if ($update) {
       $json = ['status' => 200, 'message' => 'Data berhasil diubah'];
@@ -123,7 +123,7 @@ class SemesterController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = Semester::find($id);
+    $delete = Semester::where('id', $id)->first();
     $delete->delete();
 
     if ($delete) {

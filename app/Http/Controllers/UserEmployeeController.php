@@ -216,7 +216,7 @@ class UserEmployeeController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $userEmployee = UserEmployee::find($id);
+    $userEmployee = UserEmployee::where('id', $id)->first();
     $roles = $userEmployee->roles()->get();
     $data = [];
 
@@ -273,7 +273,7 @@ class UserEmployeeController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $user = UserEmployee::find($id);
+    $user = UserEmployee::where('id', $id)->first();
     $delete = $user->delete();
     $user->employee->where('id', $user->employee_id)->delete();
 

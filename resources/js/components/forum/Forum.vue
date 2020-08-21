@@ -87,7 +87,7 @@
                 sm="12"
                 md="12"
               >
-                <v-avatar color="indigo" class="avatar">
+                <v-avatar :color="color" class="avatar">
                   <span v-if="!photo" class="white--text">{{ avatar }}</span>
                   <img
                     v-else
@@ -191,7 +191,7 @@
                   sm="12"
                   md="12"
                 >
-                  <v-avatar v-if="item.employee_id != null" color="indigo" class="avatar">
+                  <v-avatar v-if="item.employee_id != null" :color="item.employee.color" class="avatar">
                     <span v-if="item.employee.photo == null"
                           class="white--text">{{ item.employee.name.substr(0, 2) }}</span>
                     <img
@@ -200,7 +200,7 @@
                       alt=""
                     >
                   </v-avatar>
-                  <v-avatar v-else color="indigo" class="avatar">
+                  <v-avatar v-else :color="item.student.color" class="avatar">
                     <span v-if="item.student.photo == null"
                           class="white--text">{{ item.student.name.substr(0, 2) }}</span>
                     <img
@@ -291,8 +291,10 @@
                       <v-avatar class="avatar" color="indigo">
                         <v-icon dark>mdi-calendar-text</v-icon>
                       </v-avatar>
-                      <p style="margin-left: 65px; margin-top: -40px">{{ item.employee.name }} memposting tugas baru : {{ splitTaskName(item.title, 30) }}</p>
-                      <p style="margin-left: 65px; margin-top: -20px; font-size: 11px; color: #797979">{{ item.date | convertFormatDatetimeToTime }}</p>
+                      <p style="margin-left: 65px; margin-top: -40px">{{ item.employee.name }} memposting tugas baru :
+                        {{ splitTaskName(item.title, 30) }}</p>
+                      <p style="margin-left: 65px; margin-top: -20px; font-size: 11px; color: #797979">
+                        {{ item.date | convertFormatDatetimeToTime }}</p>
                     </v-col>
                   </v-row>
                 </v-card>
@@ -311,11 +313,13 @@
                       sm="12"
                       md="12"
                     >
-                      <v-avatar class="avatar" color="indigo">
+                      <v-avatar class="avatar" :color="item.employee.color">
                         <v-icon dark>mdi-calendar-text</v-icon>
                       </v-avatar>
-                      <p style="margin-left: 65px; margin-top: -40px">{{ item.employee.name }} memposting tugas baru : {{ splitTaskName(item.title, 30) }}</p>
-                      <p style="margin-left: 65px; margin-top: -20px; font-size: 11px; color: #797979">{{ item.date | convertFormatDatetimeToTime }}</p>
+                      <p style="margin-left: 65px; margin-top: -40px">{{ item.employee.name }} memposting tugas baru :
+                        {{ splitTaskName(item.title, 30) }}</p>
+                      <p style="margin-left: 65px; margin-top: -20px; font-size: 11px; color: #797979">
+                        {{ item.date | convertFormatDatetimeToTime }}</p>
                     </v-col>
                   </v-row>
                 </v-card>
@@ -621,6 +625,11 @@ export default {
         this.photo = true;
         return '/storage/' + user.photo;
       }
+    },
+
+    color: function () {
+      const user = JSON.parse(this.getUser);
+      return user.color;
     },
 
     getName: function () {

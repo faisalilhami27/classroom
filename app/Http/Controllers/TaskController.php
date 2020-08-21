@@ -295,7 +295,7 @@ class TaskController extends Controller
     $classId = $request->class_id;
     $class = StudentClass::where('id', $classId)->first();
 
-    $task = Task::find($id);
+    $task = Task::where('id', $id)->first();
 
     /* update data task */
     $task->update([
@@ -353,7 +353,7 @@ class TaskController extends Controller
   public function destroy(Request $request, Task $params)
   {
     $id = $request->id;
-    $task = Task::find($id);
+    $task = Task::where('id', $id)->first();
 
     $task->posting()->delete();
 
@@ -565,7 +565,7 @@ class TaskController extends Controller
   {
     $taskId = $request->task_id;
     $status = ($request->status) ? 2 : 1;
-    $task = Task::find($taskId);
+    $task = Task::where('id', $taskId)->first();
     $update = $task->update(['show_score' => $status]);
 
     if ($update) {

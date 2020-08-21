@@ -79,7 +79,7 @@ class GradeLevelController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $data = GradeLevel::find($id);
+    $data = GradeLevel::where('id', $id)->first();
 
     if ($data) {
       $json = ['status' => 200, 'data' => $data];
@@ -100,7 +100,7 @@ class GradeLevelController extends Controller
   {
     $id = $request->id;
     $data = $request->all();
-    $update = GradeLevel::find($id)->update($data);
+    $update = GradeLevel::where('id', $id)->first()->update($data);
 
     if ($update) {
       $json = ['status' => 200, 'message' => 'Data berhasil diubah'];
@@ -120,7 +120,7 @@ class GradeLevelController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = GradeLevel::find($id);
+    $delete = GradeLevel::where('id', $id)->first();
     $delete->delete();
 
     if ($delete) {

@@ -30,7 +30,8 @@ class ForumCommentController extends Controller
           'user' => [
             'id' => optional($comment->employee)->id,
             'name' => optional($comment->employee)->name . ' (Guru)',
-            'photo' => (is_null(optional($comment->employee)->photo)) ? null : asset('storage/' . optional($comment->employee)->photo)
+            'photo' => (is_null(optional($comment->employee)->photo)) ? null : asset('storage/' . optional($comment->employee)->photo),
+            'color' => $comment->employee->color
           ]
         ];
       } else {
@@ -40,7 +41,8 @@ class ForumCommentController extends Controller
           'user' => [
             'id' => optional($comment->student)->id,
             'name' => optional($comment->student)->name,
-            'photo' => (is_null(optional($comment->student)->photo)) ? null : asset('storage/' . optional($comment->student)->photo)
+            'photo' => (is_null(optional($comment->student)->photo)) ? null : asset('storage/' . optional($comment->student)->photo),
+            'color' => $comment->student->color
           ]
         ];
       }

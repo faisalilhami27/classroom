@@ -27,7 +27,7 @@
               :key="index"
             >
               <v-col md="12">
-                <v-avatar color="red" size="40">
+                <v-avatar :color="item.user.color" size="40">
                   <span v-if="item.user.photo == null" class="white--text">{{ item.user.name.substr(0, 2) }}</span>
                   <img v-else :alt="item.user.name.substr(0, 2)" :src="item.user.photo">
                 </v-avatar>
@@ -128,9 +128,8 @@
     methods: {
       getPosting() {
         const id = this.$route.params.id;
-        const url = this.getUrl;
 
-        axios.get(url + 'posting/show', {
+        axios.get('/posting/show', {
           params: {
             id: id
           }
@@ -147,9 +146,7 @@
 
       getComment() {
         const id = this.$route.params.id;
-        const url = this.getUrl;
-
-        axios.get(url + 'comment/get', {
+        axios.get('/comment/get', {
           params: {
             posting_id: id
           }
@@ -166,10 +163,9 @@
 
       postingComment() {
         const id = this.$route.params.id;
-        const url = this.getUrl;
         const text = this.text;
 
-        axios.post(url + 'comment/add', {
+        axios.post('/comment/add', {
           posting_id: id,
           message: text
         }).then(response => {

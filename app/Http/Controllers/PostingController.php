@@ -287,7 +287,7 @@ class PostingController extends Controller
   public function destroy(Request $request, Posting $post)
   {
     $id = $request->id;
-    $posting = Posting::find($id);
+    $posting = Posting::where('id', $id)->first();
 
     /* delete old files */
     if (!is_null($posting->getImages())) {

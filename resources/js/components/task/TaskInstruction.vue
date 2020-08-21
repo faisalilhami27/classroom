@@ -62,7 +62,7 @@
               :key="index"
             >
               <v-col md="12">
-                <v-avatar color="red" size="40">
+                <v-avatar :color="item.user.color" size="40">
                   <span v-if="item.user.photo == null" class="white--text">{{ item.user.name.substr(0, 2) }}</span>
                   <img v-else :alt="item.user.name.substr(0, 2)" :src="item.user.photo">
                 </v-avatar>

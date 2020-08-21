@@ -178,7 +178,7 @@ class AssignExamStudentController extends Controller
   {
     $checkQuestion = AccommodateExamQuestion::where('exam_id', $examId)->count();
     $checkAssignStudent = AssignExamStudent::where('exam_id', $examId)->count();
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $message = null;
 
     /* check whether students have been assigned to the exam or not */
@@ -207,7 +207,7 @@ class AssignExamStudentController extends Controller
   public function generateRandomQuestion(Request $request)
   {
     $examId = $request->exam_id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $assignStudents = $exam->assignStudent()->where('status_generate', 0)->get();
     $message = $this->checkingData($examId); // checking data;
     $data = [];

@@ -116,7 +116,7 @@ class UserStudentController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $userStudent = UserStudent::find($id);
+    $userStudent = UserStudent::where('id', $id)->first();
 
     if ($userStudent) {
       $json = ['status' => 200, 'data' => $userStudent];
@@ -139,7 +139,7 @@ class UserStudentController extends Controller
     $username = $request->username;
     $emailVerified = $request->email_verified;
 
-    $update = UserStudent::find($id)->update([
+    $update = UserStudent::where('id', $id)->first()->update([
       'username' => $username,
       'status' => $status,
       'email_verified' => $emailVerified
@@ -163,7 +163,7 @@ class UserStudentController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = UserStudent::find($id)->delete();
+    $delete = UserStudent::where('id', $id)->first()->delete();
 
     if ($delete) {
       $json = ['status' => 200, 'message' => 'Data berhasil dihapus'];

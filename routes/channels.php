@@ -29,3 +29,11 @@ Broadcast::channel('user.{id}', function ($user) {
 Broadcast::channel('chatroom', function ($user) {
   return $user;
 }, ['guards' => ['employee', 'student']]);
+
+Broadcast::channel('class.{id}', function ($user) {
+  return $user;
+}, ['guards' => ['employee', 'student']]);
+
+Broadcast::channel('class-answer.{id}', function ($user) {
+  return $user;
+}, ['guards' => ['employee', 'student']]);

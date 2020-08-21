@@ -100,7 +100,7 @@ class MajorController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $data = Major::find($id);
+    $data = Major::where('id', $id)->first();
 
     if ($data) {
       $json = ['status' => 200, 'data' => $data];
@@ -121,7 +121,7 @@ class MajorController extends Controller
   {
     $id = $request->id;
     $data = $request->all();
-    $update = Major::find($id)->update($data);
+    $update = Major::where('id', $id)->first()->update($data);
 
     if ($update) {
       $json = ['status' => 200, 'message' => 'Data berhasil diubah'];
@@ -141,7 +141,7 @@ class MajorController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = Major::find($id);
+    $delete = Major::where('id', $id)->first();
     $delete->delete();
 
     if ($delete) {

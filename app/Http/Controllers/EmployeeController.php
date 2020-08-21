@@ -21,7 +21,6 @@ class EmployeeController extends Controller
    */
   public function index()
   {
-//    echo json_encode(configuration()->school_logo); die;
     $title = 'Daftar Karyawan';
     return view('backend.employee.index', compact('title'));
   }
@@ -88,6 +87,7 @@ class EmployeeController extends Controller
     $ein = htmlspecialchars($request->employee_identity_number);
     $phoneNumber = htmlspecialchars($request->phone_number);
     $email = htmlspecialchars($request->email);
+    $color = $this->randomColor();
 
     $insert = Employee::create([
       'employee_identity_number' => $ein,
@@ -95,7 +95,8 @@ class EmployeeController extends Controller
       'first_name' => $firstName,
       'last_name' => (is_null($lastName) || empty($lastName)) ? null : $lastName,
       'email' => $email,
-      'phone_number' => $phoneNumber
+      'phone_number' => $phoneNumber,
+      'color' => $color
     ]);
 
     if ($insert) {
@@ -107,6 +108,14 @@ class EmployeeController extends Controller
     return response()->json($json);
   }
 
+  /** random color
+   *
+   */
+  private function randomColor()
+  {
+    return sprintf('#%06X', mt_rand(0, 0xFFFFFF));
+  }
+
   /**
    * Show the form for editing the specified resource.
    *
@@ -116,7 +125,7 @@ class EmployeeController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $data = Employee::find($id);
+    $data = Employee::where('id', $id)->first();
 
     if ($data) {
       $json = ['status' => 200, 'data' => $data];
@@ -142,7 +151,7 @@ class EmployeeController extends Controller
     $phoneNumber = htmlspecialchars($request->phone_number);
     $email = htmlspecialchars($request->email);
 
-    $update = Employee::find($id)->update([
+    $update = Employee::where('id', $id)->first()->update([
       'employee_identity_number' => $ein,
       'name' => $firstName . ' ' . $lastName,
       'first_name' => $firstName,
@@ -169,7 +178,7 @@ class EmployeeController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = Employee::find($id)->delete();
+    $delete = Employee::where('id', $id)->first()->delete();
 
     if ($delete) {
       $json = ['status' => 200, 'message' => 'Data berhasil dihapus'];

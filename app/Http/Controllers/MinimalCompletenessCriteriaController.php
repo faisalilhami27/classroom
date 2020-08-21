@@ -216,7 +216,7 @@ class MinimalCompletenessCriteriaController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $data = MinimalCompletenessCriteria::find($id);
+    $data = MinimalCompletenessCriteria::where('id', $id)->first();
 
     if ($data) {
       $json = ['status' => 200, 'data' => $data];
@@ -238,7 +238,7 @@ class MinimalCompletenessCriteriaController extends Controller
     $id = $request->id;
     $minimalCriteria = $request->minimal_criteria;
 
-    $update = MinimalCompletenessCriteria::find($id)->update([
+    $update = MinimalCompletenessCriteria::where('id', $id)->first()->update([
       'minimal_criteria' => $minimalCriteria,
       'last_updated_by' => Auth::user()->employee_id
     ]);
@@ -261,7 +261,7 @@ class MinimalCompletenessCriteriaController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = MinimalCompletenessCriteria::find($id);
+    $delete = MinimalCompletenessCriteria::where('id', $id)->first();
     $delete->delete();
 
     if ($delete) {

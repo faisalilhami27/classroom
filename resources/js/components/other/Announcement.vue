@@ -30,16 +30,15 @@
         @click="openLink(item.class_id, item.student_class.subject.name)"
       >
         <v-list-item-icon>
-          <v-avatar v-if="checkGuard === 'student'" size="40" color="indigo">
-            <span class="white--text headline"
-                  v-if="item.employee.photo == null">{{ item.employee.name.substr(0,2) }}</span>
+          <v-avatar v-if="checkGuard === 'student'" size="40" :color="item.employee.color">
+            <span class="white--text headline" v-if="item.employee.photo == null">{{ item.employee.name.substr(0,2) }}</span>
             <img
               v-else
               :src="`/storage/${item.employee.photo}`"
               :alt="item.employee.name"
             >
           </v-avatar>
-          <v-avatar v-else size="40" color="indigo">
+          <v-avatar v-else size="40" :color="item.student.color">
             <span class="white--text headline"
                   v-if="item.student.photo == null">{{ item.student.name.substr(0,2) }}</span>
             <img

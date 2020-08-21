@@ -58,7 +58,7 @@ class StudentController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $data = Student::find($id);
+    $data = Student::where('id', $id)->first();
 
     if ($data) {
       $json = ['status' => 200, 'data' => $data];
@@ -79,7 +79,7 @@ class StudentController extends Controller
   {
     $data = $request->all();
     $id = $request->id;
-    $update = Student::find($id)->update($data);
+    $update = Student::where('id', $id)->first()->update($data);
 
     if ($update) {
       $json = ['status' => 200, 'message' => 'Data berhasil diubah'];
@@ -99,7 +99,7 @@ class StudentController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = Student::find($id)->delete();
+    $delete = Student::where('id', $id)->first()->delete();
 
     if ($delete) {
       $json = ['status' => 200, 'message' => 'Data berhasil dihapus'];

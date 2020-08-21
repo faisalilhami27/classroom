@@ -329,7 +329,7 @@ class QuestionBankController extends Controller
           }
         } else {
           if ($answerChoice == $i) {
-            AnswerKey::find($answerId)->update([
+            AnswerKey::where('id', $answerId)->first()->update([
               'answer_name' => $answer,
               'key' => 1,
               'question_id' => $questionId,
@@ -337,7 +337,7 @@ class QuestionBankController extends Controller
               'last_updated_by' => Auth::user()->employee_id
             ]);
           } else {
-            AnswerKey::find($answerId)->update([
+            AnswerKey::where('id', $answerId)->first()->update([
               'answer_name' => $answer,
               'key' => 0,
               'question_id' => $questionId,
@@ -419,7 +419,7 @@ class QuestionBankController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $data = QuestionBank::find($id);
+    $data = QuestionBank::where('id', $id)->first();
     $convertQuestion = htmlspecialchars($data->question_name);
     $questionReplace = trim(preg_replace('/\s\s+/', ' ', $convertQuestion));
     $subjects = Subject::where('semester_id', $data->semester_id)
@@ -452,7 +452,7 @@ class QuestionBankController extends Controller
     $questionName = htmlspecialchars($request->question_name);
     $questionReplace = trim(preg_replace('/\s\s+/', ' ', $questionName));
     $document = $request->file('document');
-    $data = QuestionBank::find($id);
+    $data = QuestionBank::where('id', $id)->first();
     $update = null;
 
     if (!empty($document)) {
@@ -520,7 +520,7 @@ class QuestionBankController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = QuestionBank::find($id);
+    $delete = QuestionBank::where('id', $id)->first();
     $delete->answerKey()->delete();
     $delete->delete();
 

@@ -110,7 +110,7 @@ class ExamProgressController extends Controller
   {
     $studentId = $request->student_id;
     $examId = $request->exam_id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $minimalCriteria = MinimalCompletenessCriteria::where('subject_id', $exam->subject_id)->first();
     $data = StudentExamScore::with(['assignStudent.student', 'remedial'])
       ->whereHas('assignStudent', function ($query) use ($studentId) {
@@ -148,7 +148,7 @@ class ExamProgressController extends Controller
   public function chartScoreExam(Request $request)
   {
     $examId = $request->exam_id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $studentClass = StudentClassTransaction::where('class_id', $exam->examClass->class_id)->get();
     $minimalCriteria = MinimalCompletenessCriteria::where('subject_id', $exam->subject_id)->first();
     $assignStudents = AssignExamStudent::where('exam_id', $examId)->get();

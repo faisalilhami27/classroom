@@ -124,7 +124,7 @@ class SubjectController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $data = Subject::find($id);
+    $data = Subject::where('id', $id)->first();
 
     if ($data) {
       $json = ['status' => 200, 'data' => $data];
@@ -149,7 +149,7 @@ class SubjectController extends Controller
     $code = $request->code;
     $name = $request->name;
 
-    $update = Subject::find($id)->update([
+    $update = Subject::where('id', $id)->first()->update([
       'code' => strtoupper($code),
       'name' => ucwords($name),
       'semester_id' => (is_null($semester)) ? null : $semester,
@@ -174,7 +174,7 @@ class SubjectController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = Subject::find($id);
+    $delete = Subject::where('id', $id)->first();
     $delete->delete();
 
     if ($delete) {

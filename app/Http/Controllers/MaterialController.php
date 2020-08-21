@@ -210,7 +210,7 @@ class MaterialController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $data = Material::find($id);
+    $data = Material::where('id', $id)->first();
     $subjects = Subject::where('semester_id', optional($data)->semester_id)
       ->orWhere('semester_id', null)
       ->get();
@@ -244,7 +244,7 @@ class MaterialController extends Controller
     $videoLink = $request->video_link;
     $module = $request->file('module');
     $archive = $request->file('archive');
-    $data = Material::find($id);
+    $data = Material::where('id', $id)->first();
     $checkPosition = Material::where('position', $position)
       ->where('employee_id', Auth::user()->employee_id)
       ->first();
@@ -319,7 +319,7 @@ class MaterialController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = Material::find($id);
+    $delete = Material::where('id', $id)->first();
     $delete->delete();
 
     if ($delete) {

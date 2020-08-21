@@ -19,7 +19,6 @@ use App\Models\Semester;
 use App\Models\StudentClass;
 use App\Models\StudentExamScore;
 use App\Models\Subject;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
@@ -34,12 +33,12 @@ class ManageExamController extends Controller
   public function index()
   {
     $title = 'Daftar Kelola Ujian';
-    $subjects = Subject::all();
-    $semesters = Semester::all();
-    $gradeLevels = GradeLevel::all();
-    $examRules = ExamRules::all();
-    $schoolYears = SchoolYear::all();
-    $majors = Major::all();
+    $subjects = Subject::orderBy('id', 'desc')->get();
+    $semesters = Semester::orderBy('id', 'desc')->get();
+    $gradeLevels = GradeLevel::orderBy('id', 'desc')->get();
+    $examRules = ExamRules::orderBy('id', 'desc')->get();
+    $schoolYears = SchoolYear::orderBy('id', 'desc')->get();
+    $majors = Major::orderBy('id', 'desc')->get();
     return view('backend.cbt.manageExam', compact('title', 'subjects', 'semesters', 'gradeLevels', 'examRules', 'schoolYears', 'majors'));
   }
 
@@ -110,7 +109,7 @@ class ManageExamController extends Controller
   public function getTextRules(Request $request)
   {
     $id = $request->id;
-    $data = ExamRules::find($id);
+    $data = ExamRules::where('id', $id)->first();
     $convertText = htmlspecialchars($data->text);
     $textReplace = trim(preg_replace('/\s\s+/', ' ', $convertText));
 
@@ -129,7 +128,7 @@ class ManageExamController extends Controller
    */
   public function datatable()
   {
-    $data = ManageExam::with(['subject'])
+    $data = ManageExam::with(['subject', 'semester', 'gradeLevel'])
       ->orderBy('id', 'desc')
       ->where('employee_id', Auth::user()->employee_id)
       ->get();
@@ -175,8 +174,6 @@ class ManageExamController extends Controller
         $update = checkPermission()->update;
         $delete = checkPermission()->delete;
         $button = null;
-        $endDate = Carbon::parse($query->end_date)->format('Y-m-d H:i:s');
-        $today = Carbon::now()->format('Y-m-d H:i:s');
 
         if ($query->status == 1) {
           $button .= '<a href="#" class="btn btn-warning btn-sm" id="' . $query->id . '" onclick="showDetail(' . $query->id . ')" title="Detail Ujian"><i class="icon icon-eye"></i></a>
@@ -335,7 +332,7 @@ class ManageExamController extends Controller
   {
     $studentId = $request->student_id;
     $examId = $request->exam_id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $minimalCriteria = MinimalCompletenessCriteria::where('subject_id', $exam->subject_id)->first();
     $data = StudentExamScore::with(['assignStudent.student', 'remedial'])
       ->whereHas('assignStudent', function ($query) use ($studentId) {
@@ -370,7 +367,7 @@ class ManageExamController extends Controller
   {
     $schoolYearId = $request->school_year_id;
     $examId = $request->exam_id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $arrayQuestion = [];
     $questions = QuestionBank::with(['correctAnswer'])
       ->where('school_year_id', $schoolYearId)
@@ -500,7 +497,7 @@ class ManageExamController extends Controller
   public function activateExam(Request $request)
   {
     $examId = $request->id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $checkData = $this->checkingData($examId, $exam); // checking data
 
     if (!is_null($checkData)) {
@@ -803,7 +800,7 @@ class ManageExamController extends Controller
       return response()->json(['status' => 500, 'message' => "Jumlah soal tidak boleh 0"]);
     }
 
-    $update = ManageExam::find($id)->update([
+    $update = ManageExam::where('id', $id)->first()->update([
       'semester_id' => $semesterId,
       'grade_level_id' => $gradeLevelId,
       'exam_rules_id' => $examRulesId,
@@ -841,31 +838,11 @@ class ManageExamController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = ManageExam::find($id);
+    $delete = ManageExam::where('id', $id)->first();
     $delete->delete();
 
     if ($delete) {
       $json = ['status' => 200, 'message' => 'Data berhasil dihapus'];
-    } else {
-      $json = ['status' => 500, 'message' => 'Data gagal dihapus'];
-    }
-
-    return response()->json($json);
-  }
-
-  /**
-   * destroy temporary question by id
-   * @param Request $request
-   * @return \Illuminate\Http\JsonResponse
-   */
-  public function destroyTemporaryQuestionById(Request $request)
-  {
-    $questions = $request->question_list;
-    $countQuestion = count($questions);
-    $delete = AccommodateTemporaryExamQuestion::whereIn('id', $questions)->delete();
-
-    if ($delete) {
-      $json = ['status' => 200, 'message' => $countQuestion . ' soal berhasil dihapus'];
     } else {
       $json = ['status' => 500, 'message' => 'Data gagal dihapus'];
     }

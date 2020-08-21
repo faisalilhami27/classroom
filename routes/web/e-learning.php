@@ -21,4 +21,5 @@ Route::group(['prefix' => 'e-learning', 'middleware' => ['auth:employee,student'
   Route::post('/discussion', 'DiscussionController@makeDiscussion')->name('learning.discussion');
   Route::post('/answer/discussion', 'DiscussionController@answerDiscussion')->name('learning.answer.discussion');
   Route::get('/load/discussion', 'DiscussionController@loadDiscussion')->name('learning.load.discussion');
+  Route::get('/load/answer/discussion', 'DiscussionController@loadAnswerDiscussion')->name('learning.load.answer.discussion');
 });

@@ -106,7 +106,7 @@ const store = new Vuex.Store({
 
     setSubjectId: ({commit}, payload) => {
       localStorage.setItem('subjectId', payload);
-      commit('subjectId', payload)
+      commit('setSubjectId', payload)
     },
   }
 });

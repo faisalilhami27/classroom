@@ -6,7 +6,7 @@
           v-on="on"
           icon
         >
-          <v-avatar color="red" size="45">
+          <v-avatar :color="color" size="45">
             <span v-if="!photo" class="white--text">{{ avatar }}</span>
             <img
               v-else
@@ -70,6 +70,11 @@
           this.photo = true;
           return '/storage/' + user.photo;
         }
+      },
+
+      color: function() {
+        const user = JSON.parse(this.getUser);
+        return user.color;
       }
     },
     methods: {

@@ -12,7 +12,7 @@ class Employee extends Model
   protected $table = "employees";
   protected $primaryKey = "id";
   protected $dates = ['deleted_at', 'updated_at', 'created_at'];
-  protected $fillable = ["name", "first_name", "last_name", "email", "phone_number", "employee_identity_number", "photo"];
+  protected $fillable = ["name", "first_name", "last_name", "email", "phone_number", "employee_identity_number", "photo", "color"];
 
   public function userEmployee()
   {

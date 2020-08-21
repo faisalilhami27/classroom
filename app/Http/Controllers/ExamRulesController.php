@@ -88,7 +88,7 @@ class ExamRulesController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $data = ExamRules::find($id);
+    $data = ExamRules::where('id', $id)->first();
     $convertText = htmlspecialchars($data->text);
     $textReplace = trim(preg_replace('/\s\s+/', ' ', $convertText));
 
@@ -113,7 +113,7 @@ class ExamRulesController extends Controller
     $text = $request->text;
     $name = $request->name;
 
-    $update = ExamRules::find($id)->update([
+    $update = ExamRules::where('id', $id)->first()->update([
       'text' => $text,
       'name' => $name,
       'last_updated_by' => Auth::user()->employee_id
@@ -137,7 +137,7 @@ class ExamRulesController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = ExamRules::find($id);
+    $delete = ExamRules::where('id', $id)->first();
     $delete->delete();
 
     if ($delete) {

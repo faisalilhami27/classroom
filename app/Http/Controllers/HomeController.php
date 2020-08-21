@@ -120,6 +120,7 @@ class HomeController extends Controller
         'phone' => $user->student->phone_number,
         'identity_number' => $user->student->student_identity_number,
         'photo' => $user->student->photo,
+        'color' => $user->student->color,
         'guard' => 'student'
       ];
     } else {
@@ -134,6 +135,7 @@ class HomeController extends Controller
         'phone' => $user->employee->phone_number,
         'identity_number' => $user->employee->employee_identity_number,
         'photo' => $user->employee->photo,
+        'color' => $user->employee->color,
         'guard' => 'employee'
       ];
     }

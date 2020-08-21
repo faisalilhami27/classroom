@@ -126,7 +126,7 @@ class SchoolYearController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $data = SchoolYear::find($id);
+    $data = SchoolYear::where('where', $id)->first();
 
     if ($data) {
       $json = ['status' => 200, 'data' => $data];
@@ -150,7 +150,7 @@ class SchoolYearController extends Controller
     $endYear = $request->end_year;
     $semester = $request->semester;
 
-    $update = SchoolYear::find($id)->update([
+    $update = SchoolYear::where('where', $id)->first()->update([
       'early_year' => $earlyYear,
       'end_year' => $endYear,
       'semester' => $semester
@@ -174,7 +174,7 @@ class SchoolYearController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = SchoolYear::find($id);
+    $delete = SchoolYear::where('where', $id)->first();
     $delete->delete();
 
     if ($delete) {

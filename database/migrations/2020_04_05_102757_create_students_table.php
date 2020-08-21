@@ -20,6 +20,7 @@ class CreateStudentsTable extends Migration
       $table->string('email', 70)->unique();
       $table->string('phone_number', 15)->unique();
       $table->string('photo')->nullable();
+      $table->char('color', 7)->nullable();
       $table->timestamps();
       $table->softDeletes();
     });

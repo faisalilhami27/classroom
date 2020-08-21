@@ -66,6 +66,7 @@ class RegisterController extends Controller
     $checkPhoneNumber = Student::where('phone_number', $request->phone_number)->first();
     $checkUsername = UserStudent::where('username', $request->username)->first();
     $checkStudentIdentityNumber = Student::where('student_identity_number', $request->student_identity_number)->first();
+    $color = $this->randomColor();
 
     // check email
     if (!is_null($checkEmail)) {
@@ -87,12 +88,13 @@ class RegisterController extends Controller
       return response()->json(['status' => 500, 'message' => 'NIPD sudah digunakan.']);
     }
 
-    $insert = DB::transaction(function () use($request) {
+    $insert = DB::transaction(function () use($request, $color) {
       $student = Student::create([
         'student_identity_number' => $request->student_identity_number,
         'name' => $request->name,
         'email' => $request->email,
         'phone_number' => $request->phone_number,
+        'color' => $color
       ]);
 
       // insert data user student to database
@@ -121,6 +123,14 @@ class RegisterController extends Controller
     } else {
       return response()->json(['status' => 500, 'message' => 'Gagal melakukan registrasi.']);
     }
+  }
+
+  /** random color
+   *
+   */
+  private function randomColor()
+  {
+    return sprintf('#%06X', mt_rand(0, 0xFFFFFF));
   }
 
   /**

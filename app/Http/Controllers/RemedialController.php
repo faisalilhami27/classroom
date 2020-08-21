@@ -38,7 +38,7 @@ class RemedialController extends Controller
    */
   public function datatable()
   {
-    $data = ManageExam::with(['subject'])
+    $data = ManageExam::with(['subject', 'semester', 'gradeLevel'])
       ->orderBy('id', 'desc')
       ->where('employee_id', Auth::user()->employee_id)
       ->get();
@@ -125,7 +125,7 @@ class RemedialController extends Controller
   {
     $studentId = $request->student_id;
     $examId = $request->exam_id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $minimalCriteria = MinimalCompletenessCriteria::where('subject_id', $exam->subject_id)->first();
     $data = StudentExamScore::with(['assignStudent.student', 'remedial'])
       ->whereHas('assignStudent', function ($query) use ($studentId) {
@@ -191,7 +191,7 @@ class RemedialController extends Controller
     $examId = $request->exam_id;
     $remedialId = $request->remedial_id;
     $studentId = Auth::user()->student_id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $minimumCriteria = MinimalCompletenessCriteria::where('subject_id', $exam->subject_id)->first();
     $assignStudent = AssignExamStudent::where('exam_id', $examId)
       ->where('student_id', $studentId)
@@ -222,7 +222,7 @@ class RemedialController extends Controller
     $endTime = $request->end_time;
     $students = $request->student_id;
     $examId = $request->id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $today = Carbon::now()->format('Y-m-d H:i');
     $formatStartDate = $startDate . ' ' . $startTime;
     $formatEndDate = $endDate . ' ' . $endTime;
@@ -350,7 +350,7 @@ class RemedialController extends Controller
   {
     $examId = $request->exam_id;
     $category = $request->select_student_category;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $today = Carbon::now()->format('Y-m-d H:i:s');
     $assignStudents = AssignExamStudent::where('exam_id', $examId)->where('status_generate', 1)->get();
     $checkData = $this->checkingData($exam, $assignStudents);

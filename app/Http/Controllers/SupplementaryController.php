@@ -36,7 +36,7 @@ class SupplementaryController extends Controller
    */
   public function datatable()
   {
-    $data = ManageExam::with(['subject'])
+    $data = ManageExam::with(['subject', 'semester', 'gradeLevel'])
       ->orderBy('id', 'desc')
       ->where('employee_id', Auth::user()->employee_id)
       ->get();
@@ -129,7 +129,7 @@ class SupplementaryController extends Controller
   {
     $studentId = $request->student_id;
     $examId = $request->exam_id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $minimalCriteria = MinimalCompletenessCriteria::where('subject_id', $exam->subject_id)->first();
     $data = StudentExamScore::with(['assignStudent.student', 'supplementary'])
       ->whereHas('assignStudent', function ($query) use ($studentId) {
@@ -159,7 +159,7 @@ class SupplementaryController extends Controller
   public function getStudent(Request $request)
   {
     $examId = $request->exam_id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $students = Student::whereHas('studentClassTransaction', function ($query) use ($exam) {
       $query->where('class_id', $exam->examClass->class_id);
     })
@@ -207,7 +207,7 @@ class SupplementaryController extends Controller
     $endTime = $request->end_time;
     $students = $request->student_id;
     $examId = $request->id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $today = Carbon::now()->format('Y-m-d H:i');
     $formatStartDate = $startDate . ' ' . $startTime;
     $formatEndDate = $endDate . ' ' . $endTime;
@@ -374,7 +374,7 @@ class SupplementaryController extends Controller
     $examId = $request->exam_id;
     $supplementaryId = $request->supplementary_id;
     $studentId = Auth::user()->student_id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $minimumCriteria = MinimalCompletenessCriteria::where('subject_id', $exam->subject_id)->first();
     $assignStudent = AssignExamStudent::where('exam_id', $examId)
       ->where('student_id', $studentId)

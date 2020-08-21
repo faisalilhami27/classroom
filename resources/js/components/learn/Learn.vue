@@ -32,31 +32,6 @@
             </v-card-text>
             <v-divider></v-divider>
             <div v-for="(item, index) in materials" :key="index">
-              <v-btn
-                style="margin-top: 10px"
-                text
-                small
-                color="primary"
-                @click="isShow = !isShow"
-              >
-                Tambah Diskusi
-              </v-btn>
-              <v-col cols="12" sm="12" md="12">
-                <transition name="slide">
-                  <v-textarea
-                    :disabled="disableTextDiscussion"
-                    v-model="message"
-                    auto-grow
-                    v-if="isShow"
-                    solo
-                    rows="1"
-                    background-color="#F7F7F7"
-                    rounded
-                    placeholder="Ketikan sesuatu..."
-                    @keydown.enter.exact.prevent="makeDiscussion(item.id)"
-                  ></v-textarea>
-                </transition>
-              </v-col>
               <discussion :material-id="item.id"></discussion>
             </div>
           </v-card>
@@ -190,7 +165,6 @@ export default {
       item: 0,
       isShow: false,
       disableTextAnswer: false,
-      disableTextDiscussion: false,
       clickBtnAnswer: null,
       message: '',
       messageAnswer: '',
@@ -262,24 +236,6 @@ export default {
         this.allMaterial = response.data.all;
       })
     },
-
-    makeDiscussion(materialId) {
-      if (this.message !== '') {
-        this.disableTextDiscussion = true;
-        axios.post('/e-learning/discussion', {
-          message: this.message,
-          material_id: materialId,
-          class_id: this.getClassId
-        }).then(response => {
-          this.message = '';
-          this.disableTextDiscussion = false;
-        })
-          .catch(resp => {
-            this.disableTextDiscussion = false;
-            alert(resp.response.data.message);
-          });
-      }
-    }
   },
 }
 </script>

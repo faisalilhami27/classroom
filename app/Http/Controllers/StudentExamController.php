@@ -28,7 +28,7 @@ class StudentExamController extends Controller
   {
     $examId = $request->exam_id;
     $config = configuration();
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $class = StudentClass::with(['subject', 'schoolYear'])
       ->where('id', $exam->examClass->class_id)
       ->first();
@@ -321,7 +321,7 @@ class StudentExamController extends Controller
     $examId = $request->exam_id;
     $type = $request->type;
     $studentId = Auth::user()->student_id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $assignStudent = AssignExamStudent::where('exam_id', $examId)
       ->where('student_id', $studentId)
       ->first();
@@ -435,7 +435,7 @@ class StudentExamController extends Controller
   {
     $examId = $request->exam_id;
     $studentId = Auth::user()->student_id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $minimumCriteria = MinimalCompletenessCriteria::where('subject_id', $exam->subject_id)->first();
     $assignStudent = AssignExamStudent::where('exam_id', $examId)
       ->where('student_id', $studentId)
@@ -483,7 +483,7 @@ class StudentExamController extends Controller
     $notYetExam = [];
     $notExam = [];
     $examId = $request->exam_id;
-    $exam = ManageExam::find($examId);
+    $exam = ManageExam::where('id', $examId)->first();
     $minimalCriteria = MinimalCompletenessCriteria::where('subject_id', $exam->subject_id)->first();
     $assignStudents = AssignExamStudent::with(['student'])->where('exam_id', $examId)->get();
     $today = Carbon::now()->format('Y-m-d H:i:s');

@@ -41,7 +41,7 @@
                     offset-x="22"
                     offset-y="20"
                   >
-                    <v-list-item-avatar color="red">
+                    <v-list-item-avatar :color="item.color">
                       <span v-if="item.photo == null" class="white--text">{{ item.name.substr(0, 2) }}</span>
                       <v-img v-else :src="`/storage/${item.photo}`"></v-img>
                     </v-list-item-avatar>
@@ -259,15 +259,14 @@ export default {
 
     typingMessage() {
       const user = this.getUser;
-      Echo.join('user.' + this.userId)
+      Echo.private('user.' + this.userId)
         .whisper('typing', user);
     },
 
     listenForUser() {
-      Echo.join('user.' + this.user)
+      Echo.private('user.' + this.user)
         .listen('NewChattingMessage', (e) => {
           let userId = (this.checkGuard === 'employee') ? e.chat.chat.student_id : e.chat.chat.employee_id;
-          console.log(userId + " : " + this.user);
           if (userId === this.userId) {
             this.chats.push(e.chat);
           }
@@ -295,7 +294,7 @@ export default {
           this.userOnline.push(user);
         })
         .leaving((user) => {
-          this.userOnline.splice(this.userOnline.indexOf(user), 1);
+          this.userOnline = this.userOnline.filter(item => item.id != user.id);
         });
     },
 
