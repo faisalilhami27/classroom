@@ -34,4 +34,9 @@ class AnswerDiscussion extends Model
   {
     return $this->hasOne(Employee::class, 'id', 'employee_id');
   }
+
+  public function discussion()
+  {
+    return $this->belongsTo(Discussion::class, 'discussion_id', 'id');
+  }
 }

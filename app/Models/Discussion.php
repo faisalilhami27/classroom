@@ -12,18 +12,12 @@ class Discussion extends Model
   protected $table = 'discussions';
   protected $fillable = ['message', 'student_id', 'employee_id', 'material_id', 'class_id'];
   protected $appends = [
-    'post_time',
-    'update_post_time',
+    'post_time'
   ];
 
   public function getPostTimeAttribute()
   {
     return $this->created_at->diffForHumans();
-  }
-
-  public function getUpdatePostTimeAttribute()
-  {
-    return $this->updated_at->diffForHumans();
   }
 
   public function answer()

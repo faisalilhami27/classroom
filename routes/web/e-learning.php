@@ -18,8 +18,12 @@ Route::group(['prefix' => 'learning', 'middleware' => ['auth:employee']], functi
 
 Route::group(['prefix' => 'e-learning', 'middleware' => ['auth:employee,student']], function () {
   Route::get('/get/material', 'LearningController@getMaterialByClass')->name('learning.get.material');
-  Route::post('/discussion', 'DiscussionController@makeDiscussion')->name('learning.discussion');
-  Route::post('/answer/discussion', 'DiscussionController@answerDiscussion')->name('learning.answer.discussion');
   Route::get('/load/discussion', 'DiscussionController@loadDiscussion')->name('learning.load.discussion');
   Route::get('/load/answer/discussion', 'DiscussionController@loadAnswerDiscussion')->name('learning.load.answer.discussion');
+  Route::post('/discussion', 'DiscussionController@makeDiscussion')->name('learning.discussion');
+  Route::put('/update/discussion', 'DiscussionController@updateDiscussion')->name('learning.update.discussion');
+  Route::delete('/delete/discussion', 'DiscussionController@destroyDiscussion')->name('learning.delete.discussion');
+  Route::post('/answer/discussion', 'DiscussionController@answerDiscussion')->name('learning.answer.discussion');
+  Route::put('/update/answer/discussion', 'DiscussionController@updateAnswerDiscussion')->name('learning.update.answer.discussion');
+  Route::delete('/delete/answer/discussion', 'DiscussionController@destroyAnswerDiscussion')->name('learning.delete.answer.discussion');
 });

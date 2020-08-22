@@ -72,10 +72,10 @@
                     </v-btn>
                   </template>
                   <v-list>
-                    <v-list-item @click="">
+                    <v-list-item @click="openModalUpdate(answer.id)">
                       <v-list-item-title>Edit</v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="">
+                    <v-list-item @click="deleteAnswerDiscussion(answer.id)">
                       <v-list-item-title>Hapus</v-list-item-title>
                     </v-list-item>
                   </v-list>
@@ -86,20 +86,37 @@
             </div>
           </transition>
         </div>
-        <div v-if="total > limitPerPage && visible === true">
-          <v-col v-if="showBtnLoadMore" cols="12">
-            <v-btn block color="primary" outlined @click.prevent="getAnswerDiscussion(nextPageUrl)" dark>
-              {{ changeTextLoadMore }}
-            </v-btn>
-          </v-col>
-        </div>
       </v-col>
     </div>
+    <v-dialog v-model="dialog" max-width="500">
+      <v-card>
+        <v-card-title class="headline">Edit Balasan</v-card-title>
+        <v-card-text>
+          <v-textarea
+            :disabled="disableUpdateTextDiscussion"
+            v-model="messageUpdate"
+            auto-grow
+            solo
+            rows="1"
+            background-color="#F7F7F7"
+            rounded
+            placeholder="Ketikan sesuatu..."
+            @keydown="typingMessage"
+            @keydown.enter.exact.prevent="updateAnswerDiscussion"
+          ></v-textarea>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="red darken-1" text @click="dialog = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <vue-confirm-dialog></vue-confirm-dialog>
   </div>
 </template>
 
 <script>
-import {mapGetters} from "vuex";
+import {mapActions, mapGetters} from "vuex";
 
 export default {
   name: "AnswerDiscussion",
@@ -110,18 +127,18 @@ export default {
   data() {
     return {
       newVisible: this.visible,
-      nextPageUrl: '',
-      changeTextLoadMore: 'Load More',
-      currentPage: 1,
-      limitPerPage: 3,
       total: 0,
       answerList: [],
-      showBtnLoadMore: true,
       disableTextAnswer: false,
+      disableUpdateTextDiscussion: false,
+      dialog: false,
       userTyping: false,
       typingTimer: false,
       clickBtnAnswer: null,
       messageAnswer: '',
+      answerId: '',
+      messageUpdate: '',
+      type: '',
     }
   },
   mounted() {
@@ -145,10 +162,15 @@ export default {
     }
   },
   methods: {
+    ...mapActions({
+      setAlert: 'setAlert'
+    }),
+
     isActive(i) {
       return this.clickBtnAnswer === i;
     },
     toggleActive(i) {
+      this.type = 'create';
       this.clickBtnAnswer = this.isActive(i) ? null : i;
     },
 
@@ -161,29 +183,21 @@ export default {
     },
 
     getAnswerDiscussion(url = '') {
-      this.changeTextLoadMore = 'Memuat...';
       axios.get(url ? url : '/e-learning/load/answer/discussion', {
         params: {
           discussion_id: this.discussionId
         }
       }).then(response => {
-        this.changeTextLoadMore = 'Load More';
-        const data = response.data.discussion.data;
+        const data = response.data.answer;
         const mergeData = data.map(data => ({
             ...data,
             visible: false
           })
         );
         this.answerList.push(...mergeData);
-        this.nextPageUrl = response.data.discussion.next_page_url;
-        this.currentPage = response.data.discussion.current_page;
-        this.total = response.data.discussion.total;
-        if (this.currentPage === response.data.discussion.last_page) {
-          this.showBtnLoadMore = false;
-        }
+        this.total = this.answerList.length;
       })
         .catch(resp => {
-          this.changeTextLoadMore = 'Load More';
           alert(resp.response.data.message);
         });
     },
@@ -196,14 +210,62 @@ export default {
           discussion_id: discussionId
         }).then(response => {
           this.disableTextAnswer = false;
-          this.messageAnswer = '';
-          this.answerList.push(response.data.answer);
-          this.total = response.data.count;
+          if (response.data.status === 200) {
+            this.messageAnswer = '';
+            this.answerList.push(response.data.answer);
+            this.total = response.data.count;
+          } else {
+            this.setAlert({
+              message: response.data.message,
+              status: response.data.status
+            });
+          }
         })
           .catch(resp => {
             this.disableTextAnswer = false;
             alert(resp.response.data.message);
           });
+      }
+    },
+
+    openModalUpdate(answerId) {
+      this.type = 'update';
+      this.dialog = true;
+      this.answerList.map(item => {
+        if (item.id === answerId) {
+          this.messageUpdate = item.message;
+        }
+      });
+      this.answerId = answerId;
+    },
+
+    updateAnswerDiscussion() {
+      if (this.messageUpdate !== '') {
+        this.disableUpdateTextDiscussion = true;
+        axios.put('/e-learning/update/answer/discussion', {
+          message: this.messageUpdate,
+          answer_id: this.answerId
+        }).then(response => {
+          const answer = response.data.answer;
+          this.disableUpdateTextDiscussion = false;
+          if (response.data.status === 200) {
+            this.messageUpdate = '';
+            this.dialog = false;
+            this.answerList.map(item => {
+              if (item.id === answer.id) {
+                item.message = answer.message;
+              }
+            });
+          } else {
+            this.setAlert({
+              message: response.data.message,
+              status: response.data.status
+            });
+          }
+        }).catch(resp => {
+          this.disableUpdateTextDiscussion = false;
+          alert(resp.response.data.message);
+        });
       }
     },
 
@@ -216,8 +278,16 @@ export default {
     listenForNewAnswerDiscussion(id) {
       Echo.join('class-answer.' + this.getClassId + '.' + id)
         .listen('AnswerDiscussionEvent', (e) => {
-          this.answerList.push(e.answer);
-          this.total = e.count;
+          if (e.type === 'create') {
+            this.answerList.push(e.answer);
+            this.total = e.count;
+          } else {
+            this.answerList.map(item => {
+              if (item.id === e.answer.id) {
+                item.message = e.answer.message;
+              }
+            });
+          }
         })
         .listenForWhisper('typing', (user) => {
           this.userTyping = user;
@@ -228,14 +298,73 @@ export default {
 
           this.typingTimer = setTimeout(() => {
             this.userTyping = false;
-          }, 2000);
+          }, 1000);
         });
+    },
+
+    deleteAnswerDiscussion: function (id) {
+      this.$confirm({
+        title: 'Apakah anda yakin ?',
+        message: 'Data yang dihapus tidak bisa dikembalikan.',
+        button: {
+          yes: 'Ya',
+          no: 'Batal'
+        },
+        callback: confirm => {
+          if (confirm) {
+            axios.delete('/e-learning/delete/answer/discussion', {
+              params: {
+                answer_id: id
+              }
+            }).then(response => {
+              if (response.data.status === 200) {
+                const index = this.answerList.findIndex(function (params) {
+                  return params.id === id;
+                });
+                if (index !== -1) this.answerList.splice(index, 1);
+              }
+            })
+          }
+        }
+      });
     },
   }
 }
 </script>
 
 <style scoped>
+.slide-enter-active {
+  -moz-transition-duration: 0.3s;
+  -webkit-transition-duration: 0.3s;
+  -o-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -moz-transition-timing-function: ease-in;
+  -webkit-transition-timing-function: ease-in;
+  -o-transition-timing-function: ease-in;
+  transition-timing-function: ease-in;
+}
+
+.slide-leave-active {
+  -moz-transition-duration: 0.3s;
+  -webkit-transition-duration: 0.3s;
+  -o-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -moz-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+  -webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+  -o-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+  transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+}
+
+.slide-enter-to, .slide-leave {
+  max-height: 100px;
+  overflow: hidden;
+}
+
+.slide-enter, .slide-leave-to {
+  overflow: hidden;
+  max-height: 0;
+}
+
 .clearfix {
   clear: both;
 }

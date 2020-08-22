@@ -17,17 +17,23 @@ class DiscussionEvent implements ShouldBroadcast
 
   public $discussion;
   public $classId;
+  public $count;
+  public $type;
 
   /**
    * Create a new event instance.
    *
    * @param $discussion
    * @param $classId
+   * @param $count
+   * @param $type
    */
-  public function __construct($discussion, $classId)
+  public function __construct($discussion, $classId, $count, $type)
   {
     $this->discussion = $discussion;
     $this->classId = $classId;
+    $this->count = $count;
+    $this->type = $type;
     $this->dontBroadcastToCurrentUser();
   }
 
