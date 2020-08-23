@@ -298,14 +298,19 @@ class StudentExamController extends Controller
   public function addViolation(Request $request)
   {
     $examId = $request->exam_id;
+    $type = $request->type;
     $violationName = $request->violation_name;
     $studentId = Auth::user()->student_id;
     $assignStudent = AssignExamStudent::where('exam_id', $examId)
       ->where('student_id', $studentId)
       ->first();
+    $checkRemedialOrSupplementary = $this->checkRemedialOrSupplementary($type, $assignStudent);
+
     $assignStudent->violationStudent()->create([
       'assign_student_id' => $assignStudent->id,
-      'violation_name' => $violationName
+      'violation_name' => $violationName,
+      'remedial_id' => $checkRemedialOrSupplementary->remedial,
+      'supplementary_id' => $checkRemedialOrSupplementary->supplementary
     ]);
     return response()->json(['status' => 200]);
   }
@@ -423,7 +428,10 @@ class StudentExamController extends Controller
       SupplementaryExam::where('assign_student_id', $assignStudent->id)
         ->update(['status' => 1]);
     }
-    $assignStudent->update(['status' => 1]);
+    $assignStudent->update([
+      'status' => 1,
+      'violation' => 0
+    ]);
   }
 
   /**

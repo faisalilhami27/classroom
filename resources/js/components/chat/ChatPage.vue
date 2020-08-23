@@ -36,7 +36,7 @@
                   <v-badge
                     bordered
                     bottom
-                    :color="(checkOnline(userOnline, item)) ? 'green' : '#B2B2B2'"
+                    :color="(checkOnline(userOnline, item)) ? 'green' : '#DEDEDE'"
                     dot
                     offset-x="22"
                     offset-y="20"

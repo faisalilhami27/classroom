@@ -248,6 +248,7 @@
             <v-btn
               color="red"
               small
+              dark
               @click="backToExam"
             >
               Kembali Ujian
@@ -710,7 +711,8 @@ export default {
       const id = this.$route.params.id;
       axios.post('/exam/add/violation', {
         exam_id: id,
-        violation_name: name
+        violation_name: name,
+        type: this.type
       })
         .then(() => {
         })

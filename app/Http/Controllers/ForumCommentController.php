@@ -86,7 +86,8 @@ class ForumCommentController extends Controller
       'user' => [
         'id' => $user->id,
         'name' => (Auth::guard('employee')->check()) ? $user->name . ' (Guru)' : $user->name,
-        'photo' => (is_null($user->photo)) ? null : asset('storage/' . $user->photo)
+        'photo' => (is_null($user->photo)) ? null : asset('storage/' . $user->photo),
+        'color' => (Auth::guard('employee')->check()) ? $comment->employee->color : $comment->student->color,
       ]
     ];
 
