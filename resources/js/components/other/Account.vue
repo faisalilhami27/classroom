@@ -86,16 +86,7 @@
       },
 
       removeStorage() {
-        localStorage.removeItem('user');
-        localStorage.removeItem('config');
-        localStorage.removeItem('subject');
-        localStorage.removeItem('classId');
-        localStorage.removeItem('timer');
-        localStorage.removeItem('current_page');
-        localStorage.removeItem('time_violation');
-        localStorage.removeItem('answer');
-        localStorage.removeItem('hesitate');
-        localStorage.removeItem('type');
+        localStorage.clear();
       },
     }
   }
