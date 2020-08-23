@@ -80,13 +80,9 @@
     methods: {
       logout: function () {
         axios.post('/logout').then(() => {
-          this.removeStorage();
+          localStorage.clear();
           location.reload();
         });
-      },
-
-      removeStorage() {
-        localStorage.clear();
       },
     }
   }
