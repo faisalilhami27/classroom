@@ -135,6 +135,10 @@ export default {
   mounted() {
     this.getDiscussion();
     this.listenForNewDiscussion();
+    this.autoScrollDown();
+  },
+  updated() {
+    this.autoScrollDown();
   },
   computed: {
     ...mapGetters([
@@ -156,6 +160,13 @@ export default {
     ...mapActions({
       setAlert: 'setAlert'
     }),
+
+    autoScrollDown() {
+      let container = document.getElementById('discussion-box');
+      if (container != null) {
+        container.scrollTop = container.scrollHeight;
+      }
+    },
 
     getDiscussion() {
       axios.get('/e-learning/load/discussion', {
@@ -207,8 +218,8 @@ export default {
           if (response.data.status === 200) {
             this.message = '';
             this.discussionList.push(discussion);
-            this.discussionList.reverse();
             this.changeHeight();
+            this.isShow = false;
           } else {
             this.setAlert({
               message: response.data.message,
@@ -270,7 +281,6 @@ export default {
         .listen('DiscussionEvent', (e) => {
           if (e.type === 'create') {
             this.discussionList.push(e.discussion);
-            this.discussionList.reverse();
           } else {
             this.discussionList.map(item => {
               if (item.id === e.discussion.id) {
@@ -282,6 +292,23 @@ export default {
           if ((this.discussionList.length + 1) > 4) {
             document.getElementById('discussion-box').style.height = '500px';
             document.getElementById('discussion-box').style.overflow = 'auto';
+          } else {
+            document.getElementById('discussion-box').style.height = 'auto';
+          }
+        });
+
+      Echo.join('delete-discussion.' + this.getClassId)
+        .listen('DeleteDiscussionEvent', (e) => {
+          const index = this.discussionList.findIndex(function (params) {
+            return params.id == e.discussionId;
+          });
+          if (index !== -1) this.discussionList.splice(index, 1);
+
+          if ((this.discussionList.length + 1) > 4) {
+            document.getElementById('discussion-box').style.height = '500px';
+            document.getElementById('discussion-box').style.overflow = 'auto';
+          } else {
+            document.getElementById('discussion-box').style.height = 'auto';
           }
         });
     },
@@ -298,7 +325,8 @@ export default {
           if (confirm) {
             axios.delete('/e-learning/delete/discussion', {
               params: {
-                discussion_id: id
+                discussion_id: id,
+                class_id: this.getClassId
               }
             }).then(response => {
               if (response.data.status === 200) {

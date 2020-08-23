@@ -34,6 +34,14 @@ Broadcast::channel('class.{id}', function ($user) {
   return $user;
 }, ['guards' => ['employee', 'student']]);
 
-Broadcast::channel('class-answer.{id}', function ($user) {
+Broadcast::channel('class-answer.{id}.{id2}', function ($user) {
+  return $user;
+}, ['guards' => ['employee', 'student']]);
+
+Broadcast::channel('delete-discussion.{id}', function ($user) {
+  return $user;
+}, ['guards' => ['employee', 'student']]);
+
+Broadcast::channel('delete-answer.{id}.{id2}', function ($user) {
   return $user;
 }, ['guards' => ['employee', 'student']]);

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Events\AnswerDiscussionEvent;
+use App\Events\DeleteAnswerDiscussionEvent;
+use App\Events\DeleteDiscussionEvent;
 use App\Events\DiscussionEvent;
 use App\Models\AnswerDiscussion;
 use App\Models\Discussion;
@@ -151,13 +153,13 @@ class DiscussionController extends Controller
       'student_id' => (is_null($studentId)) ? null : $studentId,
       'employee_id' => (is_null($employeeId)) ? null : $employeeId,
     ]);
-    $getDiscussion = $this->getAnswerDiscussion($discussionId);
+    $getAnswerDiscussion = $this->getAnswerDiscussion($answer->id);
     $countAnswerDiscussion = AnswerDiscussion::where('discussion_id', $discussionId)->count();
-    event(new AnswerDiscussionEvent($getDiscussion, $discussion->class_id, $countAnswerDiscussion, $discussionId, 'create'));
+    event(new AnswerDiscussionEvent($getAnswerDiscussion, $discussion->class_id, $countAnswerDiscussion, $discussionId, 'create'));
     if ($answer) {
       return response()->json([
         'status' => 200,
-        'answer' => $getDiscussion,
+        'answer' => $getAnswerDiscussion,
         'count' => $countAnswerDiscussion
       ]);
     } else {
@@ -177,7 +179,7 @@ class DiscussionController extends Controller
   {
     return Discussion::with(['student', 'employee'])
       ->where('id', $id)
-      ->orderBy('id', 'desc')
+      ->orderBy('id', 'asc')
       ->first();
   }
 
@@ -189,8 +191,8 @@ class DiscussionController extends Controller
   private function getAnswerDiscussion($id)
   {
     return AnswerDiscussion::with(['student', 'employee'])
-      ->where('discussion_id', $id)
-      ->orderBy('id', 'desc')
+      ->where('id', $id)
+      ->orderBy('id', 'asc')
       ->first();
   }
 
@@ -205,11 +207,13 @@ class DiscussionController extends Controller
     $classId = $request->class_id;
     $discussion = Discussion::with([
       'student',
-      'employee'
+      'employee',
+      'answer.student',
+      'answer.employee',
     ])
       ->where('material_id', $materialId)
       ->where('class_id', $classId)
-      ->orderBy('id', 'desc')
+      ->orderBy('id', 'asc')
       ->get();
     return response()->json(['status' => 200, 'discussion' => $discussion]);
   }
@@ -227,7 +231,7 @@ class DiscussionController extends Controller
       'employee',
     ])
       ->where('discussion_id', $discussionId)
-      ->orderBy('id', 'desc')
+      ->orderBy('id', 'asc')
       ->get();
     return response()->json(['status' => 200, 'answer' => $discussion]);
   }
@@ -240,10 +244,11 @@ class DiscussionController extends Controller
   public function destroyDiscussion(Request $request)
   {
     $discussionId = $request->discussion_id;
+    $classId = $request->class_id;
     $discussion = Discussion::where('id', $discussionId)->first();
     $discussion->answer()->delete();
     $discussion->delete();
-
+    event(new DeleteDiscussionEvent($classId, $discussionId));
     if ($discussion) {
       return response()->json(['status' => 200]);
     } else {
@@ -259,9 +264,11 @@ class DiscussionController extends Controller
   public function destroyAnswerDiscussion(Request $request)
   {
     $answerId = $request->answer_id;
+    $classId = $request->class_id;
+    $discussionId = $request->discussion_id;
     $answer = AnswerDiscussion::where('id', $answerId)->first();
     $answer->delete();
-
+    event(new DeleteAnswerDiscussionEvent($classId, $discussionId, $answerId));
     if ($answer) {
       return response()->json(['status' => 200]);
     } else {

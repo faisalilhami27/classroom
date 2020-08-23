@@ -75,7 +75,7 @@
                     <v-list-item @click="openModalUpdate(answer.id)">
                       <v-list-item-title>Edit</v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="deleteAnswerDiscussion(answer.id)">
+                    <v-list-item @click="deleteAnswerDiscussion(answer.id, answer.discussion_id)">
                       <v-list-item-title>Hapus</v-list-item-title>
                     </v-list-item>
                   </v-list>
@@ -300,9 +300,19 @@ export default {
             this.userTyping = false;
           }, 1000);
         });
+
+      Echo.join('delete-answer.' + this.getClassId + '.' + id)
+        .listen('DeleteAnswerDiscussionEvent', (e) => {
+          console.log(e);
+          const index = this.answerList.findIndex(function (params) {
+            console.log(params.id);
+            return params.id == e.answerId;
+          });
+          if (index !== -1) this.answerList.splice(index, 1);
+        });
     },
 
-    deleteAnswerDiscussion: function (id) {
+    deleteAnswerDiscussion: function (id, discussionId) {
       this.$confirm({
         title: 'Apakah anda yakin ?',
         message: 'Data yang dihapus tidak bisa dikembalikan.',
@@ -314,7 +324,9 @@ export default {
           if (confirm) {
             axios.delete('/e-learning/delete/answer/discussion', {
               params: {
-                answer_id: id
+                answer_id: id,
+                class_id: this.getClassId,
+                discussion_id: discussionId
               }
             }).then(response => {
               if (response.data.status === 200) {
