@@ -21,7 +21,7 @@
               flat
               hide-no-data
               hide-details
-              label="Buat chat baru"
+              label="Cari atau buat chat baru"
               solo-inverted
             ></v-autocomplete>
           </v-app-bar>
@@ -186,14 +186,14 @@ export default {
     }
   },
   methods: {
-    checkOnline(user,item) {
-      if (this.checkGuard === 'employee') {
-        const online = user.find(fruit => fruit.student_id === item.student_id);
+    checkOnline(user, item) {
+      if (this.checkGuard == 'employee') {
+        const online = user.find(param => param.student_id === item.student_id);
         if (online != null) {
           return online.student_id === item.student_id;
         }
       } else {
-        const online = user.find(fruit => fruit.employee_id === item.employee_id);
+        const online = user.find(param => param.employee_id === item.employee_id);
         if (online != null) {
           return online.employee_id === item.employee_id;
         }
@@ -259,12 +259,12 @@ export default {
 
     typingMessage() {
       const user = this.getUser;
-      Echo.private('user.' + this.userId)
+      Echo.join('user.' + this.userId)
         .whisper('typing', user);
     },
 
     listenForUser() {
-      Echo.private('user.' + this.user)
+      Echo.join('user.' + this.user)
         .listen('NewChattingMessage', (e) => {
           let userId = (this.checkGuard === 'employee') ? e.chat.chat.student_id : e.chat.chat.employee_id;
           if (userId === this.userId) {
@@ -294,7 +294,7 @@ export default {
           this.userOnline.push(user);
         })
         .leaving((user) => {
-          this.userOnline = this.userOnline.filter(item => item.id != user.id);
+          this.userOnline.splice(this.userOnline.indexOf(user), 1);
         });
     },
 

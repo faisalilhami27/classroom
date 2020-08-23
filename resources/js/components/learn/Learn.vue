@@ -2,7 +2,14 @@
   <v-app>
     <v-sheet>
       <v-row>
-        <v-col col="12" md="8" sm="12">
+        <v-skeleton-loader
+          v-if="firstLoad"
+          :loading="loading"
+          class="mx-auto"
+          max-width="820"
+          height="460"
+        ></v-skeleton-loader>
+        <v-col v-show="!firstLoad" col="12" md="8" sm="12">
           <div v-if="materials.length > 0">
             <div v-for="(item, index) in materials" :key="index">
               <div v-if="item.video_link != null">
@@ -37,7 +44,16 @@
           </v-card>
         </v-col>
         <v-col col="12" md="4" sm="12">
+          <v-skeleton-loader
+            v-if="firstLoad"
+            :loading="loading"
+            class="mx-auto"
+            max-width="400"
+            height="460"
+            type="card"
+          ></v-skeleton-loader>
           <v-card
+            v-show="!firstLoad"
             class="mx-auto"
             max-width="400"
             height="460"
@@ -66,7 +82,15 @@
             </v-list>
           </v-card>
           <br>
+          <v-skeleton-loader
+            v-if="firstLoad"
+            :loading="loading"
+            class="mx-auto"
+            max-width="400"
+            type="card"
+          ></v-skeleton-loader>
           <v-card
+            v-show="!firstLoad"
             class="mx-auto"
             max-width="400"
           >
@@ -160,6 +184,8 @@ export default {
       materials: [],
       allMaterial: [],
       discussionList: [],
+      loading: true,
+      firstLoad: true,
       page: 1,
       paginate: 1,
       item: 0,
@@ -234,6 +260,10 @@ export default {
       }).then(response => {
         this.materials = response.data.material.data;
         this.allMaterial = response.data.all;
+        setTimeout(() => {
+          if (this.firstLoad) this.firstLoad = false
+          this.loading = false;
+        }, 2000);
       })
     },
   },

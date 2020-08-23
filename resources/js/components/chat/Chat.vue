@@ -1,13 +1,13 @@
 <template>
   <v-btn @click="openLink" icon>
-    <v-icon v-if="count === 0">mdi-message</v-icon>
+    <v-icon v-if="count === 0">mdi-message-text</v-icon>
     <v-badge
       v-else
       color="green"
       :content="count"
       overlap
     >
-      <v-icon>mdi-message</v-icon>
+      <v-icon>mdi-message-text</v-icon>
     </v-badge>
   </v-btn>
 </template>

@@ -50,10 +50,19 @@
             v-for="(item, index) in dataClass"
             :key="index"
             cols="12"
-            sm="4"
+            md="4"
+            sm="12"
             class="list-class"
           >
+            <v-skeleton-loader
+              v-if="firstLoad"
+              :loading="loading"
+              class="mx-auto"
+              max-width="350"
+              type="card"
+            ></v-skeleton-loader>
             <v-card
+              v-show="!firstLoad"
               class="mx-auto"
               max-width="350"
             >
@@ -154,6 +163,8 @@
     data: function() {
       return {
         showClass: '',
+        loading: true,
+        firstLoad: true,
         showHide: false,
         dataClass: [],
         disabledButton: false,
@@ -168,33 +179,7 @@
       }
     },
     mounted: function () {
-      const user = JSON.parse(this.getUser);
-      axios.get('/class/get/user/class', {
-        params: {
-          user_id: user.user_id
-        }
-      }).then(response => {
-        if (response.data.status === 200) {
-          const data = response.data.list;
-          if (data != "") {
-            this.showHide = true;
-            this.dataClass = data;
-          } else {
-            this.showHide = false;
-            this.showClass = `<div>
-              <p class="text-center result-text"><b>Belum ada kelas yang anda ikuti</b></p>
-            </div>`;
-          }
-        } else {
-          this.setAlert({
-            message: response.data.message,
-            status: response.data.status
-          });
-        }
-      })
-        .catch(resp => {
-          alert(resp.response.data.message);
-        })
+      this.getClass();
     },
     computed: {
       ...mapGetters([
@@ -226,6 +211,40 @@
       countCode: function () {
         this.totalLength = this.code.length;
         this.disabledButton = this.totalLength === 7;
+      },
+
+      getClass: function () {
+        const user = JSON.parse(this.getUser);
+        axios.get('/class/get/user/class', {
+          params: {
+            user_id: user.user_id
+          }
+        }).then(response => {
+          if (response.data.status === 200) {
+            const data = response.data.list;
+            if (data != "") {
+              this.showHide = true;
+              this.dataClass = data;
+              setTimeout(() => {
+                if (this.firstLoad) this.firstLoad = false
+                this.loading = false;
+              }, 2000);
+            } else {
+              this.showHide = false;
+              this.showClass = `<div>
+              <p class="text-center result-text"><b>Belum ada kelas yang anda ikuti</b></p>
+            </div>`;
+            }
+          } else {
+            this.setAlert({
+              message: response.data.message,
+              status: response.data.status
+            });
+          }
+        })
+          .catch(resp => {
+            alert(resp.response.data.message);
+          })
       },
 
       joinClass: function () {

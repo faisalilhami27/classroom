@@ -37,6 +37,6 @@ class NewChattingMessage implements ShouldBroadcast
    */
   public function broadcastOn()
   {
-    return new PrivateChannel('user.' . $this->userId);
+    return new PresenceChannel('user.' . $this->userId);
   }
 }
