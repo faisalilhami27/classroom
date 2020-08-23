@@ -65,11 +65,13 @@
                     <v-btn v-if="user === answer.employee_id" v-on="on" icon>
                       <v-icon small>mdi-dots-vertical</v-icon>
                     </v-btn>
+                    <v-btn v-else icon></v-btn>
                   </template>
                   <template v-else v-slot:activator="{ on }">
                     <v-btn v-if="user === answer.student_id" v-on="on" icon>
                       <v-icon small>mdi-dots-vertical</v-icon>
                     </v-btn>
+                    <v-btn v-else icon></v-btn>
                   </template>
                   <v-list>
                     <v-list-item @click="openModalUpdate(answer.id)">
@@ -120,15 +122,16 @@ import {mapActions, mapGetters} from "vuex";
 
 export default {
   name: "AnswerDiscussion",
-  props: {
-    discussionId: '',
-    visible: ''
-  },
+  props: [
+    "discussionId",
+    "visible",
+    "answer"
+  ],
   data() {
     return {
       newVisible: this.visible,
-      total: 0,
-      answerList: [],
+      total: this.answer.length,
+      answerList: this.answer,
       disableTextAnswer: false,
       disableUpdateTextDiscussion: false,
       dialog: false,
@@ -142,7 +145,6 @@ export default {
     }
   },
   mounted() {
-    this.getAnswerDiscussion();
     this.listenForNewAnswerDiscussion(this.discussionId);
   },
   computed: {
@@ -182,26 +184,6 @@ export default {
       }
     },
 
-    getAnswerDiscussion(url = '') {
-      axios.get(url ? url : '/e-learning/load/answer/discussion', {
-        params: {
-          discussion_id: this.discussionId
-        }
-      }).then(response => {
-        const data = response.data.answer;
-        const mergeData = data.map(data => ({
-            ...data,
-            visible: false
-          })
-        );
-        this.answerList.push(...mergeData);
-        this.total = this.answerList.length;
-      })
-        .catch(resp => {
-          alert(resp.response.data.message);
-        });
-    },
-
     answerDiscussion(discussionId) {
       if (this.messageAnswer !== '') {
         this.disableTextAnswer = true;
@@ -214,6 +196,7 @@ export default {
             this.messageAnswer = '';
             this.answerList.push(response.data.answer);
             this.total = response.data.count;
+            this.clickBtnAnswer = null;
           } else {
             this.setAlert({
               message: response.data.message,
@@ -303,12 +286,11 @@ export default {
 
       Echo.join('delete-answer.' + this.getClassId + '.' + id)
         .listen('DeleteAnswerDiscussionEvent', (e) => {
-          console.log(e);
           const index = this.answerList.findIndex(function (params) {
-            console.log(params.id);
             return params.id == e.answerId;
           });
           if (index !== -1) this.answerList.splice(index, 1);
+          console.log(this.answerList);
         });
     },
 

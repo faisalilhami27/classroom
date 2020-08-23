@@ -71,7 +71,7 @@
                 <v-list-item @click="openModalUpdate(discussion.id)">
                   <v-list-item-title>Edit</v-list-item-title>
                 </v-list-item>
-                <v-list-item @click="deleteDiscussion(discussion.id)">
+                <v-list-item @click="openModalDelete(discussion.id)">
                   <v-list-item-title>Hapus</v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -79,7 +79,7 @@
           </div>
           <div class="clearfix"></div>
           <p style="margin-left: 45px">{{ discussion.message }}</p>
-          <answer-discussion :discussion-id="discussion.id" :visible.sync="discussion.visible"></answer-discussion>
+          <answer-discussion :discussion-id="discussion.id" :answer="discussion.answer" :visible.sync="discussion.visible"></answer-discussion>
         </v-col>
       </div>
     </div>
@@ -105,7 +105,17 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <vue-confirm-dialog></vue-confirm-dialog>
+    <v-dialog v-model="dialogDelete" persistent max-width="320">
+      <v-card>
+        <v-card-title class="headline">Apakah anda yakin ?</v-card-title>
+        <v-card-text>Data yang sudah dihapus tidak bisa dikembalikan</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="red darken-1" text @click="dialogDelete = false">Batal</v-btn>
+          <v-btn color="green darken-1" text @click="deleteDiscussion()">Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -130,6 +140,7 @@ export default {
       disableTextDiscussion: false,
       disableUpdateTextDiscussion: false,
       dialog: false,
+      dialogDelete: false
     }
   },
   mounted() {
@@ -184,9 +195,6 @@ export default {
         this.discussionList.push(...mergeData);
         this.changeHeight();
       })
-        .catch(resp => {
-          alert(resp.response.data.message);
-        });
     },
 
     changeHeight() {
@@ -245,6 +253,11 @@ export default {
       this.discussionId = discussionId;
     },
 
+    openModalDelete(discussionId) {
+      this.dialogDelete = true;
+      this.discussionId = discussionId;
+    },
+
     updateDiscussion() {
       if (this.messageUpdate !== '') {
         this.disableUpdateTextDiscussion = true;
@@ -299,11 +312,8 @@ export default {
 
       Echo.join('delete-discussion.' + this.getClassId)
         .listen('DeleteDiscussionEvent', (e) => {
-          const index = this.discussionList.findIndex(function (params) {
-            return params.id == e.discussionId;
-          });
+          const index = this.discussionList.findIndex(params => params.id == e.discussionId);
           if (index !== -1) this.discussionList.splice(index, 1);
-
           if ((this.discussionList.length + 1) > 4) {
             document.getElementById('discussion-box').style.height = '500px';
             document.getElementById('discussion-box').style.overflow = 'auto';
@@ -313,32 +323,24 @@ export default {
         });
     },
 
-    deleteDiscussion: function (id) {
-      this.$confirm({
-        title: 'Apakah anda yakin ?',
-        message: 'Data yang dihapus tidak bisa dikembalikan.',
-        button: {
-          yes: 'Ya',
-          no: 'Batal'
-        },
-        callback: confirm => {
-          if (confirm) {
-            axios.delete('/e-learning/delete/discussion', {
-              params: {
-                discussion_id: id,
-                class_id: this.getClassId
-              }
-            }).then(response => {
-              if (response.data.status === 200) {
-                const index = this.discussionList.findIndex(function (params) {
-                  return params.id === id;
-                });
-                if (index !== -1) this.discussionList.splice(index, 1);
-              }
-            })
-          }
+    deleteDiscussion: function () {
+      axios.delete('/e-learning/delete/discussion', {
+        params: {
+          discussion_id: this.discussionId,
+          class_id: this.getClassId
         }
-      });
+      }).then(response => {
+        if (response.data.status === 200) {
+          this.dialogDelete = false;
+          const index = this.discussionList.findIndex(params => params.id === this.discussionId);
+          if (index !== -1) this.discussionList.splice(index, 1);
+        } else {
+          this.setAlert({
+            message: response.data.message,
+            status: response.data.status
+          });
+        }
+      })
     },
   },
 }
