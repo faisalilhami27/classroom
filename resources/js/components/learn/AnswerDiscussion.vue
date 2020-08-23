@@ -77,7 +77,7 @@
                     <v-list-item @click="openModalUpdate(answer.id)">
                       <v-list-item-title>Edit</v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="deleteAnswerDiscussion(answer.id, answer.discussion_id)">
+                    <v-list-item @click="openModalDelete(answer.id)">
                       <v-list-item-title>Hapus</v-list-item-title>
                     </v-list-item>
                   </v-list>
@@ -113,7 +113,17 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <vue-confirm-dialog></vue-confirm-dialog>
+    <v-dialog v-model="dialogDelete" persistent max-width="320">
+      <v-card>
+        <v-card-title class="headline">Apakah anda yakin ?</v-card-title>
+        <v-card-text>Data yang sudah dihapus tidak bisa dikembalikan</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="red darken-1" text @click="dialogDelete = false">Batal</v-btn>
+          <v-btn color="green darken-1" text @click="deleteAnswerDiscussion">Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -124,17 +134,17 @@ export default {
   name: "AnswerDiscussion",
   props: [
     "discussionId",
-    "visible",
-    "answer"
+    "visible"
   ],
   data() {
     return {
       newVisible: this.visible,
-      total: this.answer.length,
-      answerList: this.answer,
+      total: 0,
+      answerList: [],
       disableTextAnswer: false,
       disableUpdateTextDiscussion: false,
       dialog: false,
+      dialogDelete: false,
       userTyping: false,
       typingTimer: false,
       clickBtnAnswer: null,
@@ -145,6 +155,7 @@ export default {
     }
   },
   mounted() {
+    this.getAnswerDiscussion();
     this.listenForNewAnswerDiscussion(this.discussionId);
   },
   computed: {
@@ -184,6 +195,26 @@ export default {
       }
     },
 
+    getAnswerDiscussion(url = '') {
+      axios.get(url ? url : '/e-learning/load/answer/discussion', {
+        params: {
+          discussion_id: this.discussionId
+        }
+      }).then(response => {
+        const data = response.data.answer;
+        const mergeData = data.map(data => ({
+            ...data,
+            visible: false
+          })
+        );
+        this.answerList.push(...mergeData);
+        this.total = this.answerList.length;
+      })
+        .catch(resp => {
+          alert(resp.response.data.message);
+        });
+    },
+
     answerDiscussion(discussionId) {
       if (this.messageAnswer !== '') {
         this.disableTextAnswer = true;
@@ -219,6 +250,11 @@ export default {
           this.messageUpdate = item.message;
         }
       });
+      this.answerId = answerId;
+    },
+
+    openModalDelete(answerId) {
+      this.dialogDelete = true;
       this.answerId = answerId;
     },
 
@@ -286,41 +322,25 @@ export default {
 
       Echo.join('delete-answer.' + this.getClassId + '.' + id)
         .listen('DeleteAnswerDiscussionEvent', (e) => {
-          const index = this.answerList.findIndex(function (params) {
-            return params.id == e.answerId;
-          });
+          const index = this.answerList.findIndex(params => params.id == e.answerId);
           if (index !== -1) this.answerList.splice(index, 1);
-          console.log(this.answerList);
         });
     },
 
-    deleteAnswerDiscussion: function (id, discussionId) {
-      this.$confirm({
-        title: 'Apakah anda yakin ?',
-        message: 'Data yang dihapus tidak bisa dikembalikan.',
-        button: {
-          yes: 'Ya',
-          no: 'Batal'
-        },
-        callback: confirm => {
-          if (confirm) {
-            axios.delete('/e-learning/delete/answer/discussion', {
-              params: {
-                answer_id: id,
-                class_id: this.getClassId,
-                discussion_id: discussionId
-              }
-            }).then(response => {
-              if (response.data.status === 200) {
-                const index = this.answerList.findIndex(function (params) {
-                  return params.id === id;
-                });
-                if (index !== -1) this.answerList.splice(index, 1);
-              }
-            })
-          }
+    deleteAnswerDiscussion () {
+      axios.delete('/e-learning/delete/answer/discussion', {
+        params: {
+          answer_id: this.answerId,
+          class_id: this.getClassId,
+          discussion_id: this.discussionId
         }
-      });
+      }).then(response => {
+        if (response.data.status === 200) {
+          this.dialogDelete = false;
+          const index = this.answerList.findIndex(params => params.id === this.answerId);
+          if (index !== -1) this.answerList.splice(index, 1);
+        }
+      })
     },
   }
 }

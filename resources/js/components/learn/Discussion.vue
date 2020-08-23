@@ -79,7 +79,7 @@
           </div>
           <div class="clearfix"></div>
           <p style="margin-left: 45px">{{ discussion.message }}</p>
-          <answer-discussion :discussion-id="discussion.id" :answer="discussion.answer" :visible.sync="discussion.visible"></answer-discussion>
+          <answer-discussion :discussion-id="discussion.id" :visible.sync="discussion.visible"></answer-discussion>
         </v-col>
       </div>
     </div>
@@ -195,11 +195,13 @@ export default {
         this.discussionList.push(...mergeData);
         this.changeHeight();
       })
+        .catch(resp => {
+          alert(resp.response.data.message);
+        });
     },
 
     changeHeight() {
       const box = document.getElementById('discussion-box');
-      console.log(this.discussionList.length);
       if (this.discussionList.length > 4) {
         box.style.height = '500px';
         box.style.overflow = 'auto';
