@@ -22,7 +22,7 @@ class CreateEmployeesTable extends Migration
       $table->string('email', 70)->unique();
       $table->string('phone_number', 15)->unique()->nullable();
       $table->string('photo')->nullable();
-      $table->char('photo', 7)->nullable();
+      $table->char('color', 7)->nullable();
       $table->timestamps();
       $table->softDeletes();
     });
