@@ -37,6 +37,7 @@ Route::group(['prefix' => 'manage/exam', 'middleware' => ['auth:employee', 'role
   Route::get('/edit', 'ManageExamController@edit')->name('manage.exam.edit');
   Route::get('/rules', 'ManageExamController@getTextRules')->name('manage.exam.rules');
   Route::get('/detail', 'ManageExamController@show')->name('manage.exam.detail');
+  Route::get('/violation', 'ManageExamController@showViolation')->name('manage.exam.violation');
   Route::post('/json/student/score', 'ManageExamController@datatableStudentScore')->name('manage.exam.json.student.score');
   Route::post('/json/student', 'ManageExamController@datatableStudent')->name('manage.exam.json.student');
   Route::post('/json', 'ManageExamController@datatable')->name('manage.exam.json');
@@ -65,6 +66,7 @@ Route::group(['prefix' => 'assign/student', 'middleware' => ['auth:employee', 'r
 Route::group(['prefix' => 'remedial', 'middleware' => ['auth:employee', 'roles:developer|guru']], function () {
   Route::get('/', 'RemedialController@index')->name('remedial.index');
   Route::get('/get/student', 'RemedialController@getStudent')->name('remedial.student');
+  Route::get('/violation', 'RemedialController@showViolation')->name('remedial.violation');
   Route::post('/json', 'RemedialController@datatable')->name('remedial.json');
   Route::post('/json/student', 'RemedialController@datatableStudent')->name('remedial.json.student');
   Route::post('/json/student/score', 'RemedialController@datatableStudentScore')->name('remedial.json.student.score');
@@ -75,6 +77,7 @@ Route::group(['prefix' => 'remedial', 'middleware' => ['auth:employee', 'roles:d
 Route::group(['prefix' => 'supplementary', 'middleware' => ['auth:employee', 'roles:developer|guru']], function () {
   Route::get('/', 'SupplementaryController@index')->name('supplementary.exam.index');
   Route::get('/get/student', 'SupplementaryController@getStudent')->name('supplementary.exam.student');
+  Route::get('/violation', 'SupplementaryController@showViolation')->name('supplementary.exam.violation');
   Route::post('/json', 'SupplementaryController@datatable')->name('supplementary.exam.json');
   Route::post('/json/student', 'SupplementaryController@datatableStudent')->name('supplementary.exam.json.student');
   Route::post('/json/student/score', 'SupplementaryController@datatableStudentScore')->name('supplementary.exam.json.student.score');
@@ -84,6 +87,7 @@ Route::group(['prefix' => 'supplementary', 'middleware' => ['auth:employee', 'ro
 // progress
 Route::group(['prefix' => 'progress', 'middleware' => ['auth:employee', 'roles:developer|guru']], function () {
   Route::get('/', 'ExamProgressController@index')->name('progress.index');
+  Route::get('/export/{id}', 'ExamProgressController@export')->name('progress.export');
   Route::post('/chart', 'ExamProgressController@chartScoreExam')->name('progress.chart');
   Route::post('/json', 'ExamProgressController@datatable')->name('progress.json');
   Route::post('/json/student', 'ExamProgressController@datatableStudent')->name('progress.json.student');

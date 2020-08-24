@@ -137,6 +137,7 @@
                 <th width="20px">No</th>
                 <th>{{ sortIdentityNumber() }}</th>
                 <th>Nama {{ studentName() }}</th>
+                <th>Pelanggaran</th>
                 <th>Aksi</th>
               </tr>
               </thead>
@@ -175,6 +176,25 @@
               </tbody>
             </table>
           </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="modal_violation_student" role="dialog" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary">
+          <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">×</span>
+            <span class="sr-only">Close</span>
+          </button>
+          <h4 class="modal-title">Pelanggran Siswa</h4>
+        </div>
+        <div class="modal-body">
+          <div class="show-violation"></div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
@@ -327,6 +347,7 @@
           {data: 'DT_RowIndex', searchable: false},
           {data: 'assign_student.student.student_identity_number'},
           {data: 'assign_student.student.name'},
+          {data: 'violation'},
           {data: 'action', sClass: 'text-center'},
         ],
 
@@ -336,6 +357,38 @@
             orderable: false
           },
         ],
+      });
+    }
+
+    const showViolation = function (id, supplementaryId) {
+      $('#modal_violation_student').modal('show');
+      $.ajax({
+        headers: {
+          'X-CSRF-TOKEN': "{{ csrf_token() }}"
+        },
+        url: '{{ route('supplementary.exam.violation') }}',
+        type: 'get',
+        data: {
+          id: id,
+          supplementary_id: supplementaryId
+        },
+        dataType: 'json',
+        success: function (data) {
+          let html = '';
+          if (data.data.length == 0) {
+            html += `<center><h3>Tidak ada pelanggaran</h3></center>`;
+          } else {
+            html += `<ol>`;
+            $.each(data.data, function (i, v) {
+              html += `<li>${v.violation_name}</li>`
+            });
+            html += `</ol>`;
+          }
+          $('.show-violation').html(html);
+        },
+        error: function (resp) {
+          alert(resp.responseJSON.message)
+        }
       });
     }
 

@@ -18,6 +18,7 @@ use App\Models\SchoolYear;
 use App\Models\Semester;
 use App\Models\StudentClass;
 use App\Models\StudentExamScore;
+use App\Models\StudentExamViolation;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -305,7 +306,7 @@ class ManageExamController extends Controller
   public function datatableStudent(Request $request)
   {
     $examId = $request->exam_id;
-    $data = AssignExamStudent::with('student')
+    $data = AssignExamStudent::with(['student'])
       ->where('exam_id', $examId)
       ->whereHas('scoreStudents', function ($query) {
         $query->where('remedial_id', null);
@@ -315,10 +316,13 @@ class ManageExamController extends Controller
       ->get();
     return DataTables::of($data)
       ->addIndexColumn()
+      ->addColumn('violation', function ($query) {
+        return '<a href="#" onclick="showViolation('. $query->id .')">Lihat pelanggaran</a>';
+      })
       ->addColumn('action', function ($query) use ($examId) {
         return '<a href="#" class="btn btn-success btn-sm" title="Lihat Nilai" id="' . $query->id . '" onclick="showScore(' . $query->student_id . ', ' . $examId . ')"><i class="icon icon-eye"></i></a>';
       })
-      ->rawColumns(['action'])
+      ->rawColumns(['action', 'violation'])
       ->make(true);
   }
 
@@ -599,6 +603,21 @@ class ManageExamController extends Controller
     } else {
       return response()->json(['status' => 500, 'message' => "Data tidak ditemukan"]);
     }
+  }
+
+  /**
+   * show violation
+   * @param Request $request
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function showViolation(Request $request)
+  {
+    $assignStudentId = $request->id;
+    $violations = StudentExamViolation::where('assign_student_id', $assignStudentId)
+      ->where('remedial_id', null)
+      ->where('supplementary_id', null)
+      ->get();
+    return response()->json(['status' => 200, 'data' => $violations]);
   }
 
   /**

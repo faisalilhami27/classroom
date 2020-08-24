@@ -47,6 +47,7 @@
           <h4 class="modal-title">Progress Ujian</h4>
         </div>
         <div class="modal-body">
+          <input type="hidden" name="id" id="id">
           <div class="row">
             <div class="col-md-6">
               <table class="table table-hover table-striped">
@@ -93,6 +94,7 @@
               <canvas id="exam_chart"></canvas>
             </div>
           </div>
+          <button type="button" class="btn btn-info btn-sm" onclick="scoreExport()"><i class="icon icon-file-excel-o"></i> Export Nilai Ujian</button>
           <div class="table-responsive" style="margin-top: 10px">
             <table id="student_table" class="table table-striped table-hover dataTable" width="100%">
               <thead>
@@ -194,6 +196,7 @@
     const showStudent = function (id) {
       $('#modal_student').modal('show');
       $('#exam_chart').remove();
+      $('#id').val(id);
       $('.chart').append('<canvas id="exam_chart"></canvas>');
       getChart(id);
       tableStudent = $('#student_table').DataTable({
@@ -226,6 +229,11 @@
           },
         ],
       });
+    }
+
+    const scoreExport = function () {
+      const id = $('#id').val();
+      window.open(`{{ URL('progress/export') }}/${id}`, '_blank');
     }
 
     const showScore = function (studentId, examId) {

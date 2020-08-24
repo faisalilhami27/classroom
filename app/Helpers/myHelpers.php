@@ -313,3 +313,25 @@ if (!function_exists('convertMonthName')) {
     return $name;
   }
 }
+
+if (!function_exists('typeExam')) {
+  function typeExam($type)
+  {
+    $name = null;
+    switch ($type) {
+      case '1':
+        $name = 'Ulangan Harian';
+        break;
+      case '2':
+        $name = 'Ujian Tengah Semester';
+        break;
+      case '3':
+        $name = 'Ujian Akhir Semester';
+        break;
+      case '4':
+        $name = 'Try Out';
+        break;
+    }
+    return $name;
+  }
+}

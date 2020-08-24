@@ -10,6 +10,7 @@ use App\Models\QuestionForStudent;
 use App\Models\Student;
 use App\Models\StudentClass;
 use App\Models\StudentExamScore;
+use App\Models\StudentExamViolation;
 use App\Models\SupplementaryExam;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -112,10 +113,13 @@ class SupplementaryController extends Controller
       ->get();
     return DataTables::of($data)
       ->addIndexColumn()
+      ->addColumn('violation', function ($query) {
+        return '<a href="#" onclick="showViolation('. $query->assign_student_id .', '. $query->id .')">Lihat pelanggaran</a>';
+      })
       ->addColumn('action', function ($query) use ($examId) {
         return '<a href="#" class="btn btn-success btn-sm btn-score" title="Lihat Nilai" id="' . $query->id . '" onclick="showScore(' . $query->assignStudent->student_id . ', ' . $examId . ')"><i class="icon icon-eye"></i></a>';
       })
-      ->rawColumns(['action'])
+      ->rawColumns(['action', 'violation'])
       ->make(true);
   }
 
@@ -148,6 +152,21 @@ class SupplementaryController extends Controller
       })
       ->rawColumns(['score', 'minimal'])
       ->make(true);
+  }
+
+  /**
+   * show violation
+   * @param Request $request
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function showViolation(Request $request)
+  {
+    $assignStudentId = $request->id;
+    $supplementaryId = $request->supplementary_id;
+    $violations = StudentExamViolation::where('assign_student_id', $assignStudentId)
+      ->where('supplementary_id', $supplementaryId)
+      ->get();
+    return response()->json(['status' => 200, 'data' => $violations]);
   }
 
   /**

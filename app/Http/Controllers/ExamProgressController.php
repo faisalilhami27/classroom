@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ScoreStudentExport;
 use App\Models\AssignExamStudent;
 use App\Models\ExamClassTransaction;
 use App\Models\ManageExam;
@@ -13,6 +14,7 @@ use App\Models\StudentExamScore;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\DataTables;
 
 class ExamProgressController extends Controller
@@ -211,5 +213,51 @@ class ExamProgressController extends Controller
       'not_yet' => count($notYetExam),
       'not_exam' => count($notExam)
     ];
+  }
+
+  /**
+   * export student score to excel
+   * @param $examId
+   * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+   */
+  public function export($examId)
+  {
+    $exam = ManageExam::with([
+      'examClass.studentClass',
+      'examClass.studentClass.gradeLevel',
+      'examClass.studentClass.major'
+    ])
+      ->where('id', $examId)
+      ->first();
+    $fileName = $this->className($exam);
+    return Excel::download(new ScoreStudentExport($examId), $fileName . '.xlsx');
+  }
+
+  /**
+   * class name
+   * @param $exam
+   * @return string
+   */
+  private function className($exam)
+  {
+    $config = optional(configuration())->type_school;
+    $name = null;
+
+    if ($config == 1) {
+      $name = $exam->examClass->studentClass->subject->name . " Kelas " .
+              $exam->examClass->studentClass->class_order;
+    } else if ($config == 2) {
+      $name = $exam->examClass->studentClass->subject->name . " Kelas " .
+              $exam->examClass->studentClass->class_order . " - " .
+              $exam->examClass->studentClass->gradeLevel->name . " - " .
+              $exam->examClass->studentClass->major->code . " - " .
+              $exam->examClass->studentClass->class_order;
+    } else {
+      $name = $exam->examClass->studentClass->subject->name . " Kelas " .
+              $exam->examClass->studentClass->class_order . " - " .
+              $exam->examClass->studentClass->gradeLevel->name . " - " .
+              $exam->examClass->studentClass->class_order;
+    }
+    return $name;
   }
 }
