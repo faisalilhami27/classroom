@@ -20,7 +20,7 @@ class ChatRoomController extends Controller
   public function getChat(Request $request)
   {
     $chatId = $request->chat_id;
-    $chat = ChatRoom::where('id', $chatId)->first();
+    $chat = ChatRoom::with(['student', 'employee'])->where('id', $chatId)->first();
     $conversations = ConversationChatRoom::where('chat_id', $chatId)->get();
     $this->updateStatusRead($chatId);
     return response()->json([
@@ -155,7 +155,6 @@ class ChatRoomController extends Controller
   public function listChat()
   {
     $user = Auth::user();
-    $countConversation = 0;
     $data = [];
 
     if (Auth::guard('employee')->check()) {

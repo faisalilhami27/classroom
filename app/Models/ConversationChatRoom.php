@@ -25,4 +25,14 @@ class ConversationChatRoom extends Model
   {
     return $this->hasOne(ChatRoom::class, 'id', 'chat_id');
   }
+
+  public function student()
+  {
+    return $this->hasOne(Student::class, 'id', 'student_id');
+  }
+
+  public function employee()
+  {
+    return $this->hasOne(Employee::class, 'id', 'employee_id');
+  }
 }
