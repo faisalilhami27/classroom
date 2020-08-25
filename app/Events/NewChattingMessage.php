@@ -23,7 +23,7 @@ class NewChattingMessage implements ShouldBroadcast
    * @param $chat
    * @param $userId
    */
-  public function __construct(ConversationChatRoom $chat, $userId)
+  public function __construct($chat, $userId)
   {
     $this->userId = $userId;
     $this->chat = $chat;

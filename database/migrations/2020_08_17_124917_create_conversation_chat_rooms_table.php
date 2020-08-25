@@ -15,7 +15,8 @@ class CreateConversationChatRoomsTable extends Migration
   {
     Schema::create('conversation_chat_rooms', function (Blueprint $table) {
       $table->id();
-      $table->text('message');
+      $table->text('message')->nullable();
+      $table->integer('type')->nullable();
       $table->foreignId('chat_id')
         ->constrained('chat_rooms')
         ->onUpdate('cascade')

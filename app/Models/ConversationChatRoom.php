@@ -16,9 +16,12 @@ class ConversationChatRoom extends Model
     'employee_id',
     'chat_id',
     'message',
+    'type',
     'status_read',
     'receiver_employee',
     'receiver_student',
+    'status_conversation_student',
+    'status_conversation_employee',
   ];
 
   public function chat()
@@ -34,5 +37,10 @@ class ConversationChatRoom extends Model
   public function employee()
   {
     return $this->hasOne(Employee::class, 'id', 'employee_id');
+  }
+
+  public function files()
+  {
+    return $this->hasMany(FileConversationChat::class, 'conversation_id', 'id');
   }
 }

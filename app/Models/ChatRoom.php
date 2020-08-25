@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ChatRoom extends Model
 {
+  use SoftDeletes;
   protected $table = 'chat_rooms';
-  protected $fillable = ['student_id', 'employee_id'];
+  protected $fillable = ['student_id', 'employee_id', 'status_delete_student', 'status_delete_employee'];
 
   public function employee()
   {

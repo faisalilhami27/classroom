@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Events\NewChattingMessage;
+use App\Http\Requests\ConversationRequest;
 use App\Models\ChatRoom;
 use App\Models\ConversationChatRoom;
+use App\Models\FileConversationChat;
 use App\Models\StudentClass;
 use App\Models\StudentClassTransaction;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,7 +24,16 @@ class ChatRoomController extends Controller
   {
     $chatId = $request->chat_id;
     $chat = ChatRoom::with(['student', 'employee'])->where('id', $chatId)->first();
-    $conversations = ConversationChatRoom::where('chat_id', $chatId)->get();
+    $conversations = ConversationChatRoom::with('files')
+      ->where('chat_id', $chatId);
+
+    if (Auth::guard('employee')->check()) {
+      $conversations->where('status_conversation_employee', 0);
+    } else {
+      $conversations->where('status_conversation_student', 0);
+    }
+
+    $conversations = $conversations->get();
     $this->updateStatusRead($chatId);
     return response()->json([
       'status' => 200,
@@ -160,6 +172,7 @@ class ChatRoomController extends Controller
     if (Auth::guard('employee')->check()) {
       $chats = ChatRoom::with('student')
         ->where('employee_id', $user->employee_id)
+        ->where('status_delete_employee', 0)
         ->get();
 
       foreach ($chats as $chat) {
@@ -175,13 +188,14 @@ class ChatRoomController extends Controller
           'color' => $chat->student->color,
           'student_id' => $chat->student_id,
           'employee_id' => $chat->employee_id,
-          'message' => $conversation->message,
+          'message' => ($conversation->files->isEmpty()) ? $conversation->message : 'Mengirim file',
           'count' => $countConversation
         ];
       }
     } else {
       $chats = ChatRoom::with('employee')
         ->where('student_id', $user->student_id)
+        ->where('status_delete_student', 0)
         ->get();
 
       foreach ($chats as $chat) {
@@ -197,7 +211,7 @@ class ChatRoomController extends Controller
           'color' => $chat->employee->color,
           'employee_id' => $chat->employee_id,
           'student_id' => $chat->student_id,
-          'message' => $conversation->message,
+          'message' => ($conversation->files->isEmpty()) ? $conversation->message : 'Mengirim file',
           'count' => $countConversation
         ];
       }
@@ -232,17 +246,31 @@ class ChatRoomController extends Controller
 
   /**
    * make or reply chat
-   * @param Request $request
+   * @param ConversationRequest $request
    * @param ConversationChatRoom $conversation
    * @return \Illuminate\Http\JsonResponse
    * @throws \Pusher\PusherException
    */
-  public function makeOrReplyChat(Request $request, ConversationChatRoom $conversation)
+  public function makeOrReplyChat(ConversationRequest $request, ConversationChatRoom $conversation)
   {
     $userId = $request->user_id;
-    $message = $request->message;
-    $data = $this->checkData($userId, $message);
-    $chat = ConversationChatRoom::where('id', $data)->first();
+    $message = htmlspecialchars($request->message);
+    $type = $request->type;
+    $files = $request->file('file');
+    $data = $this->checkData($userId, $message, $type);
+    $conversationChat = ConversationChatRoom::with('files')
+      ->where('id', $data)
+      ->first();
+
+    /* if type is not text then store file */
+    if ($type != 'text') {
+      $this->storeFile($conversationChat->id, $files);
+    }
+
+    $chat = ConversationChatRoom::with('files')
+      ->where('id', $data)
+      ->first();
+
     if (Auth::guard('employee')->check()) {
       event(new NewChattingMessage($chat, $chat->chat->student_id));
     } else {
@@ -258,9 +286,10 @@ class ChatRoomController extends Controller
    * check data
    * @param $userId
    * @param $message
+   * @param $type
    * @return  |null |null
    */
-  private function checkData($userId, $message)
+  private function checkData($userId, $message, $type)
   {
     $insert = null;
     $user = Auth::user();
@@ -270,23 +299,27 @@ class ChatRoomController extends Controller
       $studentId = $userId;
       $chat = ChatRoom::where('employee_id', $employeeId)
         ->where('student_id', $studentId)
+        ->where('status_delete_employee', 0)
         ->first();
     } else {
       $studentId = $user->student_id;
       $employeeId = $userId;
       $chat = ChatRoom::where('student_id', $studentId)
         ->where('employee_id', $employeeId)
+        ->where('status_delete_student', 0)
         ->first();
     }
 
     if (is_null($chat)) {
       $insert = ChatRoom::create([
         'student_id' => $studentId,
-        'employee_id' => $employeeId
+        'employee_id' => $employeeId,
+        'status_delete_student' => 0,
+        'status_delete_employee' => 0,
       ]);
-      $conversation = $this->storeConversation($insert, $insert->id, $message, $userId);
+      $conversation = $this->storeConversation($insert, $insert->id, $message, $userId, $type);
     } else {
-      $conversation = $this->storeConversation($chat, $chat->id, $message, $userId);
+      $conversation = $this->storeConversation($chat, $chat->id, $message, $userId, $type);
     }
     return $conversation->id;
   }
@@ -297,9 +330,10 @@ class ChatRoomController extends Controller
    * @param $chatId
    * @param $message
    * @param $receiverId
+   * @param $type
    * @return
    */
-  private function storeConversation($chat, $chatId, $message, $receiverId)
+  private function storeConversation($chat, $chatId, $message, $receiverId, $type)
   {
     $user = Auth::user();
     if (Auth::guard('employee')->check()) {
@@ -307,11 +341,17 @@ class ChatRoomController extends Controller
       $receiverStudent = $receiverId;
       $receiverEmployee = null;
       $studentIdForConversation = null;
+      if (optional($chat)->status_delete_student == 1) {
+        $chat->update(['status_delete_student' => 0]);
+      }
     } else {
       $studentIdForConversation = $user->student_id;
       $receiverEmployee = $receiverId;
       $employeeIdForConversation = null;
       $receiverStudent = null;
+      if (optional($chat)->status_delete_employee == 1) {
+        $chat->update(['status_delete_employee' => 0]);
+      }
     }
 
     return $chat->conversation()->create([
@@ -319,9 +359,75 @@ class ChatRoomController extends Controller
       'employee_id' => $employeeIdForConversation,
       'student_id' => $studentIdForConversation,
       'message' => $message,
+      'type' => $type,
       'status_read' => 0,
       'receiver_employee' => $receiverEmployee,
-      'receiver_student' => $receiverStudent
+      'receiver_student' => $receiverStudent,
+      'status_conversation_student' => 0,
+      'status_conversation_employee' => 0,
     ]);
+  }
+
+  /**
+   * store file
+   * @param $id
+   * @param $files
+   */
+  private function storeFile($id, $files)
+  {
+    $data = [];
+    foreach ($files as $file) {
+      $filename = $file->getClientOriginalName();
+      $replaceFileName = pathinfo($filename, PATHINFO_FILENAME) . '_' . time() . '.' . $file->getClientOriginalExtension();
+      $data[] = [
+        'conversation_id' => $id,
+        'file' => $file->storeAs('chat', $replaceFileName),
+        'filename' => $filename,
+        'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+        'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+      ];
+    }
+    FileConversationChat::insert($data);
+  }
+
+  /**
+   * delete chat
+   * @param Request $request
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function destroyChat(Request $request)
+  {
+    $chatId = $request->chat_id;
+    $user = Auth::user();
+
+    if (Auth::guard('employee')->check()) {
+      $userId = $user->employee_id;
+      $data = ChatRoom::where('id', $chatId)
+        ->where('employee_id', $userId)
+        ->first();
+      $data->update(['status_delete_employee' => 1]);
+      $data->conversation()->update(['status_conversation_employee' => 1]);
+    } else {
+      $userId = $user->student_id;
+      $data = ChatRoom::where('id', $chatId)
+        ->where('student_id', $userId)
+        ->first();
+      $data->update(['status_delete_student' => 1]);
+      $data->conversation()->update(['status_conversation_student' => 1]);
+    }
+
+    if ($data->status_delete_student == 1 && $data->status_delete_employee == 1) {
+      $data->delete();
+      foreach ($data->conversation()->get() as $item) {
+        FileConversationChat::where('conversation_id', $item->id)->delete();
+      }
+      $data->conversation()->delete();
+    }
+
+    if ($data) {
+      return response()->json(['status' => 200]);
+    } else {
+      return response()->json(['status' => 500, 'message' => 'Terjadi kesalahan pada server']);
+    }
   }
 }
