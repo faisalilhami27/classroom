@@ -537,16 +537,20 @@ export default {
     choosePerson() {
       this.chats = [];
       this.showCombobox = false;
-      axios.post('/chat/check/user', {
-        user_id: this.personValue
-      })
-        .then(response => {
-          this.showChatBox = true;
-          const data = response.data.chat;
-          if (data != null) {
-            this.getChat(data.id);
-          }
+      if (this.personValue !== undefined) {
+        axios.post('/chat/check/user', {
+          user_id: this.personValue
         })
+          .then(response => {
+            this.showChatBox = true;
+            const data = response.data.chat;
+            if (data != null) {
+              this.getChat(data.id);
+            }
+          })
+      } else {
+        this.showChatBox = false;
+      }
     },
 
     getTeacherOrStudent() {
