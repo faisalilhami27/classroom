@@ -212,7 +212,6 @@ export default {
       personValue: null,
       emoji: false,
       loading: false,
-      showCombobox: false,
       openLeftNavigationDrawer: false,
       showChatBox: false,
       disabledTextarea: false,
@@ -536,13 +535,12 @@ export default {
 
     choosePerson() {
       this.chats = [];
-      this.showCombobox = false;
       if (this.personValue !== undefined) {
+        this.showChatBox = true;
         axios.post('/chat/check/user', {
           user_id: this.personValue
         })
           .then(response => {
-            this.showChatBox = true;
             const data = response.data.chat;
             if (data != null) {
               this.getChat(data.id);
@@ -550,6 +548,7 @@ export default {
           })
       } else {
         this.showChatBox = false;
+        this.userTyping = false;
       }
     },
 
