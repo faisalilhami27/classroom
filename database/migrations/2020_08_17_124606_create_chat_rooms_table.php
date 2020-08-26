@@ -25,6 +25,8 @@ class CreateChatRoomsTable extends Migration
         ->constrained()
         ->onUpdate('cascade')
         ->onDelete('cascade');
+      $table->integer('status_delete_student')->nullable();
+      $table->integer('status_delete_employee')->nullable();
       $table->timestamps();
       $table->softDeletes();
     });

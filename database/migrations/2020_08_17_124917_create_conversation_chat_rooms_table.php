@@ -42,6 +42,8 @@ class CreateConversationChatRoomsTable extends Migration
         ->onUpdate('cascade')
         ->onDelete('cascade');
       $table->integer('status_read')->nullable();
+      $table->integer('status_conversation_employee')->nullable();
+      $table->integer('status_conversation_student')->nullable();
       $table->timestamps();
       $table->softDeletes();
     });
