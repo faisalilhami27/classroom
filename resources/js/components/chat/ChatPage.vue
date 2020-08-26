@@ -545,8 +545,6 @@ export default {
           const data = response.data.chat;
           if (data != null) {
             this.getChat(data.id);
-          } else {
-            this.showChatBox = false;
           }
         })
     },
