@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>@yield('title') | Classroom</title>
   <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-  <meta name="csrf_token" content="{{ csrf_token() }}">
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
   <meta property="og:url" content="http://demo.madebytilde.com/elephant">
   <meta property="og:type" content="website">
   <meta property="og:title" content="The fastest way to build Modern Admin APPS for any platform, browser, or device.">
