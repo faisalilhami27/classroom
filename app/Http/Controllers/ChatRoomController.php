@@ -23,23 +23,62 @@ class ChatRoomController extends Controller
   public function getChat(Request $request)
   {
     $chatId = $request->chat_id;
-    $chat = ChatRoom::with(['student', 'employee'])->where('id', $chatId)->first();
-    $conversations = ConversationChatRoom::with('files')
-      ->where('chat_id', $chatId);
+    if (!is_null($chatId)) {
+      $chat = ChatRoom::with(['student', 'employee'])->where('id', $chatId)->first();
+      $conversations = ConversationChatRoom::with(['files'])
+        ->where('chat_id', $chatId);
 
-    if (Auth::guard('employee')->check()) {
-      $conversations->where('status_conversation_employee', 0);
-    } else {
-      $conversations->where('status_conversation_student', 0);
+      if (Auth::guard('employee')->check()) {
+        $conversations->where('status_conversation_employee', 0);
+      } else {
+        $conversations->where('status_conversation_student', 0);
+      }
+
+      $this->updateStatusRead($chatId);
+      $data = $conversations->get();
+      $conversationWithFile = $this->getFile($data);
+
+      if (Auth::guard('employee')->check()) {
+        event(new NewChattingMessage($chat, $chat->student_id, $conversationWithFile, 'update'));
+      } else {
+        event(new NewChattingMessage($chat, $chat->employee_id, $conversationWithFile, 'update'));
+      }
+
+      return response()->json([
+        'status' => 200,
+        'conversation' => $data,
+        'chat' => $chat,
+      ]);
     }
+  }
 
-    $conversations = $conversations->get();
-    $this->updateStatusRead($chatId);
-    return response()->json([
-      'status' => 200,
-      'conversation' => $conversations,
-      'chat' => $chat,
-    ]);
+  /**
+   * get file conversation
+   * @param $conversations
+   * @return array
+   */
+  private function getFile($conversations)
+  {
+    $data = [];
+    foreach ($conversations as $conversation) {
+      $data[] = (object)[
+        'id' => $conversation->id,
+        'message' => $conversation->message,
+        'type' => $conversation->type,
+        'chat_id' => $conversation->chat_id,
+        'student_id' => $conversation->student_id,
+        'employee_id' => $conversation->employee_id,
+        'receiver_employee' => $conversation->receiver_employee,
+        'receiver_student' => $conversation->receiver_student,
+        'status_read' => $conversation->status_read,
+        'status_conversation_student' => $conversation->status_conversation_student,
+        'status_conversation_employee' => $conversation->status_conversation_employee,
+        'created_at' => $conversation->created_at,
+        'updated_at' => $conversation->updated_at,
+        'files' => $conversation->files
+      ];
+    }
+    return $data;
   }
 
   /**

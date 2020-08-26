@@ -23,6 +23,8 @@
               <p class="time">{{ item.created_at | convertFormatDatetimeToTime }}</p>
               <div style="clear: both"></div>
               <p class="message">{{ item.message }}</p>
+              <v-icon v-if="item.status_read === 0" class="read" size="14">mdi-check-all</v-icon>
+              <v-icon v-else class="read" :color="newColor" size="14">mdi-check-all</v-icon>
             </v-card-text>
           </v-card>
         </div>
@@ -48,7 +50,9 @@
                       ></v-img>
                     </v-col>
                   </v-row>
-                  <p style="margin-bottom: -10px; margin-top: -10px;"><span style="font-size: 14px">{{ splitFilename(file.filename) }}</span></p>
+                  <p style="margin-bottom: -10px; margin-top: -10px;"><span
+                    style="font-size: 14px">{{ splitFilename(file.filename) }}</span>
+                  </p>
                 </v-container>
               </v-card>
               <v-card
@@ -92,7 +96,11 @@
                       ></v-img>
                     </v-col>
                   </v-row>
-                  <p style="margin-bottom: -10px; margin-top: -10px;"><span style="font-size: 14px">{{ splitFilename(file.filename) }}</span></p>
+                  <p style="margin-bottom: -10px; margin-top: -10px;"><span
+                    style="font-size: 14px">{{ splitFilename(file.filename) }}</span>
+                  </p>
+                  <v-icon v-if="item.status_read === 0" class="read" size="14">mdi-check-all</v-icon>
+                  <v-icon v-else class="read" :color="newColor" size="14">mdi-check-all</v-icon>
                 </v-container>
               </v-card>
               <v-card
@@ -101,18 +109,22 @@
                 @click="openFile(file.file)"
               >
                 <v-card-text>
-                  <p class="time-image">
-                    {{ item.created_at | convertFormatDatetimeToTime }}</p>
-                  <v-chip
-                    class="ma-2"
-                    color="indigo"
-                    text-color="white"
-                  >
-                    <v-avatar left>
-                      <v-icon>mdi-account-circle</v-icon>
-                    </v-avatar>
-                    <span style="font-size: 14px">{{ splitFilename(file.filename) }}</span>
-                  </v-chip>
+                  <div>
+                    <p class="time-image">
+                      {{ item.created_at | convertFormatDatetimeToTime }}</p>
+                    <v-chip
+                      class="ma-2"
+                      color="indigo"
+                      text-color="white"
+                    >
+                      <v-avatar left>
+                        <v-icon>mdi-account-circle</v-icon>
+                      </v-avatar>
+                      <span style="font-size: 14px">{{ splitFilename(file.filename) }}</span>
+                    </v-chip>
+                  </div>
+                  <v-icon v-if="item.status_read === 0" class="read-file" size="14">mdi-check-all</v-icon>
+                  <v-icon v-else class="read-file" :color="newColor" size="14">mdi-check-all</v-icon>
                 </v-card-text>
               </v-card>
             </div>
@@ -144,6 +156,8 @@
               <p class="time">{{ item.created_at | convertFormatDatetimeToTime }}</p>
               <div style="clear: both"></div>
               <p class="message">{{ item.message }}</p>
+              <v-icon v-if="item.status_read === 0" class="read" size="14">mdi-check-all</v-icon>
+              <v-icon v-else class="read" :color="newColor" size="14">mdi-check-all</v-icon>
             </v-card-text>
           </v-card>
         </div>
@@ -169,7 +183,9 @@
                       ></v-img>
                     </v-col>
                   </v-row>
-                  <p style="margin-bottom: -10px; margin-top: -10px;"><span style="font-size: 14px">{{ splitFilename(file.filename) }}</span></p>
+                  <p style="margin-bottom: -10px; margin-top: -10px;"><span
+                    style="font-size: 14px">{{ splitFilename(file.filename) }}</span>
+                  </p>
                 </v-container>
               </v-card>
               <v-card
@@ -213,7 +229,11 @@
                       ></v-img>
                     </v-col>
                   </v-row>
-                  <p style="margin-bottom: -10px; margin-top: -10px;"><span style="font-size: 14px">{{ splitFilename(file.filename) }}</span></p>
+                  <p style="margin-bottom: -10px; margin-top: -10px;"><span
+                    style="font-size: 14px">{{ splitFilename(file.filename) }}</span>
+                  </p>
+                  <v-icon v-if="item.status_read === 0" class="read" size="14">mdi-check-all</v-icon>
+                  <v-icon v-else class="read" :color="newColor" size="14">mdi-check-all</v-icon>
                 </v-container>
               </v-card>
               <v-card
@@ -222,18 +242,22 @@
                 @click="openFile(file.file)"
               >
                 <v-card-text>
-                  <p class="time-image">
-                    {{ item.created_at | convertFormatDatetimeToTime }}</p>
-                  <v-chip
-                    class="ma-2"
-                    color="indigo"
-                    text-color="white"
-                  >
-                    <v-avatar left>
-                      <v-icon>mdi-account-circle</v-icon>
-                    </v-avatar>
-                    <span style="font-size: 14px">{{ splitFilename(file.filename) }}</span>
-                  </v-chip>
+                  <div>
+                    <p class="time-image">
+                      {{ item.created_at | convertFormatDatetimeToTime }}</p>
+                    <v-chip
+                      class="ma-2"
+                      color="indigo"
+                      text-color="white"
+                    >
+                      <v-avatar left>
+                        <v-icon>mdi-account-circle</v-icon>
+                      </v-avatar>
+                      <span style="font-size: 14px">{{ splitFilename(file.filename) }}</span>
+                    </v-chip>
+                  </div>
+                  <v-icon v-if="item.status_read === 0" class="read-file" size="14">mdi-check-all</v-icon>
+                  <v-icon v-else class="read-file" :color="newColor" size="14">mdi-check-all</v-icon>
                 </v-card-text>
               </v-card>
             </div>
@@ -253,7 +277,12 @@ import moment from 'moment';
 
 export default {
   name: "ChatList",
-  props: ['chats'],
+  props: ['chats', 'color'],
+  data() {
+    return {
+      newColor: (this.color === '') ? 'blue' : this.color
+    }
+  },
   computed: {
     ...mapGetters([
       'getClassId',
@@ -322,5 +351,16 @@ export default {
   margin-top: -10px;
   float: right;
   font-size: 11px;
+}
+
+.read {
+  float: right;
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+
+.read-file {
+  float: right;
+  margin-bottom: 50px;
 }
 </style>

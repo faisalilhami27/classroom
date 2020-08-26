@@ -16,17 +16,23 @@ class NewChattingMessage implements ShouldBroadcast
 
   public $userId;
   public $chat;
+  public $type;
+  public $conversation;
 
   /**
    * Create a new event instance.
    *
    * @param $chat
    * @param $userId
+   * @param null $type
+   * @param $conversation
    */
-  public function __construct($chat, $userId)
+  public function __construct($chat, $userId, $conversation = null, $type = null)
   {
     $this->userId = $userId;
+    $this->type = $type;
     $this->chat = $chat;
+    $this->conversation = $conversation;
     $this->dontBroadcastToCurrentUser();
   }
 

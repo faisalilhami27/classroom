@@ -86,7 +86,7 @@
               color="#E1D9D2"
               style="border-radius: 0"
             >
-              <chat-list :chats="chats"></chat-list>
+              <chat-list :chats="chats" :color="color"></chat-list>
               <picker v-if="emoji" set="apple" @select="onInput" title="Pilih emoticon..."></picker>
             </v-card>
             <v-card
@@ -171,6 +171,7 @@
                     rows="1"
                     placeholder="Ketikan pesan"
                     :disabled="disabledTextarea"
+                    @focus="updateStatusRead"
                     @keydown="typingMessage"
                     @keydown.enter.exact.prevent="sendMessage"
                   ></v-textarea>
@@ -228,7 +229,9 @@ export default {
       item: '',
       type: '',
       userId: '',
-      message: ''
+      message: '',
+      color: '',
+      chatId: '',
     }
   },
   filters: {
@@ -439,6 +442,7 @@ export default {
 
     getChat(id) {
       this.showChatBox = true;
+      this.chatId = id;
       axios.post('/chat/get', {
         chat_id: id
       })
@@ -450,6 +454,19 @@ export default {
           } else {
             this.userId = response.data.chat.employee_id;
           }
+        })
+        .catch(resp => {
+          alert(resp.response.data.message);
+        });
+    },
+
+    updateStatusRead() {
+      console.log(this.chatId);
+      axios.post('/chat/get', {
+        chat_id: this.chatId
+      })
+        .then(() => {
+          this.getChatList();
         })
         .catch(resp => {
           alert(resp.response.data.message);
@@ -477,9 +494,15 @@ export default {
     listenForUser() {
       Echo.join('user.' + this.user)
         .listen('NewChattingMessage', (e) => {
-          let userId = (this.checkGuard === 'employee') ? e.chat.chat.student_id : e.chat.chat.employee_id;
+          let userId = (this.checkGuard === 'employee') ? e.chat.student_id : e.chat.employee_id;
           if (userId === this.userId) {
-            this.chats.push(e.chat);
+            if (e.type == 'update') {
+              this.chatId = e.chat.id;
+              this.chats = e.conversation;
+              this.color = 'blue';
+            } else {
+              this.chats.push(e.chat);
+            }
           }
           this.getChatList();
         })
@@ -516,10 +539,11 @@ export default {
       })
         .then(response => {
           this.showChatBox = true;
-          this.chats = [];
           const data = response.data.chat;
           if (data != null) {
             this.getChat(data.id);
+          } else {
+            this.chats = [];
           }
         })
     },
