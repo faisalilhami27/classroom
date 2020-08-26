@@ -11,5 +11,6 @@ Route::group(['prefix' => 'chat', 'middleware' => ['auth:employee,student']], fu
   Route::post('/get/by/user', 'ChatRoomController@checkConversationByRoom')->name('chat.get.user');
   Route::post('/list', 'ChatRoomController@listChat')->name('chat.list');
   Route::post('/send', 'ChatRoomController@makeOrReplyChat')->name('chat.send');
+  Route::post('/update/status/read', 'ChatRoomController@updateStatusReadRealtime')->name('chat.update');
   Route::delete('/delete', 'ChatRoomController@destroyChat')->name('chat.delete');
 });

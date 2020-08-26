@@ -374,7 +374,6 @@ export default {
 
     sendFile() {
       const formData = new FormData();
-
       for (let i = 0; i < this.selectedFile.length; i++) {
         let file = this.selectedFile[i];
         formData.append('file[]', file);
@@ -388,6 +387,7 @@ export default {
         }
       })
         .then(response => {
+          this.personValue = null;
           this.getChatList();
           const data = response.data.chat;
           this.chats.push(data);
@@ -427,6 +427,7 @@ export default {
             this.chats.push(data);
             this.disabledTextarea = false;
             this.message = '';
+            this.personValue = null;
             if (this.checkGuard === 'employee') {
               this.userId = response.data.chat.chat.student_id;
             } else {
@@ -461,7 +462,6 @@ export default {
     },
 
     updateStatusRead() {
-      console.log(this.chatId);
       axios.post('/chat/get', {
         chat_id: this.chatId
       })
@@ -498,7 +498,9 @@ export default {
           if (userId === this.userId) {
             if (e.type == 'update') {
               this.chatId = e.chat.id;
-              this.chats = e.conversation;
+              this.chats.map(user => {
+                user.status_read = 1
+              });
               this.color = 'blue';
             } else {
               this.chats.push(e.chat);
@@ -533,6 +535,7 @@ export default {
     },
 
     choosePerson() {
+      this.chats = [];
       this.showCombobox = false;
       axios.post('/chat/check/user', {
         user_id: this.personValue
@@ -542,8 +545,6 @@ export default {
           const data = response.data.chat;
           if (data != null) {
             this.getChat(data.id);
-          } else {
-            this.chats = [];
           }
         })
     },
@@ -594,6 +595,7 @@ export default {
                 if (response.data.status === 200) {
                   this.getChatList();
                   this.showChatBox = false;
+                  this.userTyping = false;
                 } else {
                   this.setAlert({
                     message: response.data.message,
