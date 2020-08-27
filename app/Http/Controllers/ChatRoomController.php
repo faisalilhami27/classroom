@@ -12,6 +12,7 @@ use App\Models\StudentClassTransaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ChatRoomController extends Controller
 {
@@ -25,7 +26,7 @@ class ChatRoomController extends Controller
     $chatId = $request->chat_id;
     if (!is_null($chatId)) {
       $chat = ChatRoom::with(['student', 'employee'])->where('id', $chatId)->first();
-      $conversations = ConversationChatRoom::with(['files'])
+      $conversations = ConversationChatRoom::with(['files', 'chat'])
         ->where('chat_id', $chatId);
 
       if (Auth::guard('employee')->check()) {
@@ -331,6 +332,7 @@ class ChatRoomController extends Controller
   private function checkData($userId, $message, $type)
   {
     $insert = null;
+    $result = null;
     $user = Auth::user();
 
     if (Auth::guard('employee')->check()) {
@@ -349,18 +351,30 @@ class ChatRoomController extends Controller
         ->first();
     }
 
-    if (is_null($chat)) {
-      $insert = ChatRoom::create([
-        'student_id' => $studentId,
-        'employee_id' => $employeeId,
-        'status_delete_student' => 0,
-        'status_delete_employee' => 0,
-      ]);
-      $conversation = $this->storeConversation($insert, $insert->id, $message, $userId, $type);
-    } else {
-      $conversation = $this->storeConversation($chat, $chat->id, $message, $userId, $type);
-    }
-    return $conversation->id;
+    $result = DB::transaction(function () use ($chat, $studentId, $employeeId, $message, $userId, $type) {
+      if (is_null($chat)) {
+        $insert = ChatRoom::create([
+          'student_id' => $studentId,
+          'employee_id' => $employeeId,
+          'status_delete_student' => 0,
+          'status_delete_employee' => 0,
+          'status_delete_friend' => 0,
+        ]);
+        $conversation = $this->storeConversation($insert, $insert->id, $message, $userId, $type);
+      } else {
+        $conversation = $this->storeConversation($chat, $chat->id, $message, $userId, $type);
+      }
+
+      try {
+        DB::commit();
+        return $conversation->id;
+      } catch (\Exception $e) {
+        DB::Rollback();
+        return response()->json(['status' => 500, 'message' => 'Terjadi kesalahan pada server']);
+      }
+    });
+
+    return $result;
   }
 
   /**
