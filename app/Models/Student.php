@@ -32,4 +32,9 @@ class Student extends Model
   {
     return $this->belongsTo(AssignExamStudent::class, 'id', 'student_id');
   }
+
+  public function studentTask()
+  {
+    return $this->hasMany(StudentTask::class, 'student_id', 'id');
+  }
 }

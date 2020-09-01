@@ -205,7 +205,7 @@ class TaskController extends Controller
       'max_score' => $point,
       'task_to' => (is_null($task)) ? 1 : $task->task_to + 1,
       'show_score' => 1,
-      'description' => $instruction,
+      'description' => (is_null($instruction)) ? null : $instruction,
       'class_id' => $classId,
       'employee_id' => Auth::user()->employee_id,
       'posting_id' => $posting->id
@@ -303,7 +303,7 @@ class TaskController extends Controller
       'deadline_date' => $date,
       'time' => $time,
       'max_score' => $point,
-      'description' => $instruction
+      'description' => (is_null($instruction)) ? null : $instruction
     ]);
 
     /* update data to posting table */

@@ -57,6 +57,7 @@ import Chat from '../chat/Chat';
 import Learn from '../learn/Learn';
 import Task from '../task/Task';
 import Exam from '../exam/Exam';
+import Assessment from '../assessment/Assessment';
 import Announcement from "./Announcement";
 import {mapGetters} from "vuex";
 
@@ -70,7 +71,8 @@ export default {
     Learn,
     Task,
     Exam,
-    Chat
+    Chat,
+    Assessment
   },
   data: () => ({
     openLeftNavigationDrawer: false,
@@ -79,7 +81,8 @@ export default {
       {tab: 'Forum', content: 'Forum'},
       {tab: 'Tugas Kelas', content: 'Task'},
       {tab: 'Belajar', content: 'Learn'},
-      {tab: 'Ujian', content: 'Exam'}
+      {tab: 'Ujian', content: 'Exam'},
+      {tab: 'Nilai', content: 'Assessment'},
     ]
   }),
   created() {

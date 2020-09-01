@@ -220,9 +220,13 @@
                         </v-list-item-content>
                       </v-list-item>
                     </v-col>
-                    <v-col cols="12" v-show="showImage"
-                           v-for="(item, index) in selectedFile"
-                           :key="index" sm="6" class="show-file">
+                    <v-col
+                      cols="12" v-show="showImage"
+                      v-for="(item, index) in selectedFile"
+                      :key="index"
+                      sm="6"
+                      class="show-file"
+                    >
                       <v-list-item>
                         <v-list-item-content>
                           <v-list-item-subtitle>
@@ -230,7 +234,6 @@
                               <v-card
                                 class="pa-2 list-file"
                                 outlined
-                                tile
                                 style="border-radius: 10px"
                               >
                                 <p class="file-name">{{ splitFilename(item.name) }}</p>
@@ -242,6 +245,9 @@
                                   <v-icon>mdi-close</v-icon>
                                 </v-btn>
                               </v-card>
+                              <span style="color: red; margin-top: -25px">
+                                <strong :id="`file_${index}-error`"></strong>
+                              </span>
                             </v-col>
                           </v-list-item-subtitle>
                         </v-list-item-content>
@@ -301,7 +307,7 @@
               <v-menu offset-y>
                 <template v-slot:activator="{ on }">
                   <v-btn v-if="checkGuard === 'employee'" v-on="on" style="float:right;" icon>
-                    <v-icon>mdi-dots-vertical</v-icon>
+                    <v-icon small>mdi-dots-vertical</v-icon>
                   </v-btn>
                 </template>
                 <v-list>
@@ -313,6 +319,7 @@
                   </v-list-item>
                 </v-list>
               </v-menu>
+              <span style="float: right; font-size: 12px; margin-top: 7px">Tenggat : {{ convertDateTime(task.deadline_date, task.time) }}</span>
             </v-card-text>
           </v-card>
           <infinite-loading @infinite="infiniteHandler">
@@ -327,6 +334,7 @@
 
 <script>
   import {mapActions, mapGetters} from "vuex";
+  import moment from 'moment';
 
   export default {
     name: "Task",
@@ -405,6 +413,10 @@
       ...mapActions({
         setAlert: "setAlert"
       }),
+
+      convertDateTime(date, time) {
+        return moment(date).format('DD-MM-YYYY') + ' ' + moment(time, 'HH:mm').format('HH:mm');
+      },
 
       splitFilename(filename) {
         const length = filename.length;
@@ -538,7 +550,7 @@
           const students = resp.data.data.student_tasks;
           this.title = data.title;
           this.point = data.max_score;
-          this.date = data.date;
+          this.date = data.deadline_date;
           this.time = data.time;
           this.instruction = data.description;
           this.id = data.id;
@@ -604,7 +616,8 @@
             this.changeText = 'Simpan';
             if (_.has(resp.response.data, 'errors')) {
               _.map(resp.response.data.errors, function (val, key) {
-                $('#' + key + '-error').html(val[0]).fadeIn(1000).fadeOut(5000);
+                const replace = key.split('.').join('_');
+                $('#' + replace + '-error').html(val[0]).fadeIn(1000).fadeOut(5000);
               })
             }
             alert(resp.response.data.message)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileRequest;
+use App\Http\Requests\ResetPasswordRequest;
 use App\Models\Employee;
 use App\Models\Student;
 use App\Models\UserEmployee;
@@ -14,6 +15,38 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
+  public function index()
+  {
+    $id = Auth::user()->employee_id;
+    $user = UserEmployee::with('employee')
+      ->where('id', $id)
+      ->first();
+
+    $title = "Halaman Profile";
+    return view('backend.profile.index', compact('title', 'user'));
+  }
+
+  public function resetPassword(ResetPasswordRequest $request)
+  {
+    $id = Auth::user()->employee_id;
+    $password = $request->password;
+    $confirmPassword = $request->password_confirmation;
+
+    if (empty($password) || empty($confirmPassword)) {
+      $json = ["status" => 500, "message" => "Password dan Konfirmasi Password harus diisi"];
+    } elseif ($password != $confirmPassword) {
+      $json = ["status" => 500, "message" => "Password dan Konfirmasi Password harus sama"];
+    } elseif (strlen($password) < 8) {
+      $json = ["status" => 500, "message" => "Password minimal 8 karakter"];
+    } else {
+      UserEmployee::where('employee_id', $id)->update([
+        'password' => Hash::make($password),
+      ]);
+      $json = ["status" => 200, "message" => "Password berhasil diubah"];
+    }
+    return response()->json($json);
+  }
+
   /**
    * get data user
    * @param Request $request
@@ -196,7 +229,16 @@ class ProfileController extends Controller
         'guard' => 'student'
       ];
     } else {
-      $userEmployee = UserEmployee::where('employee_id', $userId)->first();
+      $userEmployee = UserEmployee::with('employee')
+        ->where('employee_id', $userId)
+        ->first();
+
+      if ($userEmployee->employee->email != $email) {
+        $userEmployee->update([
+          'status_generate' => 0,
+          'user_id_zoom' => null
+        ]);
+      }
 
       if (is_null($password) || empty($password)) {
         $userEmployee->update([
@@ -227,7 +269,7 @@ class ProfileController extends Controller
 
       $user = UserEmployee::with(['employee'])->where('employee_id', $userId)->first();
 
-      $data = (object) [
+      $data = (object)[
         'id' => $user->id,
         'username' => $user->username,
         'user_id' => $user->employee_id,

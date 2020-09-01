@@ -59,6 +59,7 @@ require 'web/employee.php';
 require 'web/comment.php';
 require 'web/profile.php';
 require 'web/video_conference.php';
+require 'web/assessment.php';
 require 'web/student.php';
 require 'web/chat.php';
 require 'web/task.php';

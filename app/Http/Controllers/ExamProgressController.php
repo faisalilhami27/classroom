@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\ScoreStudentExport;
+use App\Exports\ExamScoreStudentExport;
 use App\Models\AssignExamStudent;
 use App\Models\ExamClassTransaction;
 use App\Models\ManageExam;
@@ -230,7 +230,7 @@ class ExamProgressController extends Controller
       ->where('id', $examId)
       ->first();
     $fileName = $this->className($exam);
-    return Excel::download(new ScoreStudentExport($examId), $fileName . '.xlsx');
+    return Excel::download(new ExamScoreStudentExport($examId), $fileName . '.xlsx');
   }
 
   /**

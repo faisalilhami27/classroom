@@ -14,7 +14,7 @@
 <body>
 <center>
   <div class="error-body">
-    <h1 class="error-heading"><b>Calssroom</b></h1>
+    <h1 class="error-heading"><b>Classroom</b></h1>
     <h4 class="error-subheading">Untuk masuk ke dalam Aplikasi</h4>
     <p>
       <small>Silahkan pilih level yang anda miliki dibawah ini :</small>

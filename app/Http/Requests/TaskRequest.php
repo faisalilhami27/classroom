@@ -52,7 +52,7 @@ class TaskRequest extends FormRequest
       'point.integer' => 'Point harus bilangan bulat',
       'point.regex' => 'Format point harus angka',
       'point.lte' => 'Point harus kurang dari 100',
-      'file.mimes' => 'Format yang diterima jpg, jpeg, png, pdf, zip dan rar',
+      'file.*.mimes' => 'Format yang diterima jpg, jpeg, png, pdf, zip dan rar',
     ];
   }
 }

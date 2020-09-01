@@ -112,16 +112,8 @@
               </a>
             </v-col>
           </v-row>
-          <v-row align="center" style="margin-top: -20px">
-            <v-col class="text-center" cols="12" sm="12">
-              <v-btn small color="#5CBBF6" dark @click="exportScore">
-                <v-icon left>mdi-file-excel</v-icon>
-                Export Nilai Ujian
-              </v-btn>
-            </v-col>
-          </v-row>
           <div>
-            <canvas id="exam-chart"></canvas>
+            <canvas id="exam-chart" height="120"></canvas>
           </div>
         </v-col>
       </v-row>
@@ -177,10 +169,6 @@ export default {
     ...mapActions({
       setAlert: "setAlert"
     }),
-
-    exportScore() {
-      window.open('/progress/export/' + this.$route.params.id, '_blank');
-    },
 
     splitName(name, number) {
       if (name != null) {

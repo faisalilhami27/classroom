@@ -79,7 +79,7 @@
                 <li><a href="{{ route('role.pickList') }}"><i class="icon icon-user-plus"></i> Pilih Menu Akses</a></li>
               @endif
               <li>
-                <a href="#">
+                <a href="{{ route('profile.index') }}">
                   <i class="fa fa-user"></i> Profile
                 </a>
               </li>
@@ -101,7 +101,7 @@
               </a>
             </li>
             <li class="visible-xs-block">
-              <a href="#">
+              <a href="{{ route('profile.index') }}">
                 <span class="icon icon-user icon-lg icon-fw"></span>
                 Profile
               </a>

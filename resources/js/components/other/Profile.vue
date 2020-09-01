@@ -77,6 +77,9 @@
             </v-row>
           </v-container>
           <small>*harus diisi</small>
+          <div v-if="checkGuard === 'employee'">
+            <small>Apabila mengganti email maka harus generate ulang akun zoom di halaman admin</small>
+          </div>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -135,7 +138,12 @@ ge
         set(value) {
           this.$emit('input', value)
         }
-      }
+      },
+
+      checkGuard: function () {
+        const user = JSON.parse(this.getUser);
+        return user.guard;
+      },
     },
     mounted() {
       const user = JSON.parse(this.getUser);

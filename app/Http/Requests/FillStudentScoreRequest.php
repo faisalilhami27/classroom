@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Task;
 use Illuminate\Foundation\Http\FormRequest;
 
 class FillStudentScoreRequest extends FormRequest
@@ -23,8 +24,10 @@ class FillStudentScoreRequest extends FormRequest
    */
   public function rules()
   {
+    $taskId = request('task_id');
+    $task = Task::where('id', $taskId)->first();
     return [
-      'score' => 'required|regex:/^[0-9]*$/|lte:100'
+      'score' => 'required|regex:/^[0-9]*$/|lte:' . $task->max_score
     ];
   }
 
@@ -35,10 +38,12 @@ class FillStudentScoreRequest extends FormRequest
    */
   public function messages()
   {
+    $taskId = request('task_id');
+    $task = Task::where('id', $taskId)->first();
     return [
-      'grade.required' => 'Nilai tidak boleh kosong',
-      'grade.regex' => 'Nilai harus berupa angka',
-      'grade.lte' => 'Nilai tidak boleh lebih dari 100',
+      'score.required' => 'Nilai tidak boleh kosong',
+      'score.regex' => 'Nilai harus berupa angka',
+      'score.lte' => 'Nilai tidak boleh lebih dari ' . $task->max_score,
     ];
   }
 }
