@@ -246,6 +246,9 @@ class StudentClassController extends Controller
     if (Auth::guard('student')->check()) {
       $classes = StudentClassTransaction::with(['studentClass.subject', 'studentClass.schoolYear'])
         ->where('student_id', $userId)
+        ->whereHas('studentClass', function ($query) {
+          $query->where('school_year_id', activeSchoolYear()->id);
+        })
         ->get();
 
       foreach ($classes as $class) {
@@ -263,6 +266,7 @@ class StudentClassController extends Controller
     } else {
       $classes = StudentClass::with(['subject', 'schoolYear'])
         ->where('employee_id', $userId)
+        ->where('school_year_id', activeSchoolYear()->id)
         ->get();
 
       foreach ($classes as $class) {

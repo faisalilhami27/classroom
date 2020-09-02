@@ -82,7 +82,7 @@ export default {
       {tab: 'Tugas Kelas', content: 'Task'},
       {tab: 'Belajar', content: 'Learn'},
       {tab: 'Ujian', content: 'Exam'},
-      {tab: 'Nilai', content: 'Assessment'},
+      {tab: 'Export Nilai', content: 'Assessment'},
     ]
   }),
   created() {

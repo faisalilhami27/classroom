@@ -8,8 +8,8 @@
           <div class="card bg-primary no-border">
             <div class="card-values">
               <div class="p-x">
-                <small>{{ env('MAIL_FROM_ADDRESS') }} {{ env('QUEUE_CONNECTION') }}</small>
-                <h3 class="card-title fw-l">0</h3>
+                <small>Jumlah Kelas</small>
+                <h3 class="card-title fw-l">{{ $data->classes }}</h3>
               </div>
             </div>
             <div class="card-chart">
@@ -26,8 +26,8 @@
           <div class="card bg-danger no-border">
             <div class="card-values">
               <div class="p-x">
-                <small>Total Pemasukan Per Bulan</small>
-                <h3 class="card-title fw-l">0</h3>
+                <small>Jumlah Siswa</small>
+                <h3 class="card-title fw-l">{{ $data->students }}</h3>
               </div>
             </div>
             <div class="card-chart">
@@ -44,8 +44,8 @@
           <div class="card bg-info no-border">
             <div class="card-values">
               <div class="p-x">
-                <small>Total Pengeluaran Per Bulan</small>
-                <h3 class="card-title fw-l">0</h3>
+                <small>Jumlah Karyawan</small>
+                <h3 class="card-title fw-l">{{ $data->employees }}</h3>
               </div>
             </div>
             <div class="card-chart">
@@ -62,8 +62,8 @@
           <div class="card bg-warning no-border">
             <div class="card-values">
               <div class="p-x">
-                <small>Saldo Bulan ini</small>
-                <h3 class="card-title fw-l">0</h3>
+                <small>Tahun Ajar</small>
+                <h3 class="card-title fw-l">{{ $data->school_year }}</h3>
               </div>
             </div>
             <div class="card-chart">
@@ -73,32 +73,6 @@
                       data-scales='{"yAxes": [{ "ticks": {"max": 14662531}}]}'
                       data-hide='["legend", "points", "scalesX", "scalesY", "tooltips"]'
                       height="35"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row gutter-xs">
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-body">
-              <h4 class="card-title">Pemasukan Per Bulan</h4>
-            </div>
-            <div class="card-body">
-              <div class="card-chart">
-                <canvas id="pemasukan" height="80"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="card">
-            <div class="card-body">
-              <h4 class="card-title">Pengeluaran Per Bulan</h4>
-            </div>
-            <div class="card-body">
-              <div class="card-chart">
-                <canvas id="pengeluaran" height="80"></canvas>
-              </div>
             </div>
           </div>
         </div>
