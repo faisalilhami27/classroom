@@ -472,7 +472,8 @@ class StudentExamController extends Controller
         'photo' => (is_null($assignStudent->student->photo)) ? null : asset('storage/' . $assignStudent->student->photo),
         'name' => $assignStudent->student->name,
         'sin_name' => $assignStudent->student->student_identity_number . ' - ' . $assignStudent->student->name,
-        'score' => $scoreStudents
+        'color' => $assignStudent->student->color,
+        'score' => $scoreStudents,
       ];
     }
     return response()->json(['status' => 200, 'data' => $data]);

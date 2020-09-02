@@ -46,7 +46,7 @@
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
                       <div v-bind="attrs" v-on="on">
-                        <v-avatar color="red" size="36">
+                        <v-avatar :color="item.color" size="36">
                           <span v-if="item.photo == null" class="white--text">{{ item.name.substr(0, 2) }}</span>
                           <img v-else :alt="item.name.substr(0, 2)" :src="item.photo">
                         </v-avatar>
