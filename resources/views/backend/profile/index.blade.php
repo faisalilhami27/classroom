@@ -83,7 +83,8 @@
                         </div>
                       </div>
                     </div>
-                    <button class="btn btn-primary" style="margin-left: 36%" id="btn-update-data" type="submit">Submit</button>
+                    <p class="text-danger" style="margin-top: -10px">Note: Apabila mengganti email, maka harus generate ulang akun zoom</p>
+                    <button class="btn btn-primary pull-right" style="margin-left: 36%" id="btn-update-data" type="submit">Submit</button>
                   </form>
                 </div>
               </div>
@@ -132,7 +133,7 @@
                       </div>
                     </div>
                   </div>
-                  <button class="btn btn-primary" style="margin-left: 36%; margin-top: 5%" id="btn-reset-pass" type="submit">Submit
+                  <button class="btn btn-primary pull-right" style="margin-left: 36%; margin-top: 5%" id="btn-reset-pass" type="submit">Submit
                   </button>
                 </form>
               </div>
