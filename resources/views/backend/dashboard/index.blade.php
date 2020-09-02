@@ -62,7 +62,7 @@
           <div class="card bg-warning no-border">
             <div class="card-values">
               <div class="p-x">
-                <small>Tahun Ajar</small>
+                <small>Tahun Ajar Aktif</small>
                 <h3 class="card-title fw-l">{{ $data->school_year }}</h3>
               </div>
             </div>
