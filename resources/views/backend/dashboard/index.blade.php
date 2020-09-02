@@ -59,7 +59,7 @@
           </div>
         </div>
         <div class="col-xs-6 col-md-3">
-          <div class="card bg-warning no-border">
+          <div class="card bg-success no-border">
             <div class="card-values">
               <div class="p-x">
                 <small>Tahun Ajar Aktif</small>
