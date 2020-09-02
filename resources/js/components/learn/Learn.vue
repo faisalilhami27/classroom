@@ -32,7 +32,7 @@
             <h2 class="text-center">Belum ada materi untuk kelas ini</h2>
           </div>
           <br>
-          <v-card max-width="820">
+          <v-card v-if="materials.length > 0" max-width="820">
             <v-card-text>
               <v-icon>mdi-forum</v-icon>
               <div style="color: black; font-size: 15px; display: inline-block"><b>Diskusi Materi</b></div>
@@ -66,17 +66,7 @@
             <v-list dense>
               <v-list-item-group v-model="item" color="primary">
                 <div style="overflow: auto">
-                  <v-list-item
-                    v-for="(item, index) in allMaterial"
-                    :key="index"
-                    @click.prevent="getMaterial((index + 1))"
-                  >
-                    <v-list-item-content>
-                      <v-list-item-title>
-                        {{ item.position }}. {{ item.title }}
-                      </v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
+                  <playlist :materials="allMaterial" @select-playlist="selectPlaylist"></playlist>
                 </div>
               </v-list-item-group>
             </v-list>
@@ -99,72 +89,7 @@
               <div style="color: black; font-size: 15px; display: inline-block"><b>File Pendukung</b></div>
             </v-card-text>
             <v-divider></v-divider>
-            <v-list dense>
-              <v-list-item
-                v-for="(item, index) in materials"
-                :key="index"
-                @click=""
-              >
-                <v-list-item-content>
-                  <div v-if="item.module == null && item.archive == null">
-                    <v-list-item-title>
-                      <v-chip
-                        class="ma-2"
-                        color="red"
-                        text-color="white"
-                      >
-                        <v-avatar left>
-                          <v-icon>mdi-close-circle</v-icon>
-                        </v-avatar>
-                        File tidak tersedia
-                      </v-chip>
-                    </v-list-item-title>
-                  </div>
-                  <div v-else>
-                    <v-list-item-title v-if="item.module != null">
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-chip
-                            v-bind="attrs"
-                            v-on="on"
-                            class="ma-2"
-                            color="primary"
-                            text-color="white"
-                            @click.prevent="download(item.module)"
-                          >
-                            <v-avatar left>
-                              <v-icon>mdi-download-circle</v-icon>
-                            </v-avatar>
-                            {{ splitLengthFilename(splitFilename('module', item.module)) }}
-                          </v-chip>
-                        </template>
-                        <span>Klik untuk download modul</span>
-                      </v-tooltip>
-                    </v-list-item-title>
-                    <v-list-item-title v-if="item.archive != null">
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-chip
-                            v-bind="attrs"
-                            v-on="on"
-                            class="ma-2"
-                            color="purple"
-                            text-color="white"
-                            @click.prevent="download(item.archive)"
-                          >
-                            <v-avatar left>
-                              <v-icon>mdi-download-circle</v-icon>
-                            </v-avatar>
-                            {{ splitLengthFilename(splitFilename('archive', item.archive)) }}
-                          </v-chip>
-                        </template>
-                        <span>Klik untuk download file</span>
-                      </v-tooltip>
-                    </v-list-item-title>
-                  </div>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
+            <support-file :materials="materials"></support-file>
           </v-card>
         </v-col>
       </v-row>
@@ -175,10 +100,16 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
 import Discussion from "./Discussion";
+import Playlist from "./Playlist";
+import SupportFile from './SupportFile';
 
 export default {
   name: "Learn",
-  components: {Discussion},
+  components: {
+    Discussion,
+    Playlist,
+    SupportFile
+  },
   data() {
     return {
       materials: [],
@@ -266,6 +197,11 @@ export default {
         }, 2000);
       })
     },
+
+    selectPlaylist(index) {
+      this.$emit('select-playlist', index);
+      this.getMaterial(index);
+    }
   },
 }
 </script>

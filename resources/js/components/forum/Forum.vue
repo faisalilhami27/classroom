@@ -313,7 +313,7 @@
                       sm="12"
                       md="12"
                     >
-                      <v-avatar class="avatar" :color="item.employee.color">
+                      <v-avatar class="avatar" color="indigo">
                         <v-icon dark>mdi-calendar-text</v-icon>
                       </v-avatar>
                       <p style="margin-left: 65px; margin-top: -40px">{{ item.employee.name }} memposting tugas baru :
