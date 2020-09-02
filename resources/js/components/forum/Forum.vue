@@ -393,7 +393,6 @@
               <v-card
                 class="pa-2 list-file"
                 outlined
-                tile
                 v-show="showImage"
                 v-for="(item, index) in selectedFile"
                 :key="index"

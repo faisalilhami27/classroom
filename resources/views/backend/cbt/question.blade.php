@@ -652,7 +652,6 @@
             $('.additional_file').html("");
           } else {
             let fileFormat = data.extension;
-            console.log(fileFormat);
             if (fileFormat == "mp3" || fileFormat == "ogg" || fileFormat == "wav") {
               $('.additional_file').html(`<audio controls id="add_file"><source src="{!! asset('storage') !!}/${data.document}" type="audio/mpeg"></audio>`);
             } else if (fileFormat == "mp4" || fileFormat == "mkv" || fileFormat == "m4a") {

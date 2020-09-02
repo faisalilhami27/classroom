@@ -459,7 +459,6 @@ export default {
         type: this.type
       })
         .then(resp => {
-          console.log(resp.data.count);
           this.mapQuestion = resp.data.all;
           localStorage.setItem('answer', resp.data.count);
           this.setAlert({

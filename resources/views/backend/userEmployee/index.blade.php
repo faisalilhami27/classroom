@@ -218,7 +218,6 @@
           if (resp.status === 200) {
             const data = resp.data;
             const roles = resp.roles;
-            console.log(roles);
             $('#id').val(data.id);
             $('#username').val(data.username);
             $('#password').val(data.password);

@@ -184,7 +184,6 @@
       let channel = pusher.subscribe('my-channel');
       channel.bind('my-event', (data) => {
         const user = JSON.parse(this.getUser);
-        console.log(data);
         this.showScore = data;
         if (user.username === data.username) {
           this.score = data.score;

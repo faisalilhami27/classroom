@@ -545,7 +545,6 @@
           }
         }).then(resp => {
           const data = resp.data.data;
-          console.log(data.description);
           const images = resp.data.images;
           const students = resp.data.data.student_tasks;
           this.title = data.title;

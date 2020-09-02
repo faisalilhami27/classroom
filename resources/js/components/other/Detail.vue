@@ -25,7 +25,7 @@
             v-model="tabs"
             centered
           >
-            <v-tab v-for="item in items" :key="item.tab">
+            <v-tab v-for="(item, index) in newItemTab" :key="item.tab">
               {{ item.tab }}
             </v-tab>
             <v-tabs-slider color="pink"></v-tabs-slider>
@@ -34,7 +34,7 @@
       </v-toolbar>
       <v-fab-transition>
         <v-tabs-items v-model="tabs">
-          <v-tab-item v-for="item in items" :key="item.tab">
+          <v-tab-item v-for="item in newItems" :key="item.tab">
             <v-card flat>
               <v-card-text>
                 <component :is="item.content"></component>
@@ -77,6 +77,7 @@ export default {
   data: () => ({
     openLeftNavigationDrawer: false,
     tabs: null,
+    newItems: [],
     items: [
       {tab: 'Forum', content: 'Forum'},
       {tab: 'Tugas Kelas', content: 'Task'},
@@ -92,12 +93,26 @@ export default {
     ...mapGetters([
       'getClassId',
       'getSubject',
-      'getColor'
+      'getColor',
+      'getUser',
     ]),
+
+    newItemTab() {
+      if (this.checkGuard === 'employee') {
+        return this.newItems = this.items;
+      } else {
+        return this.newItems = this.items.slice(0, -1);
+      }
+    },
 
     pageTitle: function () {
       return this.getSubject;
-    }
+    },
+
+    checkGuard: function () {
+      const user = JSON.parse(this.getUser);
+      return user.guard;
+    },
   },
 }
 </script>
