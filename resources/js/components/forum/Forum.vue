@@ -118,7 +118,6 @@
               <v-card
                 class="pa-2 list-file"
                 outlined
-                tile
                 v-show="showImage"
                 v-for="(item, index) in selectedFile"
                 :key="index"
@@ -265,7 +264,6 @@
                     <v-card
                       class="pa-2 link-image"
                       outlined
-                      tile
                       @click="openFile(image.file)"
                     >
                       <p class="file-name">{{ image.filename }}</p>

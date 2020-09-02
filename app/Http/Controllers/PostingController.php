@@ -291,8 +291,8 @@ class PostingController extends Controller
 
     /* delete old files */
     if (!is_null($posting->getImages())) {
-      foreach ($posting->getImages()->get() as $post) {
-        Storage::disk('public')->delete($post->file);
+      foreach ($posting->getImages()->get() as $item) {
+        Storage::disk('public')->delete($item->file);
       }
       $posting->getImages()->where('posting_id', $id)->delete();
     }
