@@ -45,7 +45,7 @@ class MinimalCompletenessCriteriaController extends Controller
         if ($config == 1) {
           return 'Semester ' . $query->semester->number;
         } else {
-          return $query->gradeLevel->name;
+          return optional($query->gradeLevel)->name;
         }
       })
       ->addColumn('action', function ($query) {
