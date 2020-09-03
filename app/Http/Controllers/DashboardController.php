@@ -48,7 +48,7 @@ class DashboardController extends Controller
       'classes' => $classes,
       'students' => $students,
       'employees' => $employees,
-      'school_year' => $schoolYear
+      'school_year' => (is_null(activeSchoolYear())) ? 'Belum ditentukan' : $schoolYear
     ];
     return $data;
   }
