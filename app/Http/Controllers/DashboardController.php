@@ -41,8 +41,8 @@ class DashboardController extends Controller
       })->count();
     }
     $employees = Employee::count();
-    $semester = (activeSchoolYear()->semester % 2 == 0) ? 'Genap' : 'Ganjil';
-    $schoolYear = activeSchoolYear()->early_year . '/' . activeSchoolYear()->end_year . ' ' . $semester;
+    $semester = (optional(activeSchoolYear())->semester % 2 == 0) ? 'Genap' : 'Ganjil';
+    $schoolYear = optional(activeSchoolYear())->early_year . '/' . optional(activeSchoolYear())->end_year . ' ' . $semester;
 
     $data = (object) [
       'classes' => $classes,
