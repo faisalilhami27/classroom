@@ -215,7 +215,8 @@
     }
 
     // get data from database for edit data
-    const editData = function (id) {
+    table.on('click', '.btn-edit', function () {
+      const id = $(this).attr('id');
       $('#modal_class').modal('show');
       $('.modal-title').text('Edit Data Kelas');
       url = '{{ route('class.update') }}';
@@ -242,7 +243,7 @@
           alert(status + ' : ' + error);
         }
       });
-    }
+    });
 
     // submit data
     $('.btn-submit').click(function (e) {
