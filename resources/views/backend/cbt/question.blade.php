@@ -318,6 +318,7 @@
             </div>
             <br>
             <p class="text-danger">*) Harus diisi.</p>
+            <p class="text-danger">Apabila soal sudah digunakan, tidak bisa mengubah jawaban</p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -648,6 +649,13 @@
         dataType: "JSON",
         success: function (resp) {
           const data = resp.data;
+
+          if (resp.check > 0) {
+            $('.btn_submit_answer').attr('disabled', true);
+          } else {
+            $('.btn_submit_answer').attr('disabled', false);
+          }
+
           if (data.document == null) {
             $('.additional_file').html("");
           } else {

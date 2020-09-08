@@ -8,6 +8,7 @@ use App\Http\Requests\QuestionBankImportRequest;
 use App\Http\Requests\QuestionBankRequest;
 use App\Http\Requests\QuestionBankUpdateRequest;
 use App\Imports\QuestionBankImport;
+use App\Models\AccommodateExamQuestion;
 use App\Models\AnswerKey;
 use App\Models\GradeLevel;
 use App\Models\Major;
@@ -188,21 +189,31 @@ class QuestionBankController extends Controller
         return $checkAnswer;
       })
       ->addColumn('action', function ($query) {
+        $checkQuestionHaveBeenUsed = AccommodateExamQuestion::where('question_bank_id', $query->id)->first();
         $updateDelete = checkPermission()->update_delete;
         $update = checkPermission()->update;
         $delete = checkPermission()->delete;
         $button = null;
 
         if ($updateDelete) {
-          $button = '<a href="#" class="btn btn-success btn-sm btn-edit" title="Edit Data" id="' . $query->id . '" onclick="editData(' . $query->id . ')"><i class="icon icon-pencil-square-o"></i></a>
-                     <a href="#" class="btn btn-info btn-sm" id="' . $query->id . '" onclick="setAnswer(' . $query->id . ')" title="Set Jawaban"><i class="icon icon-list"></i></a>
-                     <a href="#" class="btn btn-danger btn-sm" id="' . $query->id . '" onclick="deleteData(' . $query->id . ')" title="Delete Data"><i class="icon icon-trash-o"></i></a>';
+          if (is_null($checkQuestionHaveBeenUsed)) {
+            $button = '<a href="#" class="btn btn-success btn-sm btn-edit" title="Edit Data" id="' . $query->id . '" onclick="editData(' . $query->id . ')"><i class="icon icon-pencil-square-o"></i></a>
+                       <a href="#" class="btn btn-info btn-sm" id="' . $query->id . '" onclick="setAnswer(' . $query->id . ')" title="Set Jawaban"><i class="icon icon-list"></i></a>
+                       <a href="#" class="btn btn-danger btn-sm" id="' . $query->id . '" onclick="deleteData(' . $query->id . ')" title="Delete Data"><i class="icon icon-trash-o"></i></a>';
+          } else {
+            $button = '<a href="#" class="btn btn-success btn-sm btn-edit" title="Edit Data" id="' . $query->id . '" onclick="editData(' . $query->id . ')"><i class="icon icon-pencil-square-o"></i></a>
+                       <a href="#" class="btn btn-info btn-sm" id="' . $query->id . '" onclick="setAnswer(' . $query->id . ')" title="Set Jawaban"><i class="icon icon-list"></i></a>';
+          }
         } else if ($update) {
           $button = '<a href="#" class="btn btn-success btn-sm btn-edit" title="Edit Data" id="' . $query->id . '" onclick="editData(' . $query->id . ')"><i class="icon icon-pencil-square-o"></i></a>
                      <a href="#" class="btn btn-info btn-sm" id="' . $query->id . '" onclick="setAnswer(' . $query->id . ')" title="Set Jawaban"><i class="icon icon-list"></i></a>';
         } else if ($delete) {
-          $button = '<a href="#" class="btn btn-danger btn-sm" id="' . $query->id . '" onclick="deleteData(' . $query->id . ')" title="Delete Data"><i class="icon icon-trash-o"></i></a>
-                     <a href="#" class="btn btn-info btn-sm" id="' . $query->id . '" onclick="setAnswer(' . $query->id . ')" title="Set Jawaban"><i class="icon icon-list"></i></a>';
+          if (is_null($checkQuestionHaveBeenUsed)) {
+            $button = '<a href="#" class="btn btn-danger btn-sm" id="' . $query->id . '" onclick="deleteData(' . $query->id . ')" title="Delete Data"><i class="icon icon-trash-o"></i></a>
+                       <a href="#" class="btn btn-info btn-sm" id="' . $query->id . '" onclick="setAnswer(' . $query->id . ')" title="Set Jawaban"><i class="icon icon-list"></i></a>';
+          } else {
+            $button = '<a href="#" class="btn btn-danger btn-sm" id="' . $query->id . '" onclick="deleteData(' . $query->id . ')" title="Delete Data"><i class="icon icon-trash-o"></i></a>';
+          }
         } else {
           $button = '<a href="#" class="btn btn-info btn-sm" id="' . $query->id . '" onclick="setAnswer(' . $query->id . ')" title="Set Jawaban"><i class="icon icon-list"></i></a>';
         }
@@ -394,6 +405,7 @@ class QuestionBankController extends Controller
   {
     $id = $request->id;
     $data = QuestionBank::where('id', $id)->first();
+    $checkQuestionHaveBeenUsed = AccommodateExamQuestion::where('question_bank_id', $data->id)->count();
 
     /* check the document is exist or not */
     if (!is_null($data->document)) {
@@ -407,7 +419,13 @@ class QuestionBankController extends Controller
     $convertQuestion = htmlspecialchars($data->question_name);
     $questionReplace = trim(preg_replace('/\s\s+/', ' ', $convertQuestion));
 
-    return response()->json(['status' => 200, 'data' => $data, 'answer' => $getAnswer, 'question' => $questionReplace]);
+    return response()->json([
+      'status' => 200,
+      'data' => $data,
+      'answer' => $getAnswer,
+      'question' => $questionReplace,
+      'check' => $checkQuestionHaveBeenUsed
+    ]);
   }
 
   /**

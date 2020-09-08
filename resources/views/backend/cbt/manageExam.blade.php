@@ -730,7 +730,7 @@
         {data: 'class'},
         {data: 'duration', render: styles.duration},
         {data: 'amount_question'},
-        {data: 'action', sClass: 'text-right'},
+        {data: 'action', sClass: 'text-center'},
       ],
 
       columnDefs: [

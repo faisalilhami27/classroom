@@ -126,7 +126,7 @@ class SchoolYearController extends Controller
   public function edit(Request $request)
   {
     $id = $request->id;
-    $data = SchoolYear::where('where', $id)->first();
+    $data = SchoolYear::where('id', $id)->first();
 
     if ($data) {
       $json = ['status' => 200, 'data' => $data];
@@ -149,8 +149,18 @@ class SchoolYearController extends Controller
     $earlyYear = $request->early_year;
     $endYear = $request->end_year;
     $semester = $request->semester;
+    $checkDuplicate = SchoolYear::where('early_year', $earlyYear)
+      ->where('end_year', $endYear)
+      ->where('semester', $semester)
+      ->first();
+    $checkOddOrEven = ($semester == 1) ? 'Ganjil' : 'Genap';
 
-    $update = SchoolYear::where('where', $id)->first()->update([
+    /* check duplicate data */
+    if (!is_null($checkDuplicate)) {
+      return response()->json(['status' => 500, 'message' => 'Semester ' . $checkOddOrEven . ' pada tahun ajaran ini sudah ada']);
+    }
+
+    $update = SchoolYear::where('id', $id)->first()->update([
       'early_year' => $earlyYear,
       'end_year' => $endYear,
       'semester' => $semester
@@ -174,7 +184,7 @@ class SchoolYearController extends Controller
   public function destroy(Request $request)
   {
     $id = $request->id;
-    $delete = SchoolYear::where('where', $id)->first();
+    $delete = SchoolYear::where('id', $id)->first();
     $delete->delete();
 
     if ($delete) {
