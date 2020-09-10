@@ -7,8 +7,7 @@
         <div class="col-md-12">
           <div class="panel m-b-lg">
             <ul class="nav nav-tabs nav-justified">
-              <li class="active tab1"><a href="#home-11" data-toggle="tab"><h3><span class="icon icon-gear"></span> Data
-                    Konfigurasi <span class="icon icon-gear"></span></h3></a></li>
+              <li class="active tab1"><a href="#home-11" data-toggle="tab"><h3><span class="icon icon-gear"></span> Data Konfigurasi <span class="icon icon-gear"></span></h3></a></li>
             </ul>
             <div class="tab-content">
               <div class="tab-pane fade active in" id="home-11">
@@ -32,20 +31,41 @@
                       <label class="col-sm-4" for="type_school">Jenis Sekolah</label>
                       <div class="col-sm-8">
                         <div class="input-with-icon">
-                          <select name="type_school" id="type_school" class="form-control">
-                            <option value="">-- Pilih Jenis Sekolah --</option>
-                            @if (!empty($typeSchools))
-                              @foreach($typeSchools as $typeSchool)
-                                @if (optional($config)->type_school == $typeSchool->id)
-                                  <option value="{{ $typeSchool->id }}" selected>{{ $typeSchool->name }}</option>
+                          @if (Session::get('role_id') == 2)
+                            @if (empty(configuration()))
+                              <select name="type_school" id="type_school" class="form-control">
+                                <option value="">-- Pilih Jenis Sekolah --</option>
+                                @if (!empty($typeSchools))
+                                  @foreach($typeSchools as $typeSchool)
+                                    @if (optional($config)->type_school == $typeSchool->id)
+                                      <option value="{{ $typeSchool->id }}" selected>{{ $typeSchool->name }}</option>
+                                    @else
+                                      <option value="{{ $typeSchool->id }}">{{ $typeSchool->name }}</option>
+                                    @endif
+                                  @endforeach
                                 @else
-                                  <option value="{{ $typeSchool->id }}">{{ $typeSchool->name }}</option>
+                                  <option value="" disabled>Data belum tersedia</option>
                                 @endif
-                              @endforeach
+                              </select>
                             @else
-                              <option value="" disabled>Data belum tersedia</option>
+                              <input type="text" style="background-color: #1A2633" disabled class="form-control" value="{{ typeSchool(configuration()->type_school)->name }}">
                             @endif
-                          </select>
+                          @else
+                            <select name="type_school" id="type_school" class="form-control">
+                              <option value="">-- Pilih Jenis Sekolah --</option>
+                              @if (!empty($typeSchools))
+                                @foreach($typeSchools as $typeSchool)
+                                  @if (optional($config)->type_school == $typeSchool->id)
+                                    <option value="{{ $typeSchool->id }}" selected>{{ $typeSchool->name }}</option>
+                                  @else
+                                    <option value="{{ $typeSchool->id }}">{{ $typeSchool->name }}</option>
+                                  @endif
+                                @endforeach
+                              @else
+                                <option value="" disabled>Data belum tersedia</option>
+                              @endif
+                            </select>
+                          @endif
                           <span class="icon icon-university input-icon"></span>
                           <span class="text-danger">
                             <strong id="type_school-error"></strong>

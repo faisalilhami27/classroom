@@ -4,6 +4,7 @@ use App\Models\Configuration;
 use App\Models\Navigation;
 use App\Models\RoleUser;
 use App\Models\SchoolYear;
+use App\Models\TypeSchool;
 use App\Models\UserNavigation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -333,5 +334,12 @@ if (!function_exists('typeExam')) {
         break;
     }
     return $name;
+  }
+}
+
+if (!function_exists('typeSchool')) {
+  function typeSchool($id)
+  {
+    return TypeSchool::where('id', $id)->first();
   }
 }
