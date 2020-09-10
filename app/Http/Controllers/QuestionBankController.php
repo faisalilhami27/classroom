@@ -83,7 +83,21 @@ class QuestionBankController extends Controller
   {
     $level = $request->level_filter;
     $subject = $request->subject_filter;
-    return response()->json(['status' => 200, 'level' => $level, 'subject' => $subject]);
+    if (optional(configuration())->type_school == 1) {
+      $checkData = QuestionBank::where('semester_id', $level)
+        ->orWhere('subject_id', $subject)
+        ->count();
+    } else {
+      $checkData = QuestionBank::where('grade_level_id', $level)
+        ->orWhere('subject_id', $subject)
+        ->count();
+    }
+
+    if ($checkData > 0) {
+      return response()->json(['status' => 200, 'level' => $level, 'subject' => $subject]);
+    } else {
+      return response()->json(['status' => 500, 'message' => 'Tidak ada data untuk diexport']);
+    }
   }
 
   /**
@@ -94,10 +108,34 @@ class QuestionBankController extends Controller
    */
   public function export($level, $subject)
   {
-    if ($subject == 'all') {
+    if ($subject == 'all' && $level == 'all') {
       $fileName = 'Seluruh Bank Soal';
     } else {
-      $fileName = 'Bank Soal ' . $subject;
+      $name = [];
+      if (optional(configuration())->type_school == 1) {
+        if ($level != 'all') {
+          $levelSchool = Semester::where('id', $level)->first();
+          $name[] = 'Semester ' . $levelSchool->number;
+        } else {
+          $name[] = 'Semua Semester';
+        }
+      } else {
+        if ($level != 'all') {
+          $levelSchool = GradeLevel::where('id', $level)->first();
+          $name[] = 'Tingkat Kelas ' . $levelSchool->name;
+        } else {
+          $name[] = 'Semua Tingkat Kelas';
+        }
+      }
+
+      if ($subject != 'all') {
+        $subjectName = Subject::where('id', $subject)->first();
+        $name[] = subjectName() . ' ' . $subjectName->name;
+      } else {
+        $name[] = 'Semua ' . subjectName();
+      }
+
+      $fileName = 'Bank Soal ' . implode('-', $name);
     }
 
     return Excel::download(new QuestionBankExport($level, $subject), $fileName . '.xlsx');

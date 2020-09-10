@@ -23,7 +23,7 @@
                 <div class="col-sm-12 col-md-3">
                   <div class="form-group">
                     <select class="form-control" name="level_filter" id="level_filter">
-                      <option value="all" checked>Semua {{ level() }}</option>
+                      <option value="all" selected>Semua {{ level() }}</option>
                       @if (optional(configuration())->type_school == 1)
                         @forelse ($semesters as $semester)
                           <option value="{{ $semester->id }}">Semester {{ $semester->number }}</option>
@@ -43,7 +43,7 @@
                 <div class="col-sm-12 col-md-4">
                   <div class="form-group">
                     <select class="form-control" name="subject_filter" id="subject_filter">
-                      <option value="all" checked>Semua {{ subjectName() }}</option>
+                      <option value="all" selected>Semua {{ subjectName() }}</option>
                       @forelse ($subjects as $subject)
                         <option value="{{ $subject->id }}">{{ $subject->code }} - {{ $subject->name }}</option>
                       @empty
@@ -974,8 +974,12 @@
           loadingBeforeExport();
         },
         success: function (data) {
-          $(location).attr('href', "{{ URL('question/export') }}" + '/' + data.level + '/' + data.subject);
           loadingAfterExport();
+          if (data.status === 200) {
+            $(location).attr('href', "{{ URL('question/export') }}" + '/' + data.level + '/' + data.subject);
+          } else {
+            notification(data.status, data.message);
+          }
         },
         error: function (resp) {
           loadingAfterExport();
