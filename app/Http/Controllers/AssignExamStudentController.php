@@ -134,7 +134,9 @@ class AssignExamStudentController extends Controller
     /* 1 = all student, 2 = certain student */
     if ($type == 1) {
       $examClass = ExamClassTransaction::where('exam_id', $examId)->first();
-      $students = Student::with('examStudent')
+      $students = Student::with(['examStudent' => function($query) use($examId) {
+        $query->where('exam_id', $examId);
+      }])
         ->whereHas('studentClassTransaction', function ($query) use ($examClass) {
           $query->where('class_id', $examClass->class_id);
         })->get();
