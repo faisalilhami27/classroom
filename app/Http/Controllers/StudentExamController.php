@@ -63,8 +63,9 @@ class StudentExamController extends Controller
 
     $questionStudent = QuestionForStudent::with([
       'accommodateExamQuestion.questionBank.answerKey',
-      'accommodateExamQuestion.questionBank.studentAnswer' => function ($query) use ($studentId) {
+      'accommodateExamQuestion.questionBank.studentAnswer' => function ($query) use ($studentId, $examId) {
         $query->where('student_id', $studentId);
+        $query->where('exam_id', $examId);
       }])
       ->where('assign_student_id', $assignStudent->id);
 
@@ -267,8 +268,9 @@ class StudentExamController extends Controller
   private function getDataAfterAnsweringQuestion($studentId, $examId)
   {
     $assignStudent = AssignExamStudent::where('exam_id', $examId)->where('student_id', $studentId)->first();
-    return QuestionForStudent::with(['accommodateExamQuestion.questionBank.studentAnswer' => function ($query) use ($studentId) {
+    return QuestionForStudent::with(['accommodateExamQuestion.questionBank.studentAnswer' => function ($query) use ($studentId, $examId) {
       $query->where('student_id', $studentId);
+      $query->where('exam_id', $examId);
     }])
       ->where('assign_student_id', $assignStudent->id)
       ->get();
