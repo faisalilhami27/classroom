@@ -91,10 +91,10 @@ class ManageExamController extends Controller
     $subjectId = $request->subject_id;
     $semesterId = $request->semester_id;
     $gradeLevelId = $request->grade_level_id;
-    $questionBank = QuestionBank::where('subject_id', $subjectId)->count();
-    $where = (optional(configuration())->type_school == 1)
-      ? $where = ['semester_id' => $semesterId]
-      : $where = ['grade_level_id' => $gradeLevelId];
+    $where = (optional(configuration())->type_school == 1) ? $where = ['semester_id' => $semesterId] : $where = ['grade_level_id' => $gradeLevelId];
+    $questionBank = QuestionBank::where('subject_id', $subjectId)
+      ->where($where)
+      ->count();
     $classes = StudentClass::where($where)
       ->where('subject_id', $subjectId)
       ->where('employee_id', Auth::user()->employee_id)

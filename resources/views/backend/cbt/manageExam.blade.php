@@ -877,7 +877,7 @@
       }
     });
 
-    $('#subject_id').change(function (e) {
+    $('#subject_id, #grade_level_id').change(function (e) {
       e.preventDefault();
       const subject = this.value;
       const semester = $('#semester_id').val();
