@@ -879,7 +879,7 @@
 
     $('#subject_id, #grade_level_id').change(function (e) {
       e.preventDefault();
-      const subject = this.value;
+      const subject = $('#subject_id').val();
       const semester = $('#semester_id').val();
       const gradeLevel = $('#grade_level_id').val();
       $('#amount_question').val('');
