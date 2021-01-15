@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::group(['prefix' => 'material', 'middleware' => ['auth:employee', 'roles:developer|administrator|guru']], function () {
+Route::group(['prefix' => 'material', 'middleware' => ['auth:employee', 'roles:developer|guru']], function () {
   Route::get('/', 'MaterialController@index')->name('material.index');
   Route::get('/edit', 'MaterialController@edit')->name('material.edit');
   Route::get('/get/subject', 'MaterialController@getSubject')->name('material.get.subject');
