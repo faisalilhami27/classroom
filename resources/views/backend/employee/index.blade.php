@@ -25,7 +25,6 @@
                   <thead>
                   <tr>
                     <th width="20px">No</th>
-                    <th>NIP</th>
                     <th>Nama Lengkap</th>
                     <th>Email</th>
                     <th>No HP</th>
@@ -57,14 +56,6 @@
         <form action="" id="form_employee" method="post">
           <input type="hidden" id="id" name="id">
           <div class="modal-body">
-            <div class="form-group">
-              <label for="employee_identity_number">NIP <span class="text-danger">*</span></label>
-              <input type="text" name="employee_identity_number" autocomplete="off" id="employee_identity_number" class="form-control"
-                     placeholder="Masukan NIP" maxlength="16">
-              <span class="text-danger">
-                <strong id="employee_identity_number-error"></strong>
-              </span>
-            </div>
             <div class="form-group">
               <label for="first_name">First Name <span class="text-danger">*</span></label>
               <input type="text" name="first_name" id="first_name" autocomplete="off" class="form-control" placeholder="Masukan first name"
@@ -168,7 +159,6 @@
 
       columns: [
         {data: 'DT_RowIndex', searchable: false},
-        {data: 'employee_identity_number'},
         {data: 'name'},
         {data: 'email'},
         {data: 'phone_number', sClass: 'text-center'},
@@ -207,7 +197,6 @@
           if (resp.status === 200) {
             const data = resp.data;
             $('#id').val(data.id);
-            $('#employee_identity_number').val(data.employee_identity_number);
             $('#first_name').val(data.first_name);
             $('#last_name').val(data.last_name);
             $('#email').val(data.email);

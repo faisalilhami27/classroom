@@ -24,7 +24,6 @@ class EmployeeRequest extends FormRequest
   public function rules()
   {
     return [
-      "employee_identity_number" => "required|regex:/^[0-9]*$/|max:16|min:16",
       "first_name" => "required|regex:/^[a-zA-Z ]*$/|max:100",
       "email" => "required|email|max:100",
       "phone_number" => "required|regex:/^[0-9]*$/|max:15|min:10",
@@ -39,9 +38,6 @@ class EmployeeRequest extends FormRequest
   public function messages()
   {
     return [
-      'employee_identity_number.required' => 'NIP tidak boleh kosong',
-      'employee_identity_number.regex' => 'NIP harus angka',
-      'employee_identity_number.min' => 'NIP harus 16 angka',
       'first_name.required' => 'First name tidak boleh kosong',
       'first_name.regex' => 'First name hanya diperbolehkan huruf',
       'email.required' => 'Email tidak boleh kosong',

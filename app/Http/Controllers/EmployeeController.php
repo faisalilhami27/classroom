@@ -84,13 +84,11 @@ class EmployeeController extends Controller
   {
     $firstName = htmlspecialchars($request->first_name);
     $lastName = htmlspecialchars($request->last_name);
-    $ein = htmlspecialchars($request->employee_identity_number);
     $phoneNumber = htmlspecialchars($request->phone_number);
     $email = htmlspecialchars($request->email);
     $color = $this->randomColor();
 
     $insert = Employee::create([
-      'employee_identity_number' => $ein,
       'name' => $firstName . ' ' . $lastName,
       'first_name' => $firstName,
       'last_name' => (is_null($lastName) || empty($lastName)) ? null : $lastName,
@@ -142,17 +140,15 @@ class EmployeeController extends Controller
    * @param VideoConferenceRequest $request
    * @return \Illuminate\Http\JsonResponse
    */
-  public function update(VideoConferenceRequest $request)
+  public function update(EmployeeRequest $request)
   {
     $id = $request->id;
     $firstName = htmlspecialchars($request->first_name);
     $lastName = htmlspecialchars($request->last_name);
-    $ein = htmlspecialchars($request->employee_identity_number);
     $phoneNumber = htmlspecialchars($request->phone_number);
     $email = htmlspecialchars($request->email);
 
     $update = Employee::where('id', $id)->first()->update([
-      'employee_identity_number' => $ein,
       'name' => $firstName . ' ' . $lastName,
       'first_name' => $firstName,
       'last_name' => (is_null($lastName) || empty($lastName)) ? null : $lastName,
