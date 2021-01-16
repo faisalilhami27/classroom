@@ -371,7 +371,7 @@
     // reset form
     const resetForm = function () {
       $('#id').val('');
-      $('#name').val('');
+      $('#username').val('');
     }
 
     // check username whether it has been used or not
