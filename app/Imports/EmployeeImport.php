@@ -15,12 +15,12 @@ class EmployeeImport implements ToModel, WithBatchInserts, WithChunkReading, Wit
 
   public function model(array $row)
   {
-    Employee::updateOrCreate(['employee_identity_number'=> $row[0]], [
-      'name' => $row[1] . ' ' . $row[2],
-      'first_name' => $row[1],
-      'last_name' => $row[2],
-      'email' => $row[1],
-      'phone_number' => $row[2],
+    Employee::create([
+      'name' => $row[0] . ' ' . $row[1],
+      'first_name' => $row[0],
+      'last_name' => $row[1],
+      'email' => $row[2],
+      'phone_number' => $row[3],
     ]);
   }
 
