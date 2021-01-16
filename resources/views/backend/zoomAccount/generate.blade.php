@@ -26,44 +26,44 @@
                       <label for="email">Email</label>
                       <input type="email" readonly name="email" id="email" class="form-control" value="{{ $user->email }}" style="background-color: rgba(0,0,0, 0.1)">
                     </div>
-                    <div class="form-group">
-                      <label for="pmi">Personal Meeting ID</label>
-                      <div class="input-with-icon">
-                        <div class="input-group">
-                          <input class="form-control pmi-field" disabled id="pmi" value="{{ $zoomAccount->pmi }}" style="background-color: rgba(0,0,0, 0.1)" type="password" placeholder="Terisi ketika telah selesai aktivasi di email">
-                          <span class="input-group-addon">
-                              <label class="custom-control custom-control-primary custom-checkbox">
-                                <input class="custom-control-input form-checkbox pmi" type="checkbox">
-                                <span class="custom-control-indicator"></span>
-                                <span class="custom-control-label">Show</span>
-                              </label>
-                            </span>
-                        </div>
-                        <span class="icon icon-key input-icon"></span>
-                      </div>
-                    </div>
+{{--                    <div class="form-group">--}}
+{{--                      <label for="pmi">Personal Meeting ID</label>--}}
+{{--                      <div class="input-with-icon">--}}
+{{--                        <div class="input-group">--}}
+{{--                          <input class="form-control pmi-field" disabled id="pmi" value="{{ $zoomAccount->pmi }}" style="background-color: rgba(0,0,0, 0.1)" type="password" placeholder="Terisi ketika telah selesai aktivasi di email">--}}
+{{--                          <span class="input-group-addon">--}}
+{{--                              <label class="custom-control custom-control-primary custom-checkbox">--}}
+{{--                                <input class="custom-control-input form-checkbox pmi" type="checkbox">--}}
+{{--                                <span class="custom-control-indicator"></span>--}}
+{{--                                <span class="custom-control-label">Show</span>--}}
+{{--                              </label>--}}
+{{--                            </span>--}}
+{{--                        </div>--}}
+{{--                        <span class="icon icon-key input-icon"></span>--}}
+{{--                      </div>--}}
+{{--                    </div>--}}
                   </div>
                   <div class="col-md-6">
                     <div class="form-group">
                       <label for="last_name">Last Name</label>
                       <input type="text" readonly name="last_name" id="last_name" class="form-control" value="{{ (is_null($user->last_name)) ? '-' : $user->last_name }}" style="background-color: rgba(0,0,0, 0.1)">
                     </div>
-                    <div class="form-group">
-                      <label for="uuid">UUID</label>
-                      <div class="input-with-icon">
-                        <div class="input-group">
-                          <input class="form-control uuid-field" disabled id="uuid" value="{{ $zoomAccount->id }}" style="background-color: rgba(0,0,0, 0.1)" type="password" placeholder="Terisi ketika berhasil generate">
-                          <span class="input-group-addon">
-                              <label class="custom-control custom-control-primary custom-checkbox">
-                                <input class="custom-control-input form-checkbox uuid" type="checkbox">
-                                <span class="custom-control-indicator"></span>
-                                <span class="custom-control-label">Show</span>
-                              </label>
-                            </span>
-                        </div>
-                        <span class="icon icon-key input-icon"></span>
-                      </div>
-                    </div>
+{{--                    <div class="form-group">--}}
+{{--                      <label for="uuid">UUID</label>--}}
+{{--                      <div class="input-with-icon">--}}
+{{--                        <div class="input-group">--}}
+{{--                          <input class="form-control uuid-field" disabled id="uuid" value="{{ $zoomAccount->id }}" style="background-color: rgba(0,0,0, 0.1)" type="password" placeholder="Terisi ketika berhasil generate">--}}
+{{--                          <span class="input-group-addon">--}}
+{{--                              <label class="custom-control custom-control-primary custom-checkbox">--}}
+{{--                                <input class="custom-control-input form-checkbox uuid" type="checkbox">--}}
+{{--                                <span class="custom-control-indicator"></span>--}}
+{{--                                <span class="custom-control-label">Show</span>--}}
+{{--                              </label>--}}
+{{--                            </span>--}}
+{{--                        </div>--}}
+{{--                        <span class="icon icon-key input-icon"></span>--}}
+{{--                      </div>--}}
+{{--                    </div>--}}
                   </div>
                 </div>
                 <p>Note :</p>
