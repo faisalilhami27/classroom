@@ -373,6 +373,7 @@
       $('#id').val('');
       $('#username').val('');
       $('#role_id').select2({width: "100%"}).val('').trigger('change');
+      $('#status').val('');
     }
 
     // check username whether it has been used or not
