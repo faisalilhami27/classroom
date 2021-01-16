@@ -9,6 +9,7 @@ use App\Models\Employee;
 use App\Models\Role;
 use App\Models\UserEmployee;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use MacsiDigital\Zoom\Facades\Zoom;
@@ -83,8 +84,11 @@ class UserEmployeeController extends Controller
 
         if ($updateDelete) {
           $button = '<a href="#" class="btn btn-info btn-sm btn-reset" title="Reset Password" id="' . $query->id . '" onclick="resetPassword(' . $query->id . ')"><i class="icon icon-refresh"></i></a>
-                     <a href="#" class="btn btn-success btn-sm btn-edit" title="Edit Data" id="${data.id}" onclick="editData(' . $query->id . ')"><i class="icon icon-pencil-square-o"></i></a>
-                     <a href="#" class="btn btn-danger btn-sm" id="' . $query->id . '" onclick="deleteData(' . $query->id . ')" title="Delete Data"><i class="icon icon-trash-o"></i></a>';
+                     <a href="#" class="btn btn-success btn-sm btn-edit" title="Edit Data" id="${data.id}" onclick="editData(' . $query->id . ')"><i class="icon icon-pencil-square-o"></i></a>';
+
+          if ($query->username != 'admin') {
+            $button .= ' <a href="#" class="btn btn-danger btn-sm" id="' . $query->id . '" onclick="deleteData(' . $query->id . ')" title="Delete Data"><i class="icon icon-trash-o"></i></a>';
+          }
         } else if ($update) {
           $button = '<a href="#" class="btn btn-info btn-sm btn-reset" title="Reset Password" id="' . $query->id . '" onclick="resetPassword(' . $query->id . ')"><i class="icon icon-refresh"></i></a>
                      <a href="#" class="btn btn-success btn-sm btn-edit" title="Edit Data" id="${data.id}" onclick="editData(' . $query->id . ')"><i class="icon icon-pencil-square-o"></i></a>';
