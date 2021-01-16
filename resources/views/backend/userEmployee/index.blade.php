@@ -197,6 +197,8 @@
       $('.modal-title').text('Tambah Data User');
       url = '{{ route('user.employee.create') }}';
       type = 'post';
+      $('.employee_id').show();
+      $('.password').show();
       getUnregisteredEmployees();
       resetForm();
     }

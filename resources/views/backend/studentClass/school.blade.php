@@ -134,7 +134,7 @@
         </div>
         <div class="modal-body">
           <button class="btn btn-danger btn-sm btn-delete-student pull-right"><i class="icon icon-trash-o"></i> Hapus
-            Mahasiswa
+            Siswa
           </button>
           <div class="clearfix"></div>
           <div class="table-responsive" style="margin-top: 20px">
