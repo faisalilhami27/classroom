@@ -342,6 +342,7 @@
 
       // delete data
       table.on('click', '.btn-delete', function () {
+        const id = $(this).attr('id');
         $.confirm({
           content: 'Data yang dihapus belum akan dapat dikembalikan.',
           title: 'Apakah yakin ingin menghapus ?',
