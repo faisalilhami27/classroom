@@ -22,8 +22,8 @@
                     <th width="20px">No</th>
                     <th>Kode</th>
                     <th>Mata Pelajaran</th>
-                    <th>Tingkat Kelas</th>
                     <th>Jurusan</th>
+                    <th>Tingkat Kelas</th>
                     <th>Urutan Kelas</th>
                     <th>Tahun Ajar</th>
                     <th>Aksi</th>
