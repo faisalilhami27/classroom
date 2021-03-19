@@ -172,7 +172,7 @@
         headers: {"X-CSRF-TOKEN": "{{ csrf_token() }}"},
         success: function (response) {
           $(response).each(function (index, value) {
-            $("#employee_id").append(`<option value="${value.id}">${value.employee_identity_number} - ${value.name}</option>`)
+            $("#employee_id").append(`<option value="${value.id}">${value.name}</option>`)
           })
           $("#employee_id").trigger("change")
         },
