@@ -193,6 +193,7 @@
       listenForNewComment() {
         Echo.private('groups.' + this.$route.params.id)
           .listen('AddNewComment', (e) => {
+            console.log(e);
             this.comment.push(e);
           })
           .listenForWhisper('typing', (user) => {

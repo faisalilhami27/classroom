@@ -181,7 +181,7 @@ class ChatRoomController extends Controller
       foreach ($persons as $person) {
         $data[] = [
           'id' => $person->employee_id,
-          'name' => $person->employee->employee_identity_number . ' - ' . $person->employee->name
+          'name' => $person->employee->name
         ];
       }
     }

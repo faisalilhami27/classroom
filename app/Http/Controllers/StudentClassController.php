@@ -247,7 +247,7 @@ class StudentClassController extends Controller
       $classes = StudentClassTransaction::with(['studentClass.subject', 'studentClass.schoolYear'])
         ->where('student_id', $userId)
         ->whereHas('studentClass', function ($query) {
-          $query->where('school_year_id', activeSchoolYear()->id);
+          $query->where('school_year_id', optional(activeSchoolYear())->id);
         })
         ->get();
 

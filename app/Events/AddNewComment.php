@@ -47,13 +47,15 @@ class AddNewComment implements ShouldBroadcast
       $user = [
         'id' => $this->comment->employee->id,
         'name' => $this->comment->employee->name . ' (Guru)',
-        'photo' => (is_null($this->comment->employee->photo)) ? null : asset('storage/' . $this->comment->employee->photo)
+        'photo' => (is_null($this->comment->employee->photo)) ? null : asset('storage/' . $this->comment->employee->photo),
+        'color' => $this->comment->employee->color
       ];
     } else {
       $user = [
         'id' => $this->comment->student->id,
         'name' => $this->comment->student->name,
-        'photo' => (is_null($this->comment->student->photo)) ? null : asset('storage/' . $this->comment->student->photo)
+        'photo' => (is_null($this->comment->student->photo)) ? null : asset('storage/' . $this->comment->student->photo),
+        'color' => $this->comment->student->color
       ];
     }
 
